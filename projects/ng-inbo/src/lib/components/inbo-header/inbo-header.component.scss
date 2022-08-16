@@ -1,0 +1,26 @@
+.inbo-header {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
+  height: 44px;
+}
+
+.vlaanderen-logo-box {
+  align-items: center;
+  display: flex;
+  height: 44px;
+  justify-content: center;
+  width: 44px;
+}
+
+.header-divider {
+  background: #cbd2da;
+  height: 25px;
+  width: 1px;
+  transform: rotate(-20deg);
+}
+
+.header-title {
+  padding-left: 16px;
+  padding-right: 16px;
+}
