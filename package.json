@@ -1,6 +1,7 @@
 {
   "name": "@inbo/ng-inbo",
-  "version": "0.0.2",
+  "version": "0.0.3",
+  "repository": "https://github.com/inbo/inbo-component-library",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
