@@ -1,0 +1,41 @@
+  <ng-container *ngIf="dataRequestState === RequestState.SUCCESS">
+    <mat-table [dataSource]="dataPage.content">
+
+      <ng-container *ngFor="let displayedColumn of displayedColumns">
+        <ng-container [matColumnDef]="displayedColumn">
+          <mat-header-cell *matHeaderCellDef>{{columnConfiguration[displayedColumn].name}}</mat-header-cell>
+          <mat-cell *matCellDef="let dataItem">{{dataItem[displayedColumn]}}</mat-cell>
+        </ng-container>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+
+      <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+
+    </mat-table>
+
+    <mat-paginator [pageSize]="dataPage.pageable.pageSize"
+                   [showFirstLastButtons]="true"
+                   [hidePageSize]="true"
+                   [length]="dataPage.pageable.totalElements"
+                   (page)="pageChange.emit($event)">
+    </mat-paginator>
+  </ng-container>
+
+  <div *ngIf="dataRequestState === RequestState.EMPTY" class="info-message-container">
+    <img class="info-message-icon" src="/assets/Orion_open-box.svg" alt="Lege doos" />
+    <p class="info-message-text">
+      Deze tabel is leeg.
+    </p>
+  </div>
+
+  <div *ngIf="dataRequestState === RequestState.ERROR" class="info-message-container">
+    <img class="info-message-icon" src="/assets/Orion_drizzle.svg" alt="Regenwolk" />
+    <p class="info-message-text">
+      Er ging iets mis bij het ophalen van de data. Probeer later opnieuw.
+    </p>
+  </div>
+
+  <div *ngIf="dataRequestState === RequestState.PENDING" class="info-message-container">
+    <mat-progress-spinner [mode]="'indeterminate'" [diameter]="24"></mat-progress-spinner>
+  </div>

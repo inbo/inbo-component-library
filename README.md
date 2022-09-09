@@ -25,3 +25,10 @@ Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To u
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+
+## Using ng-inbo library in your project
+- If you want to be able to load assets from this library like icons, make sure you add the following to the angular.json from your own project: {
+  "glob": "**/*",
+  "input": "./node_modules/@inbo/ng-inbo/assets/",
+  "output": "./assets/"
+  }

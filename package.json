@@ -6,7 +6,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "release": "standard-version && git push --follow-tags && npm publish",
+    "release": "cd projects/ng-inbo && standard-version && cd ../.. && git push --follow-tags && ng build && cd dist/ng-inbo && npm publish",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
