@@ -9,7 +9,7 @@ import {RequestState} from '../../services/api/request-state.enum';
   templateUrl: 'inbo-data-table.component.html',
   styleUrls: ['inbo-data-table.component.scss'],
 })
-export class InboDataTableComponent<T, F> implements OnInit {
+export class InboDataTableComponent<T> implements OnInit {
 
   readonly RequestState = RequestState;
 

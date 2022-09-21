@@ -9,8 +9,8 @@ import {API_URL} from '../../injection-tokens.constants';
 })
 export abstract class AbstractHttpService {
 
-  protected constructor(@Inject(API_URL) private apiUrl: string,
-                        protected http: HttpClient) {
+  constructor(@Inject(API_URL) private apiUrl: string,
+              protected http: HttpClient) {
   }
 
   protected abstract basePath: string;
