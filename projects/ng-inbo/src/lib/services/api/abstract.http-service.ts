@@ -15,7 +15,7 @@ export abstract class AbstractHttpService {
 
   protected abstract basePath: string;
 
-  getApiURL(): string {
+  protected getApiURL(): string {
     return `${this.apiUrl}/${this.basePath}`;
   }
 
