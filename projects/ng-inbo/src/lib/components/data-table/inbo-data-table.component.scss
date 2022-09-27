@@ -23,6 +23,14 @@
   position: relative;
 }
 
+.mat-column-editColumn, .mat-column-deleteColumn {
+  max-width: 40px;
+}
+
+.action-button {
+  color: rgba(0, 0, 0, .54);
+}
+
 .partial-spinner-container {
   width: 100%;
   height: 100%;

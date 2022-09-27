@@ -1,0 +1,80 @@
+<ng-container
+  *ngIf="dataRequestState === RequestState.SUCCESS || dataRequestState === RequestState.EMPTY || dataRequestState === RequestState.PARTIAL_PENDING">
+  <table mat-table class="data-table" [dataSource]="dataPage.content">
+
+    <ng-container *ngFor="let displayedColumn of displayedColumns">
+      <ng-container [matColumnDef]="displayedColumn">
+        <th mat-header-cell *matHeaderCellDef
+                         [ngStyle]="columnConfiguration[displayedColumn].style || {}">
+          {{columnConfiguration[displayedColumn].name}}
+        </th>
+        <td mat-cell *matCellDef="let dataItem"
+                  [ngStyle]="columnConfiguration[displayedColumn].style || {}">
+          {{dataItem[displayedColumn]}}
+        </td>
+      </ng-container>
+    </ng-container>
+
+    <ng-container *ngIf="editItem.observed" [matColumnDef]="EDIT_COLUMN">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let dataItem" (click)="editItem.emit(dataItem)">
+        <button mat-icon-button class="action-button">
+          <mat-icon class="material-icons-sharp" title="Aanpassen">edit_square</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <ng-container *ngIf="deleteItem.observed" [matColumnDef]="DELETE_COLUMN">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let dataItem" (click)="deleteItem.emit(dataItem)">
+        <button mat-icon-button class="action-button">
+          <mat-icon class="material-icons-sharp" title="Verwijderen">delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <ng-container *ngIf="clickItem.observed" [matColumnDef]="DETAIL_COLUMN">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let dataItem" (click)="clickItem.emit(dataItem)">
+        <button mat-icon-button class="action-button">
+          <mat-icon class="material-icons-sharp" title="Bekijk details">visibility</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="allDisplayedColumns"></tr>
+
+    <tr mat-row [ngStyle]="{height: rowHeight}" *matRowDef="let row; columns: allDisplayedColumns" (click)="clickItem.emit(row)"></tr>
+
+  </table>
+
+  <div *ngIf="dataRequestState === RequestState.PARTIAL_PENDING" class="partial-spinner-container">
+    <mat-progress-spinner class="partial-spinner" [mode]="'indeterminate'" [diameter]="24"></mat-progress-spinner>
+  </div>
+
+  <mat-paginator *ngIf="dataRequestState === RequestState.SUCCESS || dataRequestState === RequestState.PARTIAL_PENDING"
+                 [pageSize]="dataPage.pageable.pageSize"
+                 [showFirstLastButtons]="true"
+                 [hidePageSize]="true"
+                 [length]="dataPage.pageable.totalElements"
+                 (page)="pageChange.emit($event)">
+  </mat-paginator>
+</ng-container>
+
+<div *ngIf="dataRequestState === RequestState.EMPTY" class="info-message-container">
+  <img class="info-message-icon" src="/assets/Orion_open-box.svg" alt="Lege doos"/>
+  <p class="info-message-text">
+    Deze tabel is leeg.
+  </p>
+</div>
+
+<div *ngIf="dataRequestState === RequestState.ERROR" class="info-message-container">
+  <img class="info-message-icon" src="/assets/Orion_drizzle.svg" alt="Regenwolk"/>
+  <p class="info-message-text">
+    Er ging iets mis bij het ophalen van de data. Probeer later opnieuw.
+  </p>
+</div>
+
+<div *ngIf="dataRequestState === RequestState.PENDING" class="info-message-container">
+  <mat-progress-spinner [mode]="'indeterminate'" [diameter]="24"></mat-progress-spinner>
+</div>

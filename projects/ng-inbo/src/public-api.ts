@@ -4,10 +4,17 @@
 
 /* == COMPONENTS ==*/
 // Header
-export * from './lib/components/inbo-header/inbo-header.component'
+export * from './lib/components/header/inbo-header.component';
 //Datatable
-export * from './lib/components/inbo-data-table/inbo-data-table.component'
-export * from './lib/components/inbo-data-table/column-configuration.model'
+export * from './lib/components/data-table/inbo-data-table.component';
+export * from './lib/components/data-table/column-configuration.model';
+//Key value
+export * from './lib/components/key-value/inbo-key-value.component';
+//Loading spinner
+export * from './lib/components/loading-spinner/inbo-loading-spinner.component';
+
+/* == DIRECTIVES == */
+export * from './lib/directives/positive-numbers/inbo-positive-numbers.directive';
 
 /* == SERVICES ==*/
 // API
