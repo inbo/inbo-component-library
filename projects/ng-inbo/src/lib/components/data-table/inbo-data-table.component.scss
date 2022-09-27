@@ -21,10 +21,13 @@
 
 .data-table {
   position: relative;
+  width: 100%;
 }
 
-.mat-column-editColumn, .mat-column-deleteColumn {
+.mat-column-editColumn, .mat-column-deleteColumn, .mat-column-detailColumn {
   max-width: 40px;
+  min-width: 40px;
+  width: 40px;
 }
 
 .action-button {
