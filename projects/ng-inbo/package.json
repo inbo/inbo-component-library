@@ -1,6 +1,6 @@
 {
   "name": "@inbo/ng-inbo",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "peerDependencies": {
     "@angular/common": "^14.2.2",
     "@angular/core": "^14.2.2",
