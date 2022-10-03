@@ -2,9 +2,9 @@
   "name": "@inbo/ng-inbo",
   "version": "0.0.15",
   "peerDependencies": {
-    "@angular/common": "^14.1.1",
-    "@angular/core": "^14.1.1",
-    "@angular/material": "^14.1.1"
+    "@angular/common": "^14.2.2",
+    "@angular/core": "^14.2.2",
+    "@angular/material": "^14.2.2"
   },
   "dependencies": {
     "tslib": "2.4.0"

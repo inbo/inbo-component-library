@@ -5,13 +5,15 @@
 /* == COMPONENTS ==*/
 // Header
 export * from './lib/components/header/inbo-header.component';
-//Datatable
+// Datatable
 export * from './lib/components/data-table/inbo-data-table.component';
 export * from './lib/components/data-table/column-configuration.model';
-//Key value
+// Key value
 export * from './lib/components/key-value/inbo-key-value.component';
-//Loading spinner
+// Loading spinner
 export * from './lib/components/loading-spinner/inbo-loading-spinner.component';
+// Filterable data page
+export * from './lib/components/filterable-data-page/filterable-data-list-page';
 
 /* == DIRECTIVES == */
 export * from './lib/directives/positive-numbers/inbo-positive-numbers.directive';
