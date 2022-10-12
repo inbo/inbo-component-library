@@ -10,7 +10,7 @@
         </th>
         <td mat-cell *matCellDef="let dataItem"
                   [ngStyle]="columnConfiguration[displayedColumn].style || {}">
-          {{dataItem[displayedColumn]}}
+          {{getColumnConfigurationForKey(displayedColumn).getValue ? getColumnConfigurationForKey(displayedColumn).getValue(dataItem[displayedColumn]) :  dataItem[displayedColumn]}}
         </td>
       </ng-container>
     </ng-container>

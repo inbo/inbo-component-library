@@ -1,8 +1,9 @@
-export type ColumnConfiguration<T> = {
-  [key in keyof Partial<T>]: {
-    sort?: 'asc' | 'desc',
-    sortable: boolean,
-    name: string,
-    style?: Partial<CSSStyleDeclaration>;
-  };
+export type InboDataTableColumnConfiguration<T> = {
+  [key in keyof Partial<T>]: InboDataTableColumn<T[key]>;
+}
+
+export interface InboDataTableColumn<P> {
+  name: string,
+  style?: Partial<CSSStyleDeclaration>;
+  getValue?: (propValue: P) => string;
 }

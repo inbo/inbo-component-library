@@ -1,6 +1,6 @@
 import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
 import {PageEvent} from '@angular/material/paginator';
-import {ColumnConfiguration} from './column-configuration.model';
+import {InboDataTableColumnConfiguration, InboDataTableColumn} from './column-configuration.model';
 import {ApiPage} from '../../services/api/api-page.model';
 import {RequestState} from '../../services/api/request-state.enum';
 
@@ -13,13 +13,15 @@ import {RequestState} from '../../services/api/request-state.enum';
 export class InboDataTableComponent<T> implements OnInit {
 
   readonly RequestState = RequestState;
+  readonly InboDataColumn! : InboDataTableColumn<T>;
+
   readonly DETAIL_COLUMN = 'detailColumn';
   readonly EDIT_COLUMN = 'editColumn';
   readonly DELETE_COLUMN = 'deleteColumn';
 
   @Input() dataPage: ApiPage<T>;
   @Input() dataRequestState: RequestState;
-  @Input() columnConfiguration: ColumnConfiguration<T>;
+  @Input() columnConfiguration: InboDataTableColumnConfiguration<T>;
   @Input() sort: { property: string, direction: 'asc' | 'desc' };
   @Input() rowHeight = '48px';
 
@@ -37,5 +39,9 @@ export class InboDataTableComponent<T> implements OnInit {
     this.editItem.observed && this.allDisplayedColumns.push(this.EDIT_COLUMN);
     this.clickItem.observed && this.allDisplayedColumns.push(this.DETAIL_COLUMN);
     this.deleteItem.observed && this.allDisplayedColumns.push(this.DELETE_COLUMN);
+  }
+
+  getColumnConfigurationForKey<P>(key: keyof Partial<T>): InboDataTableColumn<T[keyof T]> {
+    return this.columnConfiguration[key];
   }
 }

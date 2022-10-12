@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input, OnChanges} from '@angular/core';
 
 @Component({
   selector: 'inbo-key-value',
@@ -8,7 +8,31 @@ import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 })
 export class InboKeyValueComponent {
 
+  readonly JSON = JSON;
+
+  get value(): string | number | Array<string> {
+    return this._value || this.defaultValue;
+  }
+
+  @Input()
+  set value(value: string | number | Array<string>) {
+    if (this.isArray(value) && this.asArray(value).length === 1) {
+      this._value = this.asArray(value)[0];
+    } else {
+      this._value = value;
+    }
+  }
+
   @Input() key: string;
-  @Input() value: string | number
-  @Input() defaultValue: string | number;
+  @Input() defaultValue = '';
+
+  private _value: string | number | Array<string>;
+
+  isArray(val: any): boolean {
+    return val instanceof Array;
+  }
+
+  asArray(val: any): Array<string> {
+    return <Array<string>>val;
+  }
 }

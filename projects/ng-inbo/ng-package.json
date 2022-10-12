@@ -1,7 +1,11 @@
 {
   "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
   "dest": "../../dist/ng-inbo",
-  "assets": ["./assets"],
+  "allowedNonPeerDependencies": ["ngx-pipes", "lodash-es"],
+  "assets": [
+    "./assets",
+    "./styles"
+  ],
   "lib": {
     "entryFile": "src/public-api.ts"
   }

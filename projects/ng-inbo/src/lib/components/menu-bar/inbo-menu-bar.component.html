@@ -1,0 +1,38 @@
+<mat-toolbar class="header" color="primary">
+  <div class="header-content">
+    <div class="navigation">
+      <ng-container *ngFor="let menuItem of menuItems">
+
+        <button *ngIf="menuItem.externalLink; else internalLink" mat-button>
+          <span>Streeplijsten</span>
+          <mat-icon class="button-icon">open_in_new</mat-icon>
+        </button>
+
+        <ng-template #internalLink>
+          <button *ngIf="!menuItem.submenuItems; else submenu" mat-button
+                  [routerLink]="menuItem.url">{{menuItem.name}}</button>
+
+          <ng-template #submenu>
+            <button mat-button [matMenuTriggerFor]="$any(submenu)">{{menuItem.name}}</button>
+            <mat-menu #submenu="matMenu">
+              <button *ngFor="let submenuItem of menuItem.submenuItems"
+                      mat-menu-item
+                      [routerLink]="submenuItem.url">
+                <span>{{submenuItem.name}}</span>
+              </button>
+            </mat-menu>
+          </ng-template>
+        </ng-template>
+      </ng-container>
+    </div>
+
+    <button mat-button *ngIf="loggedInUserName; else loginButton">
+      <mat-icon>person</mat-icon>
+      {{loggedInUserName | ucwords}}
+    </button>
+    <ng-template #loginButton>
+      <button mat-flat-button class="login-button" (click)="loginButtonClick.emit()">Aanmelden</button>
+    </ng-template>
+  </div>
+
+</mat-toolbar>

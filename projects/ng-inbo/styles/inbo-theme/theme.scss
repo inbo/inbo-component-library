@@ -1,0 +1,19 @@
+@use '@angular/material' as mat;
+
+@include mat.core();
+@import 'palette';
+
+$flora-web-primary: mat.define-palette($inbo-primary);
+$flora-web-accent: mat.define-palette($inbo-primary, A200, A100, A400);
+
+$flora-web-warn: mat.define-palette($inbo-warn);
+
+$flora-web-theme: mat.define-light-theme((
+  color: (
+    primary: $flora-web-primary,
+    accent: $flora-web-accent,
+    warn: $flora-web-warn,
+  )
+));
+
+@include mat.all-component-themes($flora-web-theme);

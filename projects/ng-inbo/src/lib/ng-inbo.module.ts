@@ -15,13 +15,21 @@ import {MatButtonModule} from '@angular/material/button';
 import {InboKeyValueComponent} from './components/key-value/inbo-key-value.component';
 import {InboLoadingSpinnerComponent} from './components/loading-spinner/inbo-loading-spinner.component';
 import {InboPositiveNumbersDirective} from './directives/positive-numbers/inbo-positive-numbers.directive';
+import {InboMenuBarComponent} from './components/menu-bar/inbo-menu-bar.component';
+import {MatMenuModule} from '@angular/material/menu';
+import {RouterLink} from '@angular/router';
+import {NgPipesModule} from 'ngx-pipes';
 
 const componentsToExport = [
+  //Components
   InboHeaderComponent,
   InboDataTableComponent,
   InboKeyValueComponent,
   InboLoadingSpinnerComponent,
+  InboMenuBarComponent,
+  //Directives
   InboPositiveNumbersDirective,
+  // Pipes
 ];
 
 @NgModule({
@@ -39,6 +47,9 @@ const componentsToExport = [
     MatCardModule,
     MatIconModule,
     MatButtonModule,
+    MatMenuModule,
+    RouterLink,
+    NgPipesModule,
   ],
   exports: [
     ...componentsToExport,

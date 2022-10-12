@@ -14,9 +14,14 @@ export * from './lib/components/key-value/inbo-key-value.component';
 export * from './lib/components/loading-spinner/inbo-loading-spinner.component';
 // Filterable data page
 export * from './lib/components/filterable-data-page/filterable-data-list-page';
+// Menu bar component
+export * from './lib/components/menu-bar/inbo-menu-bar.component';
+export * from './lib/components/menu-bar/menu-item.model';
 
 /* == DIRECTIVES == */
 export * from './lib/directives/positive-numbers/inbo-positive-numbers.directive';
+
+/* == PIPES == */
 
 /* == SERVICES ==*/
 // API

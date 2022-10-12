@@ -1,2 +1,9 @@
 <p class="key">{{key}}</p>
-<p class="value">{{value || defaultValue}}</p>
+
+<ng-container *ngIf="isArray(value); else singleValue">
+  <p class="value value--multiple" *ngFor="let valueItem of asArray(value)"> • {{valueItem | ucfirst}}</p>
+</ng-container>
+
+<ng-template #singleValue>
+  <p class="value">{{value | ucfirst}}</p>
+</ng-template>

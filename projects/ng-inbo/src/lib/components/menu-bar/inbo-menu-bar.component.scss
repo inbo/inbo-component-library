@@ -1,0 +1,40 @@
+@import '../styles/inbo-theme/colors';
+
+.header {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  .header-link {
+    margin-left: 16px;
+
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+
+  .login-button {
+    color: $inbo-primary-darker;
+  }
+}
+
+.nav-link--active {
+  color: $inbo-primary-darker;
+}
+
+.button-icon {
+  font-size: 16px;
+  height: 16px;
+  margin-left: 4px;
+  width: 16px;
+}
+
+.header-content {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  max-width: 1000px;
+  width: 1000px;
+}
