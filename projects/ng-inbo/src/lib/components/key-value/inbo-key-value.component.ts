@@ -1,4 +1,4 @@
-import {ChangeDetectionStrategy, Component, Input, OnChanges} from '@angular/core';
+import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 
 @Component({
   selector: 'inbo-key-value',

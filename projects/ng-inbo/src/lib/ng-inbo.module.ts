@@ -19,6 +19,7 @@ import {InboMenuBarComponent} from './components/menu-bar/inbo-menu-bar.componen
 import {MatMenuModule} from '@angular/material/menu';
 import {RouterLink} from '@angular/router';
 import {NgPipesModule} from 'ngx-pipes';
+import {InboButtonGroupComponent} from './components/button-group/inbo-button-group.component';
 
 const componentsToExport = [
   //Components
@@ -27,6 +28,7 @@ const componentsToExport = [
   InboKeyValueComponent,
   InboLoadingSpinnerComponent,
   InboMenuBarComponent,
+  InboButtonGroupComponent,
   //Directives
   InboPositiveNumbersDirective,
   // Pipes

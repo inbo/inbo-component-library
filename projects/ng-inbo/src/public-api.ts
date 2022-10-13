@@ -17,6 +17,8 @@ export * from './lib/components/filterable-data-page/filterable-data-list-page';
 // Menu bar component
 export * from './lib/components/menu-bar/inbo-menu-bar.component';
 export * from './lib/components/menu-bar/menu-item.model';
+// Button group component
+export * from './lib/components/button-group/inbo-button-group.component';
 
 /* == DIRECTIVES == */
 export * from './lib/directives/positive-numbers/inbo-positive-numbers.directive';
