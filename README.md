@@ -1,34 +1,13 @@
-# NgInbo
+# Ng-Inbo
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.1.1.
+Dit is de componenten library voor de ondersteuning van de development van INBO applicaties.
 
-## Development server
+## Installatie
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+Om de library toe te voegen aan je project, kan je het volgende commando gebruiken:
 
-## Code scaffolding
+`ng add @inbo/ng-inbo`
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Dit commando zal de library installeren en de angular.json van het project aanpassen zodat ook de assets van deze
+library kunnen worden gebruikt.
 
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
-
-## Using ng-inbo library in your project
-- If you want to be able to load assets from this library like icons, make sure you add the following to the angular.json from your own project: {
-  "glob": "**/*",
-  "input": "./node_modules/@inbo/ng-inbo/assets/",
-  "output": "./assets/"
-  }
