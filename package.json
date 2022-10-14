@@ -7,7 +7,7 @@
     "start": "ng serve",
     "build": "ng build && npm run build-schematics",
     "build-schematics": "cd projects/ng-inbo && npm run build",
-    "release": "cd projects/ng-inbo && standard-version && cd ../.. && git push --follow-tags && ng build && cd dist/ng-inbo && npm publish",
+    "release": "cd projects/ng-inbo && standard-version && cd ../.. && git push --follow-tags && npm run build && cd dist/ng-inbo && npm publish",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },

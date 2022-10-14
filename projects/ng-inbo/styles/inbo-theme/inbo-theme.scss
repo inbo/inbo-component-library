@@ -1,0 +1,4 @@
+@use '@angular/material' as mat;
+@import 'partials/theme';
+@include mat.core();
+@include mat.all-component-themes($flora-web-theme);

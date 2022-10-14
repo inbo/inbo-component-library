@@ -1,7 +1,7 @@
 import {Rule, SchematicContext, Tree} from '@angular-devkit/schematics';
 import {NodePackageInstallTask} from '@angular-devkit/schematics/tasks';
 
-export const ngAdd = (options: { project: string }): Rule => {
+export const ngAdd = (options: { projectName: string }): Rule => {
   return (tree: Tree, context: SchematicContext) => {
     context.addTask(new NodePackageInstallTask());
     const angularJsonPath = 'angular.json';
@@ -11,7 +11,7 @@ export const ngAdd = (options: { project: string }): Rule => {
       throw new Error('Not an Angular CLI workspace');
     }
 
-    const buildOptionsAssets: Array<any> = angularConfig['projects'][options.project]['architect']['build']['options']['assets'];
+    const buildOptionsAssets: Array<any> = angularConfig['projects'][options.projectName]['architect']['build']['options']['assets'];
     const ngInboAssetsConfig = {
       'glob': '**/*',
       'input': './node_modules/@inbo/ng-inbo/assets/',
