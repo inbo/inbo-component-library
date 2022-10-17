@@ -1,14 +1,14 @@
 # Ng-Inbo
 
-Dit is de componenten library voor de ondersteuning van de development van INBO applicaties.
+This is a component library that was created to speed up development of INBO applications.
 
-## Installatie
+## Installation
 
-Om de library toe te voegen aan je project, kan je het volgende commando gebruiken:
+To add the library to your project, you can execute the following command:
 
 `ng add @inbo/ng-inbo --projectName <project-name>`
 
-Dit commando zal de library installeren en de angular.json van het project aanpassen zodat ook de assets van deze
-library kunnen worden gebruikt. Indien er geen project name parameter wordt meegegeven, zal de assets aanpassing
-gebeuren voor het eerst project in de `angular.json`;
+This command will install the library via npm and edit the angular.json of the project so the assets of the component
+library (images and fonts) can be loaded. You can omit the projectName from the command, then the assets will be added
+to the first project in the angular.json configuration.
 
