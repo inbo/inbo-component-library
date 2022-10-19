@@ -4,7 +4,7 @@ import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
   selector: 'inbo-header',
   templateUrl: 'inbo-header.component.html',
   styleUrls: ['inbo-header.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class InboHeaderComponent {
 

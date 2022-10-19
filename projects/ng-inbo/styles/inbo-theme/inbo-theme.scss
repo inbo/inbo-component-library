@@ -1,4 +1,5 @@
 @use '@angular/material' as mat;
 @import 'partials/theme';
+@import 'partials/flanders-fonts';
 @include mat.core();
 @include mat.all-component-themes($flora-web-theme);

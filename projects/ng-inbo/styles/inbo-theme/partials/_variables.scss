@@ -2,6 +2,7 @@
 @use 'node_modules/@angular/material/index' as mat;
 @import 'theme';
 
+// Colors
 $color-config: mat.get-color-config($flora-web-primary);
 $primary-palette: map.get($color-config, 'primary');
 $accent-palette: map.get($color-config, 'accent');
@@ -13,5 +14,8 @@ $inbo-primary-super-light: mat.get-color-from-palette($flora-web-primary, 100);
 $inbo-primary-darker: mat.get-color-from-palette($flora-web-primary, 700);
 $inbo-gray: #6B7280;
 $inbo-text-color: #373D3F;
+
+// Fonts
+$flanders-font: Flanders;
 
 
