@@ -13,7 +13,9 @@ $inbo-primary-lighter: mat.get-color-from-palette($flora-web-primary, 300);
 $inbo-primary-super-light: mat.get-color-from-palette($flora-web-primary, 100);
 $inbo-primary-darker: mat.get-color-from-palette($flora-web-primary, 700);
 $inbo-gray: #6B7280;
+$inbo-light-gray: rgb(229, 231, 235);
 $inbo-text-color: #373D3F;
+$inbo-bg-light: #F9FAFB;
 
 // Fonts
 $flanders-font: Flanders;

@@ -1,4 +1,4 @@
-import {InboPositiveNumbersDirective} from './inbo-positive-numbers.directive';
+import {InboPositiveNumbersDirective} from '../inbo-positive-numbers.directive';
 import {instance, mock, spy, verify, when} from '@johanblumenberg/ts-mockito';
 import {ElementRef, EventEmitter} from '@angular/core';
 
@@ -10,7 +10,7 @@ describe('InboPositiveNumbersDirective', () => {
   let directiveUnderTest: InboPositiveNumbersDirective;
 
   beforeEach(() => {
-    elementRefMock = mock(ElementRef);
+    elementRefMock = mock(ElementRef<HTMLInputElement>);
 
     directiveUnderTest = new InboPositiveNumbersDirective(
       instance(elementRefMock),

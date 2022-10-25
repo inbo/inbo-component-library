@@ -20,6 +20,7 @@ import {MatMenuModule} from '@angular/material/menu';
 import {RouterLink} from '@angular/router';
 import {NgPipesModule} from 'ngx-pipes';
 import {InboButtonGroupComponent} from './components/button-group/inbo-button-group.component';
+import {InboClickOutsideDirective} from './directives/click-outside/inbo-click-outside.directive';
 
 const componentsToExport = [
   //Components
@@ -31,6 +32,7 @@ const componentsToExport = [
   InboButtonGroupComponent,
   //Directives
   InboPositiveNumbersDirective,
+  InboClickOutsideDirective
   // Pipes
 ];
 

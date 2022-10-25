@@ -1,10 +1,21 @@
 @import 'variables';
 
+:host {
+  position: relative;
+}
+
 .inbo-header {
   align-items: center;
   display: flex;
   flex-direction: row;
   height: 44px;
+  justify-content: space-between;
+}
+
+.left {
+  align-items: center;
+  display: flex;
+  flex-direction: row;
 }
 
 .vlaanderen-logo-box {
@@ -16,7 +27,7 @@
 }
 
 .header-divider {
-  background: #cbd2da;
+  background: $inbo-light-gray;
   height: 25px;
   width: 1px;
   transform: rotate(-20deg);
@@ -27,4 +38,81 @@
   font-weight: bold;
   padding-left: 16px;
   padding-right: 16px;
+}
+
+.contact {
+  display: flex;
+  align-items: center;
+  align-self: flex-end;
+  background: $inbo-light-gray;
+  cursor: pointer;
+  font-family: $flanders-font;
+  font-weight: 700;
+  height: 100%;
+  padding: 0 16px 0 36px;
+  position: relative;
+
+  &__icon {
+    margin-left: 10px;
+    transform: scale(.835);
+  }
+}
+
+.contact-border {
+  background: $inbo-bg-light;
+  height: 150%;
+  transform: rotate(-20deg);
+  width: 20px;
+  position: absolute;
+  left: -10px;
+}
+
+.contact-menu {
+  background: $inbo-bg-light;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  margin-top: 4px;
+  right: 0;
+  top: 44px;
+  z-index: 50;
+}
+
+.contact-menu-item {
+  display: flex;
+  flex-direction: row;
+  max-height: 84px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 40px 20px 20px;
+  width: 300px;
+  color: $inbo-text-color;
+  text-decoration: none;
+  border-bottom: 1px solid $inbo-light-gray;
+  font-family: $flanders-font;
+  line-height: 22px;
+
+  &:last-child {
+    border: none;
+  }
+
+  &:hover {
+    background: $inbo-light-gray;
+  }
+}
+
+.title-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+
+  .title {
+    font-weight: bold;
+  }
+}
+
+.icon {
+  img {
+    width: 40px;
+  }
 }

@@ -1,7 +1,3 @@
-// ngOnInit(): void {
-//   this.displayedColumns = Object.keys(this.columnConfiguration) as Array<keyof T & string>;
-// }
-
 import {InboDataTableComponent} from '../inbo-data-table.component';
 
 describe('InboDataTableComponent', () => {
@@ -18,11 +14,9 @@ describe('InboDataTableComponent', () => {
       componentUnderTest.columnConfiguration = {
         id: {
           name: 'Id',
-          sortable: false,
         },
         propA: {
           name: 'Property A',
-          sortable: true,
         },
       };
 

@@ -1,12 +1,60 @@
 <div class="inbo-header">
-  <div class="vlaanderen-logo-box">
-    <inbo-vlaanderen-logo height="31px"></inbo-vlaanderen-logo>
+  <div class="left">
+    <div class="vlaanderen-logo-box">
+      <inbo-vlaanderen-logo height="31px"></inbo-vlaanderen-logo>
+    </div>
+
+    <ng-container *ngFor="let title of titles">
+      <div class="header-divider"></div>
+
+      <span class="header-title">{{title}}</span>
+    </ng-container>
   </div>
 
-  <ng-container *ngFor="let title of titles">
-    <div class="header-divider"></div>
+  <div class="contact" (click)="toggleContactMenu()">
+    <div class="contact-border"></div>
+    <span>Contacteer ons</span>
+    <mat-icon class="contact__icon">help_outline</mat-icon>
+  </div>
+</div>
 
-    <span class="header-title">{{title}}</span>
-  </ng-container>
+<div *ngIf="contactMenuOpen" class="contact-menu mat-elevation-z10" inboClickOutside (onClickOutside)="toggleContactMenu()">
+  <a class="contact-menu-item" [href]="'mailto:' + contactEmail" target="_blank" (click)="toggleContactMenu()">
+    <div class="title-container">
+      <span class="title">Stuur ons een e-mail</span>
+      <span class="subtitle">{{contactEmail}}</span>
+    </div>
+    <div class="icon">
+      <img src="/assets/images/email.png" />
+    </div>
+  </a>
 
+  <a class="contact-menu-item" [href]="'tel:' + contactPhoneNumber" target="_blank" (click)="toggleContactMenu()">
+    <div class="title-container">
+      <span class="title">Bel ons</span>
+      <span class="subtitle">{{contactPhoneNumber}}</span>
+    </div>
+    <div class="icon">
+      <img src="/assets/images/phone.png" />
+    </div>
+  </a>
+
+  <a class="contact-menu-item" [href]="twitterLink" target="_blank" (click)="toggleContactMenu()">
+    <div class="title-container">
+      <span class="title">Volg ons op Twitter</span>
+    </div>
+    <div class="icon">
+      <img src="/assets/images/twitter.png" />
+    </div>
+  </a>
+
+  <a class="contact-menu-item" [href]="contactFormLink" target="_blank" (click)="toggleContactMenu()">
+    <div class="title-container">
+      <span class="title">Contacteer ons </span>
+      <span class="subtitle">Via het contactformulier</span>
+    </div>
+    <div class="icon">
+      <img src="/assets/images/question_mark.png" />
+    </div>
+  </a>
 </div>
