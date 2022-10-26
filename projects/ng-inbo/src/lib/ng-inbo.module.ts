@@ -21,6 +21,7 @@ import {RouterLink} from '@angular/router';
 import {NgPipesModule} from 'ngx-pipes';
 import {InboButtonGroupComponent} from './components/button-group/inbo-button-group.component';
 import {InboClickOutsideDirective} from './directives/click-outside/inbo-click-outside.directive';
+import {InboFormChangeDirective} from './directives/form-change/inbo-form-change.directive';
 
 const componentsToExport = [
   //Components
@@ -32,7 +33,8 @@ const componentsToExport = [
   InboButtonGroupComponent,
   //Directives
   InboPositiveNumbersDirective,
-  InboClickOutsideDirective
+  InboClickOutsideDirective,
+  InboFormChangeDirective,
   // Pipes
 ];
 

@@ -23,6 +23,7 @@ export * from './lib/components/button-group/inbo-button-group.component';
 /* == DIRECTIVES == */
 export * from './lib/directives/positive-numbers/inbo-positive-numbers.directive';
 export * from './lib/directives/click-outside/inbo-click-outside.directive';
+export * from './lib/directives/form-change/inbo-form-change.directive';
 
 /* == PIPES == */
 
