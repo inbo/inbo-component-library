@@ -2,9 +2,8 @@
   "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
   "dest": "../../dist/ng-inbo",
   "allowedNonPeerDependencies": [
-    "ngx-pipes",
-    "lodash-es",
-    "@types/lodash-es"
+    "proj4",
+    "@types/proj4"
   ],
   "assets": [
     "./assets",

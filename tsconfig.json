@@ -11,6 +11,8 @@
     "strictPropertyInitialization": false,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "allowSyntheticDefaultImports": true,
+    "strictNullChecks": false,
     "sourceMap": true,
     "paths": {
       "ng-inbo": [
@@ -22,8 +24,8 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "importHelpers": true,
+    "esModuleInterop": true,
     "target": "es2020",
-    "module": "es2020",
     "lib": [
       "es2020",
       "dom"

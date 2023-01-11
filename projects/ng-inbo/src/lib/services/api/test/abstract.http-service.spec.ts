@@ -35,7 +35,7 @@ describe('AbstractHttpService', () => {
       when(httpClientMock.get(url)).thenReturn(of({}));
 
       serviceUnderTest
-        .getSingleResponse(url)
+        .doGetSingleResponseForTestPurposes(url)
         .subscribe({
           complete: done,
         });
@@ -50,7 +50,7 @@ describe('AbstractHttpService', () => {
       when(httpClientMock.get(url, deepEqual({...options, observe: 'body'}))).thenReturn(of({}));
 
       serviceUnderTest
-        .getSingleResponse(url, options)
+        .doGetSingleResponseForTestPurposes(url, options)
         .subscribe({
           complete: done,
         });
@@ -60,13 +60,16 @@ describe('AbstractHttpService', () => {
       const options: HttpRequestOptions = {
         params: new HttpParams().set('paramA', 'valueA').set('paramB', 'valueB'),
         headers: new HttpHeaders().set('Authorization', 'Bearer xxxx'),
-        observe: 'response'
+        observe: 'response',
       };
 
-      when(httpClientMock.get(url, deepEqual({...options, observe: 'response'}))).thenReturn(of(new HttpResponse<any>()));
+      when(httpClientMock.get(url, deepEqual({
+        ...options,
+        observe: 'response',
+      }))).thenReturn(of(new HttpResponse<any>()));
 
       serviceUnderTest
-        .getSingleResponse(url, options)
+        .doGetSingleResponseForTestPurposes(url, options)
         .subscribe({
           complete: done,
         });
@@ -80,5 +83,9 @@ class AbstractHttpServiceTestImpl extends AbstractHttpService {
 
   getApiURLForTestPurposes(): string {
     return super.getApiURL();
+  }
+
+  doGetSingleResponseForTestPurposes(url: string, options?: HttpRequestOptions): Observable<any> {
+    return this.getSingleResponse(url, options);
   }
 }

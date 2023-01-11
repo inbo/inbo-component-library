@@ -1,0 +1,38 @@
+<mat-form-field appearance="fill" class="form-field">
+  <mat-label>{{label}}</mat-label>
+  <input type="text"
+         [placeholder]="placeholder"
+         matInput
+         #inputField
+         [disabled]="disabled"
+         ngModel
+         (blur)="validateFieldValue()"
+         (inboDebouncedInputChange)="inputChanged($event)"
+         [matAutocomplete]="itemSearch">
+  <mat-icon matPrefix>search</mat-icon>
+  <mat-autocomplete autoActiveFirstOption
+                    (optionSelected)="optionSelected($event)"
+                    #itemSearch="matAutocomplete"
+                    [displayWith]="getDisplayValue">
+    <ng-container [ngSwitch]="requestState">
+
+      <mat-option disabled class="message-option" *ngSwitchCase="RequestState.PENDING">
+        <mat-spinner diameter="25"></mat-spinner>
+      </mat-option>
+
+      <mat-option disabled class="message-option" *ngSwitchCase="RequestState.EMPTY">
+        <span>Geen resultaten gevonden.</span>
+      </mat-option>
+
+      <mat-option disabled class="message-option" *ngSwitchCase="RequestState.ERROR">
+        <span>Er ging iets mis bij het ophalen van de resultaten.</span>
+      </mat-option>
+
+      <ng-container *ngSwitchCase="RequestState.SUCCESS">
+        <mat-option *ngFor="let item of items" [value]="item">
+          {{getDisplayValue(item)}}
+        </mat-option>
+      </ng-container>
+    </ng-container>
+  </mat-autocomplete>
+</mat-form-field>

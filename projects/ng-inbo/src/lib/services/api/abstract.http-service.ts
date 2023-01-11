@@ -19,7 +19,7 @@ export abstract class AbstractHttpService {
     return `${this.apiUrl}/${this.basePath}`;
   }
 
-  getSingleResponse<T>(url: string, options?: HttpRequestOptions): Observable<T> {
+  protected getSingleResponse<T>(url: string, options?: HttpRequestOptions): Observable<T> {
     if (options) {
       options = options.observe === undefined ? {...options, observe: 'body'} : options;
       return this.http.get<T>(url, options as any).pipe(take(1)) as unknown as Observable<T>;

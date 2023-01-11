@@ -22,6 +22,13 @@ import {NgPipesModule} from 'ngx-pipes';
 import {InboButtonGroupComponent} from './components/button-group/inbo-button-group.component';
 import {InboClickOutsideDirective} from './directives/click-outside/inbo-click-outside.directive';
 import {InboFormChangeDirective} from './directives/form-change/inbo-form-change.directive';
+import {InboAutocompleteComponent} from './components/autocomplete/inbo-autocomplete.component';
+import {MatAutocompleteModule} from '@angular/material/autocomplete';
+import {FormsModule} from '@angular/forms';
+import {MatInputModule} from '@angular/material/input';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import {InboDebouncedInputChange} from './directives/debounced-input-change/inbo-debounced-input-change.directive';
+import {InboAutofocusDirective} from './directives/auto-focus/inbo-autofocus.directive';
 
 const componentsToExport = [
   //Components
@@ -31,10 +38,13 @@ const componentsToExport = [
   InboLoadingSpinnerComponent,
   InboMenuBarComponent,
   InboButtonGroupComponent,
+  InboAutocompleteComponent,
   //Directives
   InboPositiveNumbersDirective,
   InboClickOutsideDirective,
   InboFormChangeDirective,
+  InboDebouncedInputChange,
+  InboAutofocusDirective,
   // Pipes
 ];
 
@@ -46,6 +56,7 @@ const componentsToExport = [
   imports: [
     MatToolbarModule,
     CommonModule,
+    FormsModule,
     MatTableModule,
     MatPaginatorModule,
     HttpClientModule,
@@ -56,6 +67,9 @@ const componentsToExport = [
     MatMenuModule,
     RouterLink,
     NgPipesModule,
+    MatAutocompleteModule,
+    MatInputModule,
+    MatFormFieldModule,
   ],
   exports: [
     ...componentsToExport,

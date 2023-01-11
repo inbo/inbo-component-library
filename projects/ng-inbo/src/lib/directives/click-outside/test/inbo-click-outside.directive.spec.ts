@@ -28,8 +28,10 @@ describe('InboClickOutsideDirective', () => {
     );
 
     clickOutsideEventEmitter = spy(directiveUnderTest.onClickOutside);
+
     when(elementRef.nativeElement).thenReturn(instance(nativeElementMock));
     when(nativeElementMock.getBoundingClientRect()).thenReturn({x: 5, y: 10, width: 10, height: 5} as DOMRect);
+
     spyOnProperty(rxjs, 'fromEvent', 'get').and.returnValue(() => mouseEventSubject.asObservable());
   });
 
