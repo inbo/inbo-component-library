@@ -3,6 +3,7 @@ import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {RequestState} from '../../services/api/request-state.enum';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 import {isNil} from 'lodash-es';
+import {CustomErrorStateMatcher} from '../../utils/custom.error-state-matcher';
 
 @Component({
   selector: 'inbo-autocomplete',
@@ -29,6 +30,8 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
   @Input() displayPattern: string;
   @Input() disabled: boolean;
   @Input() requestState = RequestState.DEFAULT;
+  @Input() showErrorMessage: boolean;
+  @Input() errorMessage: string;
 
   @Output() searchQueryChange = new EventEmitter<string>();
 
@@ -37,13 +40,12 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
 
   private _value: T;
 
-
   get value(): T {
     return this._value;
   }
 
   set value(value: T) {
-    if(isNil(value)) {
+    if (isNil(value)) {
       return;
     }
     this._value = value;
@@ -71,6 +73,7 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
       );
     return result.replace(new RegExp(/\$\{\S*\}/, 'g'), '');
   };
+  errorStateMatcher = new CustomErrorStateMatcher(() => this.showErrorMessage);
 
   inputChanged(value: string) {
     if (value?.length >= this.minNumberOfCharacters) {
@@ -105,3 +108,5 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
     this.value = optionSelectedEvent.option.value;
   }
 }
+
+
