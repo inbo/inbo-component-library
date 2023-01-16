@@ -21,6 +21,9 @@ export * from './lib/components/menu-bar/menu-item.model';
 export * from './lib/components/button-group/inbo-button-group.component';
 // Autocomplete
 export * from './lib/components/autocomplete/inbo-autocomplete.component';
+// Dialogs
+export * from './lib/components/dialogs/simple-message-dialog/inbo-simple-message-dialog.component';
+export * from './lib/components/dialogs/simple-message-dialog/simple-message-dialog-data.model';
 
 /* == DIRECTIVES == */
 export * from './lib/directives/positive-numbers/inbo-positive-numbers.directive';

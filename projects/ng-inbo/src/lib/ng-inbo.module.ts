@@ -29,6 +29,10 @@ import {MatInputModule} from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {InboDebouncedInputChange} from './directives/debounced-input-change/inbo-debounced-input-change.directive';
 import {InboAutofocusDirective} from './directives/auto-focus/inbo-autofocus.directive';
+import {MatDialogModule} from '@angular/material/dialog';
+import {
+  InboSimpleMessageDialogComponent
+} from './components/dialogs/simple-message-dialog/inbo-simple-message-dialog.component';
 
 const componentsToExport = [
   //Components
@@ -39,6 +43,7 @@ const componentsToExport = [
   InboMenuBarComponent,
   InboButtonGroupComponent,
   InboAutocompleteComponent,
+  InboSimpleMessageDialogComponent,
   //Directives
   InboPositiveNumbersDirective,
   InboClickOutsideDirective,
@@ -70,6 +75,7 @@ const componentsToExport = [
     MatAutocompleteModule,
     MatInputModule,
     MatFormFieldModule,
+    MatDialogModule,
   ],
   exports: [
     ...componentsToExport,
