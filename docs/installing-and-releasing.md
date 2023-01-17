@@ -11,8 +11,7 @@ in a project. To do this, do the following:
 2. Create a new classic personal access token with the `write:packages` scope (this automatically includes 
    `read:packages` as well). Optionally you can set it to expire after a certain amount of time.
 3. Copy the generated token to your clipboard.
-4. Create a global npm config file if it doesn't exist yet. (on Linux / MacOS it is `~/.npmrc`, for Windows I believe
-   it is `C:\Users\%username%\AppData\Roaming\npm\etc\npmrc` (I don't have a Windows laptop, so I cannot verify) ).
+4. Create a global npm config file if it doesn't exist yet. (on Linux / MacOS it is `~/.npmrc`, for Windows it is `C:\Users\%username%\.npmrc`).
 5. Add to this file the following lines:
 ````
 //npm.pkg.github.com/:_authToken=<generated-token>
