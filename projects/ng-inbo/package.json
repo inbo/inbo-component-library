@@ -1,6 +1,6 @@
 {
   "name": "@inbo/ng-inbo",
-  "version": "0.0.32",
+  "version": "0.0.33",
   "schematics": "./schematics/collection.json",
   "scripts": {
     "build": "tsc -p tsconfig.schematics.json",
