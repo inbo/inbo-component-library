@@ -3,10 +3,10 @@
     <div class="navigation">
       <ng-container *ngFor="let menuItem of menuItems">
 
-        <button *ngIf="menuItem.externalLink; else internalLink" mat-button>
-          <span>Streeplijsten</span>
+        <a *ngIf="menuItem.externalLink; else internalLink" mat-button [href]="menuItem.url" target="_blank">
+          <span>{{menuItem.name}}</span>
           <mat-icon class="button-icon">open_in_new</mat-icon>
-        </button>
+        </a>
 
         <ng-template #internalLink>
           <button *ngIf="!menuItem.submenuItems; else submenu" mat-button
