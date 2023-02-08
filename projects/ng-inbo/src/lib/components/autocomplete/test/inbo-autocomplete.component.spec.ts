@@ -1,5 +1,8 @@
 import {InboAutocompleteComponent} from '../inbo-autocomplete.component';
-import {anything, deepEqual, fnmock, instance, spy, verify} from '@johanblumenberg/ts-mockito';
+import {anyString, deepEqual, fnmock, instance, mock, verify} from '@johanblumenberg/ts-mockito';
+import {ChangeDetectorRef} from '@angular/core';
+import {Observable, Subject} from 'rxjs';
+import {RequestState} from '../../../services/api/request-state.enum';
 
 describe('InboAutocompleteComponent', () => {
 
@@ -10,10 +13,17 @@ describe('InboAutocompleteComponent', () => {
     propC: 0,
   };
 
+  let changeDetectorRef: ChangeDetectorRef;
+  let mockSearchFunction: (val: string) => Observable<Array<TestObject>>;
+
   let componentUnderTest: InboAutocompleteComponent<TestObject>;
 
   beforeEach(() => {
-    componentUnderTest = new InboAutocompleteComponent();
+    changeDetectorRef = mock(ChangeDetectorRefTestImpl);
+
+    componentUnderTest = new InboAutocompleteComponent(
+      instance(changeDetectorRef),
+    );
   });
 
   describe('set value', () => {
@@ -23,16 +33,18 @@ describe('InboAutocompleteComponent', () => {
     beforeEach(() => {
       onChangeFn = fnmock<(val: TestObject | undefined) => undefined>();
       onTouchedFn = fnmock<(val: TestObject | undefined) => undefined>();
+      mockSearchFunction = fnmock();
 
       componentUnderTest.registerOnChange(instance(onChangeFn));
       componentUnderTest.registerOnTouched(instance(onTouchedFn));
+      componentUnderTest.searchFunction = mockSearchFunction;
     });
 
-    it('should should do nothing if the value is nil', () => {
+    it('should call onChange and onTouched if the value is undefined', () => {
       componentUnderTest.value = undefined as any;
 
-      verify(onChangeFn(undefined)).never();
-      verify(onTouchedFn(undefined)).never();
+      verify(onChangeFn(undefined)).once();
+      verify(onTouchedFn(undefined)).once();
     });
 
     it('should only set the internal value and call onchange and ontouch if the inputfield is null', () => {
@@ -107,22 +119,73 @@ describe('InboAutocompleteComponent', () => {
 
   describe('inputChanged', () => {
 
-    it('should not emit an event if the given string has a length of less than the minimum number of characters', () => {
+    let itemsSubject: Subject<Array<TestObject>>;
+    const resultWithTwoItems = [testObjectInstance, testObjectInstance];
+    const validSearchQuery = 'aaa';
+
+    beforeEach(() => {
+      itemsSubject = new Subject<Array<TestObject>>();
+      componentUnderTest.searchFunction = () => itemsSubject.asObservable();
+    });
+
+    it('should not do a search and set items to empty array if the given string has a length of less than the minimum number of characters', () => {
       componentUnderTest.minNumberOfCharacters = 3;
-      const searchQueryChangedEventEmitter = spy(componentUnderTest.searchQueryChange);
+      componentUnderTest.items = resultWithTwoItems;
 
       componentUnderTest.inputChanged('aa');
 
-      verify(searchQueryChangedEventEmitter.emit(anything())).never();
+      verify(mockSearchFunction(anyString())).never();
+      expect(componentUnderTest.items).toEqual([]);
     });
 
-    it('should emit an event if the given string has a length at least the minimum number of characters', () => {
+    it('should do a search if the input is longer than min nr of characters and should update the request state to pending / success', () => {
       componentUnderTest.minNumberOfCharacters = 3;
-      const searchQueryChangedEventEmitter = spy(componentUnderTest.searchQueryChange);
 
-      componentUnderTest.inputChanged('aaa');
+      expect(componentUnderTest.requestState).toEqual(RequestState.DEFAULT);
 
-      verify(searchQueryChangedEventEmitter.emit('aaa')).once();
+      componentUnderTest.inputChanged(validSearchQuery);
+
+      expect(componentUnderTest.requestState).toEqual(RequestState.PENDING);
+
+      itemsSubject.next(resultWithTwoItems);
+      itemsSubject.complete();
+
+      expect(componentUnderTest.items).toEqual(resultWithTwoItems);
+      verify(changeDetectorRef.detectChanges()).once();
+      expect(componentUnderTest.requestState).toEqual(RequestState.SUCCESS);
+    });
+
+    it('should do a search if the input is longer than min nr of characters and should update the request state to pending / error when request fails', () => {
+      componentUnderTest.minNumberOfCharacters = 3;
+
+      expect(componentUnderTest.requestState).toEqual(RequestState.DEFAULT);
+
+      componentUnderTest.inputChanged(validSearchQuery);
+
+      expect(componentUnderTest.requestState).toEqual(RequestState.PENDING);
+
+      itemsSubject.error(undefined);
+      itemsSubject.complete();
+
+      verify(changeDetectorRef.detectChanges()).once();
+      expect(componentUnderTest.requestState).toEqual(RequestState.ERROR);
+    });
+
+    it('should do a search if the input is longer than min nr of characters and should update the request state to pending / empty when result is empty array', () => {
+      componentUnderTest.minNumberOfCharacters = 3;
+      const result: Array<TestObject> = [];
+
+      expect(componentUnderTest.requestState).toEqual(RequestState.DEFAULT);
+
+      componentUnderTest.inputChanged(validSearchQuery);
+
+      expect(componentUnderTest.requestState).toEqual(RequestState.PENDING);
+
+      itemsSubject.next(result);
+      itemsSubject.complete();
+
+      verify(changeDetectorRef.detectChanges()).once();
+      expect(componentUnderTest.requestState).toEqual(RequestState.EMPTY);
     });
   });
 
@@ -145,7 +208,7 @@ describe('InboAutocompleteComponent', () => {
       componentUnderTest.validateFieldValue();
 
       expect(componentUnderTest.inputField.nativeElement.value).toEqual('a / b - 0');
-    })
+    });
   });
 });
 
@@ -153,4 +216,24 @@ interface TestObject {
   propA: string;
   propB: string;
   propC: number;
+}
+
+// Creating a test implementation because ts-mockito cannot stub abstract methods from an abstract class.
+class ChangeDetectorRefTestImpl extends ChangeDetectorRef {
+
+  checkNoChanges(): void {
+  }
+
+  detach(): void {
+  }
+
+  detectChanges(): void {
+  }
+
+  markForCheck(): void {
+  }
+
+  reattach(): void {
+  }
+
 }

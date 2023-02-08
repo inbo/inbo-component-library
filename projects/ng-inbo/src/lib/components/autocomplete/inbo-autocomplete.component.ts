@@ -4,7 +4,7 @@ import {RequestState} from '../../services/api/request-state.enum';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 import {isNil} from 'lodash-es';
 import {CustomErrorStateMatcher} from '../../utils/custom.error-state-matcher';
-import {Observable, tap} from 'rxjs';
+import {finalize, Observable, tap} from 'rxjs';
 
 @Component({
   selector: 'inbo-autocomplete',
@@ -127,9 +127,9 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
       .pipe(
         tap(value => this.items = (value || [])),
         tap(items => this.requestState = this.getRequestStateForResults(items)),
+        finalize(() => this.changeDetectorRef.detectChanges())
       )
       .subscribe({
-        next: () => this.changeDetectorRef.detectChanges(),
         error: () => this.requestState = RequestState.ERROR,
       });
   }
