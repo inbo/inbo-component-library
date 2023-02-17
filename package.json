@@ -22,6 +22,7 @@
     "@angular/platform-browser": "14.2.2",
     "@angular/platform-browser-dynamic": "14.2.2",
     "@angular/router": "14.2.2",
+    "@inbo/ng-inbo": "file:dist/ng-inbo",
     "@types/lodash-es": "4.17.6",
     "@types/proj4": "^2.5.2",
     "copyfiles": "2.4.1",

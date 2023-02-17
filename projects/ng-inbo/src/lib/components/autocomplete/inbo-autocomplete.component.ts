@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, ElementRef, Input, ViewChild, ViewEncapsulation} from '@angular/core';
+import {ChangeDetectorRef, Component, Input, ViewEncapsulation} from '@angular/core';
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {RequestState} from '../../services/api/request-state.enum';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
@@ -19,8 +19,6 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
 
   readonly RequestState = RequestState;
 
-  @ViewChild('inputField', {static: true}) inputField: ElementRef<HTMLInputElement>;
-
   @Input() placeholder: string;
   @Input() label: string;
   @Input() minNumberOfCharacters = 1;
@@ -28,12 +26,13 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
 
   // Pattern can be any string where values from the value object are interpolated by marking them with ${<key>}
   // Default values for properties are used if the value from the display properties is null, undefined or a blank string. If no default is specified, it will just be an empty string.
-  // Example: '${key1} - ${key2}' wit object {key1: 'value1', key2: 'value2} will be displayed as 'value1 - value2'
+  // Example: '${key1} - ${key2}' with object {key1: 'value1', key2: 'value2'} will be displayed as 'value1 - value2'
   @Input() displayPattern: string;
   @Input() disabled: boolean;
   @Input() showErrorMessage: boolean;
   @Input() errorMessage: string;
 
+  displayValue: string = '';
   requestState = RequestState.DEFAULT;
   items: Array<T>;
   errorStateMatcher = new CustomErrorStateMatcher(() => this.showErrorMessage);
@@ -50,9 +49,7 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
   set value(value: T) {
     if (!isNil(value)) {
       this._value = value;
-      if (this.inputField) {
-        this.inputField.nativeElement.value = this.getDisplayValue(value);
-      }
+      this.displayValue = this.getDisplayValue(value);
     }
     this.onChange(value);
     this.onTouch(value);
@@ -76,7 +73,7 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
           result = result.replace(`\$\{${key}\}`, `${value[key]}`);
         },
       );
-    return result.replace(new RegExp(/\$\{\S*\}/, 'g'), '');
+    return result.replace(new RegExp(/\$\{\S*}/, 'g'), '');
   };
 
   inputChanged(value: string) {
@@ -100,14 +97,14 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
   }
 
   validateFieldValue(): void {
-    if (this.inputField.nativeElement.value !== this.getDisplayValue(this.value)) {
+    if (this.displayValue !== this.getDisplayValue(this.value)) {
       this.value = undefined;
       this.clear();
     }
   }
 
   clear(): void {
-    this.inputField.nativeElement.value = '';
+    this.displayValue = '';
   }
 
   optionSelected(optionSelectedEvent: MatAutocompleteSelectedEvent) {
@@ -127,7 +124,7 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
       .pipe(
         tap(value => this.items = (value || [])),
         tap(items => this.requestState = this.getRequestStateForResults(items)),
-        finalize(() => this.changeDetectorRef.detectChanges())
+        finalize(() => this.changeDetectorRef.detectChanges()),
       )
       .subscribe({
         error: () => this.requestState = RequestState.ERROR,

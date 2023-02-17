@@ -1,18 +1,19 @@
 import {
-  AfterContentInit,
   ChangeDetectionStrategy,
   Component,
-  ContentChild, ContentChildren,
+  ContentChildren,
   EventEmitter,
   Input,
   OnInit,
-  Output, QueryList, ViewChild,
+  Output,
+  QueryList,
+  ViewChild,
 } from '@angular/core';
 import {PageEvent} from '@angular/material/paginator';
-import {InboDataTableColumnConfiguration, InboDataTableColumn} from './column-configuration.model';
+import {InboDataTableColumn, InboDataTableColumnConfiguration} from './column-configuration.model';
 import {ApiPage} from '../../services/api/api-page.model';
 import {RequestState} from '../../services/api/request-state.enum';
-import {MatColumnDef, MatHeaderRowDef, MatNoDataRow, MatRowDef, MatTable} from '@angular/material/table';
+import {MatColumnDef, MatTable} from '@angular/material/table';
 
 @Component({
   selector: 'inbo-data-table',
@@ -26,7 +27,13 @@ export class InboDataTableComponent<T> implements OnInit {
   set table(table: MatTable<T>) {
     if (table && this.columnDefs) {
       this.columnDefs.forEach(columnDef => table.addColumnDef(columnDef));
-      this.allDisplayedColumns = [...this.allDisplayedColumns, ...this.customColumns];
+      this.allDisplayedColumns = [
+        ...this.displayedColumns,
+        ...this.customColumns,
+        ...(this.editItem.observed ? [this.EDIT_COLUMN] : []),
+        ...(this.clickItem.observed ? [this.DETAIL_COLUMN] : []),
+        ...(this.deleteItem.observed ? [this.DELETE_COLUMN] : []),
+      ];
     }
   }
 
@@ -52,8 +59,10 @@ export class InboDataTableComponent<T> implements OnInit {
   displayedColumns: Array<keyof T & string>;
   allDisplayedColumns: Array<string>;
 
-  ngOnInit(): void {
+  constructor() {
+  }
 
+  ngOnInit(): void {
     this.displayedColumns = Object.keys(this.columnConfiguration) as Array<keyof T & string>;
     this.allDisplayedColumns = [...this.displayedColumns];
     this.editItem.observed && this.allDisplayedColumns.push(this.EDIT_COLUMN);

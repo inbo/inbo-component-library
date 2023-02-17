@@ -6,7 +6,7 @@
          matInput
          #inputField
          [disabled]="disabled"
-         ngModel
+         [(ngModel)]="displayValue"
          (blur)="validateFieldValue()"
          (inboDebouncedInputChange)="inputChanged($event)"
          [matAutocomplete]="itemSearch">

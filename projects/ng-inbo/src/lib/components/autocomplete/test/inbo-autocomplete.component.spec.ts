@@ -20,10 +20,12 @@ describe('InboAutocompleteComponent', () => {
 
   beforeEach(() => {
     changeDetectorRef = mock(ChangeDetectorRefTestImpl);
+    mockSearchFunction = fnmock();
 
     componentUnderTest = new InboAutocompleteComponent(
       instance(changeDetectorRef),
     );
+    componentUnderTest.searchFunction = mockSearchFunction;
   });
 
   describe('set value', () => {
@@ -33,11 +35,9 @@ describe('InboAutocompleteComponent', () => {
     beforeEach(() => {
       onChangeFn = fnmock<(val: TestObject | undefined) => undefined>();
       onTouchedFn = fnmock<(val: TestObject | undefined) => undefined>();
-      mockSearchFunction = fnmock();
 
       componentUnderTest.registerOnChange(instance(onChangeFn));
       componentUnderTest.registerOnTouched(instance(onTouchedFn));
-      componentUnderTest.searchFunction = mockSearchFunction;
     });
 
     it('should call onChange and onTouched if the value is undefined', () => {
@@ -56,13 +56,12 @@ describe('InboAutocompleteComponent', () => {
 
     it('should set the internal value and call onchange and ontouch and set native element value of the inputfield element', () => {
       componentUnderTest.displayPattern = displayPattern;
-      componentUnderTest.inputField = {nativeElement: {value: undefined} as any as HTMLInputElement};
 
       componentUnderTest.value = testObjectInstance;
 
       verify(onChangeFn(deepEqual(testObjectInstance))).once();
       verify(onTouchedFn(deepEqual(testObjectInstance))).once();
-      expect(componentUnderTest.inputField.nativeElement.value).toEqual('a / b - 0');
+      expect(componentUnderTest.displayValue).toEqual('a / b - 0');
     });
   });
 
@@ -193,21 +192,20 @@ describe('InboAutocompleteComponent', () => {
 
     it('should clear the input field if the value of the input field does not match the display value of the selected item', () => {
       componentUnderTest.value = testObjectInstance;
-      componentUnderTest.inputField = {nativeElement: {value: 'something else'} as any as HTMLInputElement};
 
       componentUnderTest.validateFieldValue();
 
-      expect(componentUnderTest.inputField.nativeElement.value).toEqual('');
+      expect(componentUnderTest.displayValue).toEqual('');
     });
 
     it('should not clear the input field if the value of the input field matches the display value of the selected item', () => {
       componentUnderTest.value = testObjectInstance;
       componentUnderTest.displayPattern = displayPattern;
-      componentUnderTest.inputField = {nativeElement: {value: 'a / b - 0'} as any as HTMLInputElement};
+      componentUnderTest.displayValue = 'a / b - 0';
 
       componentUnderTest.validateFieldValue();
 
-      expect(componentUnderTest.inputField.nativeElement.value).toEqual('a / b - 0');
+      expect(componentUnderTest.displayValue).toEqual('a / b - 0');
     });
   });
 });
