@@ -1,5 +1,6 @@
 <ng-container
   *ngIf="dataRequestState === RequestState.SUCCESS || dataRequestState === RequestState.EMPTY || dataRequestState === RequestState.PARTIAL_PENDING">
+
   <table mat-table class="data-table" [dataSource]="dataPage.content">
 
     <ng-container *ngFor="let displayedColumn of displayedColumns">
@@ -14,6 +15,8 @@
         </td>
       </ng-container>
     </ng-container>
+
+    <ng-content></ng-content>
 
     <ng-container *ngIf="editItem.observed" [matColumnDef]="EDIT_COLUMN">
       <th mat-header-cell *matHeaderCellDef></th>

@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.37](https://github.com/inbo/inbo-component-library/compare/v0.0.36...v0.0.37) (2023-02-17)
+
+### [0.0.36](https://github.com/inbo/inbo-component-library/compare/v0.0.35...v0.0.36) (2023-02-14)
+
+### [0.0.35](https://github.com/inbo/inbo-component-library/compare/v0.0.34...v0.0.35) (2023-02-10)
+
+### [0.0.34](https://github.com/inbo/inbo-component-library/compare/v0.0.33...v0.0.34) (2023-02-08)
+
+### [0.0.33](https://github.com/inbo/inbo-component-library/compare/v0.0.32...v0.0.33) (2023-02-06)
+
+### [0.0.32](https://github.com/inbo/inbo-component-library/compare/v0.0.31...v0.0.32) (2023-01-19)
+
+### [0.0.31](https://github.com/inbo/inbo-component-library/compare/v0.0.30...v0.0.31) (2023-01-19)
+
 ### [0.0.30](https://github.com/inbo/inbo-component-library/compare/v0.0.29...v0.0.30) (2023-01-16)
 
 ### [0.0.29](https://github.com/inbo/inbo-component-library/compare/v0.0.28...v0.0.29) (2023-01-13)

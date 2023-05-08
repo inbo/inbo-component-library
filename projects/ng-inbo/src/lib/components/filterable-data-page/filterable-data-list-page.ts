@@ -22,9 +22,8 @@ export abstract class FilterableDataListPage<D, F> implements OnInit {
   }
 
   ngOnInit(): void {
-    this.clearFilter();
     this.getFilterFromQueryParams();
-    this.getData(0);
+    this.clearFilter();
   }
 
   getData(pageIndex: number): void {
@@ -48,7 +47,7 @@ export abstract class FilterableDataListPage<D, F> implements OnInit {
 
   clearFilter(): void {
     this.filter = this.createEmptyFilterObject();
-    this.getData(0)
+    this.getData(0);
   }
 
   protected addFiltersToUrl(): void {
@@ -59,6 +58,9 @@ export abstract class FilterableDataListPage<D, F> implements OnInit {
   }
 
   protected getFilterFromQueryParams(): void {
+    if (isNil(this.filter)) {
+      return null;
+    }
     Object.keys(this.filter)
       .forEach(key => {
           const activatedRouteSnapshot = this.activatedRoute.snapshot;

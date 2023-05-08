@@ -1,8 +1,19 @@
-import {ChangeDetectionStrategy, Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  ContentChildren,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  QueryList,
+  ViewChild,
+} from '@angular/core';
 import {PageEvent} from '@angular/material/paginator';
-import {InboDataTableColumnConfiguration, InboDataTableColumn} from './column-configuration.model';
+import {InboDataTableColumn, InboDataTableColumnConfiguration} from './column-configuration.model';
 import {ApiPage} from '../../services/api/api-page.model';
 import {RequestState} from '../../services/api/request-state.enum';
+import {MatColumnDef, MatTable} from '@angular/material/table';
 
 @Component({
   selector: 'inbo-data-table',
@@ -12,9 +23,23 @@ import {RequestState} from '../../services/api/request-state.enum';
 })
 export class InboDataTableComponent<T> implements OnInit {
 
-  readonly RequestState = RequestState;
-  readonly InboDataColumn! : InboDataTableColumn<T>;
+  @ViewChild(MatTable, {static: false})
+  set table(table: MatTable<T>) {
+    if (table && this.columnDefs) {
+      this.columnDefs.forEach(columnDef => table.addColumnDef(columnDef));
+      this.allDisplayedColumns = [
+        ...this.displayedColumns,
+        ...this.customColumns,
+        ...(this.editItem.observed ? [this.EDIT_COLUMN] : []),
+        ...(this.clickItem.observed ? [this.DETAIL_COLUMN] : []),
+        ...(this.deleteItem.observed ? [this.DELETE_COLUMN] : []),
+      ];
+    }
+  }
 
+  @ContentChildren(MatColumnDef) columnDefs: QueryList<MatColumnDef>;
+
+  readonly RequestState = RequestState;
   readonly DETAIL_COLUMN = 'detailColumn';
   readonly EDIT_COLUMN = 'editColumn';
   readonly DELETE_COLUMN = 'deleteColumn';
@@ -22,6 +47,7 @@ export class InboDataTableComponent<T> implements OnInit {
   @Input() dataPage: ApiPage<T>;
   @Input() dataRequestState: RequestState;
   @Input() columnConfiguration: InboDataTableColumnConfiguration<T>;
+  @Input() customColumns: Array<string> = [];
   @Input() sort: { property: string, direction: 'asc' | 'desc' };
   @Input() rowHeight = '48px';
 
@@ -32,6 +58,9 @@ export class InboDataTableComponent<T> implements OnInit {
 
   displayedColumns: Array<keyof T & string>;
   allDisplayedColumns: Array<string>;
+
+  constructor() {
+  }
 
   ngOnInit(): void {
     this.displayedColumns = Object.keys(this.columnConfiguration) as Array<keyof T & string>;

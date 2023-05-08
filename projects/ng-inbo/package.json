@@ -1,6 +1,6 @@
 {
   "name": "@inbo/ng-inbo",
-  "version": "0.0.30",
+  "version": "0.0.37",
   "schematics": "./schematics/collection.json",
   "scripts": {
     "build": "tsc -p tsconfig.schematics.json",
@@ -10,12 +10,13 @@
     "save": "devDependencies"
   },
   "peerDependencies": {
-    "@angular/common": "14.2.2",
-    "@angular/core": "14.2.2",
-    "@angular/material": "14.2.2",
-    "@angular/cdk": "14.2.2",
-    "lodash-es": "^4.17.21",
-    "ngx-pipes": "^3.1.0"
+    "@angular/common": "^14.0.0",
+    "@angular/core": "^14.0.0",
+    "@angular/material": "^14.0.0",
+    "@angular/cdk": "^14.0.0",
+    "date-fns": "^2.0.0",
+    "lodash-es": "^4.17.0",
+    "ngx-pipes": "^3.0.0"
   },
   "dependencies": {
     "tslib": "^2.4.1",

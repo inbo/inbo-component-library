@@ -6,6 +6,7 @@
     "declaration": true,
     "declarationMap": true,
     "inlineSources": true,
+    "sourceMap": true,
     "strictNullChecks": false,
     "strictPropertyInitialization": false,
     "types": []

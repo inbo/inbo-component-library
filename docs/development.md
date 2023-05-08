@@ -17,4 +17,6 @@ that often.
 2. Run `npm install <relative path to this repo from the application>/dist/ng-inbo` in the folder of the application 
    you are developing
 3. Run `install-local-dependencies`
-4. Develop.
+4. Run `watch-local-dependencies`
+5. Start your application
+6. Develop.

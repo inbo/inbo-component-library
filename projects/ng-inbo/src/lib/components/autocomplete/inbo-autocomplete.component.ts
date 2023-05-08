@@ -1,9 +1,10 @@
-import {Component, ElementRef, EventEmitter, Input, Output, ViewChild, ViewEncapsulation} from '@angular/core';
+import {ChangeDetectorRef, Component, Input, ViewEncapsulation} from '@angular/core';
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {RequestState} from '../../services/api/request-state.enum';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 import {isNil} from 'lodash-es';
 import {CustomErrorStateMatcher} from '../../utils/custom.error-state-matcher';
+import {finalize, Observable, tap} from 'rxjs';
 
 @Component({
   selector: 'inbo-autocomplete',
@@ -11,32 +12,33 @@ import {CustomErrorStateMatcher} from '../../utils/custom.error-state-matcher';
   styleUrls: ['inbo-autocomplete.component.scss'],
   encapsulation: ViewEncapsulation.None,
   providers: [
-    {provide: NG_VALUE_ACCESSOR, useExisting: InboAutocompleteComponent, multi: true}],
+    {provide: NG_VALUE_ACCESSOR, useExisting: InboAutocompleteComponent, multi: true},
+  ],
 })
 export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>> implements ControlValueAccessor {
 
   readonly RequestState = RequestState;
 
-  @ViewChild('inputField', {static: true}) inputField: ElementRef<HTMLInputElement>;
-
   @Input() placeholder: string;
   @Input() label: string;
   @Input() minNumberOfCharacters = 1;
-  @Input() items: Array<T>;
+  @Input() searchFunction: (searchQuery: string) => Observable<Array<T>>;
 
   // Pattern can be any string where values from the value object are interpolated by marking them with ${<key>}
   // Default values for properties are used if the value from the display properties is null, undefined or a blank string. If no default is specified, it will just be an empty string.
-  // Example: '${key1} - ${key2}' wit object {key1: 'value1', key2: 'value2} will be displayed as 'value1 - value2'
+  // Example: '${key1} - ${key2}' with object {key1: 'value1', key2: 'value2'} will be displayed as 'value1 - value2'
   @Input() displayPattern: string;
   @Input() disabled: boolean;
-  @Input() requestState = RequestState.DEFAULT;
   @Input() showErrorMessage: boolean;
   @Input() errorMessage: string;
 
-  @Output() searchQueryChange = new EventEmitter<string>();
+  displayValue: string = '';
+  requestState = RequestState.DEFAULT;
+  items: Array<T>;
+  errorStateMatcher = new CustomErrorStateMatcher(() => this.showErrorMessage);
 
-  onChange: (value?: T) => void = () => undefined;
-  onTouch: (value?: T) => void = () => undefined;
+  constructor(private changeDetectorRef: ChangeDetectorRef) {
+  }
 
   private _value: T;
 
@@ -45,17 +47,17 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
   }
 
   set value(value: T) {
-    if (isNil(value)) {
-      return;
+    if (!isNil(value)) {
+      this._value = value;
+      this.displayValue = this.getDisplayValue(value);
     }
-    this._value = value;
-    if (this.inputField) {
-      this.inputField.nativeElement.value = this.getDisplayValue(value);
-    }
-
     this.onChange(value);
     this.onTouch(value);
   }
+
+  onChange: (value?: T) => void = () => undefined;
+
+  onTouch: (value?: T) => void = () => undefined;
 
   readonly getDisplayValue = (value: T): string => {
     if (isNil(value) || isNil(this.displayPattern)) {
@@ -71,13 +73,14 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
           result = result.replace(`\$\{${key}\}`, `${value[key]}`);
         },
       );
-    return result.replace(new RegExp(/\$\{\S*\}/, 'g'), '');
+    return result.replace(new RegExp(/\$\{\S*}/, 'g'), '');
   };
-  errorStateMatcher = new CustomErrorStateMatcher(() => this.showErrorMessage);
 
   inputChanged(value: string) {
     if (value?.length >= this.minNumberOfCharacters) {
-      this.searchQueryChange.emit(value);
+      this.doSearch(value);
+    } else {
+      this.items = [];
     }
   }
 
@@ -94,18 +97,42 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
   }
 
   validateFieldValue(): void {
-    if (this.inputField.nativeElement.value !== this.getDisplayValue(this.value)) {
+    if (this.displayValue !== this.getDisplayValue(this.value)) {
       this.value = undefined;
       this.clear();
     }
   }
 
   clear(): void {
-    this.inputField.nativeElement.value = '';
+    this.displayValue = '';
   }
 
   optionSelected(optionSelectedEvent: MatAutocompleteSelectedEvent) {
     this.value = optionSelectedEvent.option.value;
+  }
+
+  private doSearch(searchQuery: string): void {
+    if (!this.searchFunction) {
+      console.error('No search function was provided. Don\'t forget to bind the component to the function you pass using a field with an arrow function or .bind(this)');
+      this.items = [];
+      this.changeDetectorRef.detectChanges();
+      return;
+    }
+
+    this.requestState = RequestState.PENDING;
+    this.searchFunction(searchQuery)
+      .pipe(
+        tap(value => this.items = (value || [])),
+        tap(items => this.requestState = this.getRequestStateForResults(items)),
+        finalize(() => this.changeDetectorRef.detectChanges()),
+      )
+      .subscribe({
+        error: () => this.requestState = RequestState.ERROR,
+      });
+  }
+
+  private getRequestStateForResults(items: Array<any>): RequestState {
+    return items?.length > 0 ? RequestState.SUCCESS : RequestState.EMPTY;
   }
 }
 
