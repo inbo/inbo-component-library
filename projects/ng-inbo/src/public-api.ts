@@ -40,10 +40,14 @@ export * from './lib/services/api/api-page.model';
 export * from './lib/services/api/abstract.http-service';
 export * from './lib/services/api/request-state.enum';
 export * from './lib/services/util/coordinates.service';
+export * from './lib/services/util/belgian-lambert-projection.service';
 
 /* == UTILITIES ==*/
 export * from './lib/utils/http-response-date-parser';
 export * from './lib/utils/custom.error-state-matcher';
+
+/* == ENUMS ==*/
+export * from './lib/enums/projections.enum';
 
 // Module
 export * from './lib/ng-inbo.module';
