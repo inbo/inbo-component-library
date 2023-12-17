@@ -107,6 +107,11 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
     this.displayValue = '';
   }
 
+  clearValue(): void {
+    this.displayValue = '';
+    this._value = undefined;
+  }
+
   optionSelected(optionSelectedEvent: MatAutocompleteSelectedEvent) {
     this.value = optionSelectedEvent.option.value;
   }

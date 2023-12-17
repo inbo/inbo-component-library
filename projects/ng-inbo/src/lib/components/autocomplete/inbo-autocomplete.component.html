@@ -11,6 +11,9 @@
          (inboDebouncedInputChange)="inputChanged($event)"
          [matAutocomplete]="itemSearch">
   <mat-icon matPrefix>search</mat-icon>
+  <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="clearValue()">
+    <mat-icon>clear</mat-icon>
+  </button>
   <mat-autocomplete autoActiveFirstOption
                     (optionSelected)="optionSelected($event)"
                     #itemSearch="matAutocomplete"
