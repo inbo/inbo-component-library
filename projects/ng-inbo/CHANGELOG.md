@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.42](https://github.com/inbo/inbo-component-library/compare/v0.0.41...v0.0.42) (2023-12-17)
+
+
+### Features
+
+* **autocomplete:** Add flag to hide/show clear icon ([fecbb24](https://github.com/inbo/inbo-component-library/commit/fecbb245971962ab69bc8f38aee48452255cce16))
+
 ### [0.0.41](https://github.com/inbo/inbo-component-library/compare/v0.0.40...v0.0.41) (2023-12-17)
 
 
