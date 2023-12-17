@@ -32,6 +32,7 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
   @Input() displayPattern: string;
   @Input() disabled: boolean;
   @Input() showErrorMessage: boolean;
+  @Input() showClearIcon: boolean = false;
   @Input() errorMessage: string;
 
   displayValue: string = '';
