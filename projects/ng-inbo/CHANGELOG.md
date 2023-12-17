@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.40](https://github.com/inbo/inbo-component-library/compare/v0.0.39...v0.0.40) (2023-12-17)
+
+
+### Features
+
+* **autocomplete:** Add X icon on autocomplete to remove selected ([ef7c0af](https://github.com/inbo/inbo-component-library/commit/ef7c0af3372965a78ad2f71b64bca736f8d6cfec))
+
 ### [0.0.39](https://github.com/inbo/inbo-component-library/compare/v0.0.38...v0.0.39) (2023-12-16)
 
 ### [0.0.38](https://github.com/inbo/inbo-component-library/compare/v0.0.37...v0.0.38) (2023-12-16)
