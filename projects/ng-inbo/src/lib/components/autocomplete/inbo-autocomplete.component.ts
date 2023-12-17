@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, Input, ViewEncapsulation} from '@angular/core';
+import {ChangeDetectorRef, Component, EventEmitter, Input, Output, ViewEncapsulation} from '@angular/core';
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {RequestState} from '../../services/api/request-state.enum';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
@@ -18,6 +18,8 @@ import {finalize, Observable, tap} from 'rxjs';
 export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>> implements ControlValueAccessor {
 
   readonly RequestState = RequestState;
+
+  @Output() onOptionSelected = new EventEmitter<T>();
 
   @Input() placeholder: string;
   @Input() label: string;
@@ -114,6 +116,7 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
 
   optionSelected(optionSelectedEvent: MatAutocompleteSelectedEvent) {
     this.value = optionSelectedEvent.option.value;
+    this.onOptionSelected.emit(this.value);
   }
 
   private doSearch(searchQuery: string): void {
