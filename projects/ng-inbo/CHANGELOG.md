@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.43](https://github.com/inbo/inbo-component-library/compare/v0.0.42...v0.0.43) (2024-01-08)
+
+
+### Features
+
+* **coordinates:** add method to convert lambert coords to latlon ([bf36c45](https://github.com/inbo/inbo-component-library/commit/bf36c4520ffd56e33ee912450dded21363c2d1c6))
+
 ### [0.0.42](https://github.com/inbo/inbo-component-library/compare/v0.0.41...v0.0.42) (2023-12-17)
 
 

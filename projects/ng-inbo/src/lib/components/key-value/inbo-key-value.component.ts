@@ -25,6 +25,7 @@ export class InboKeyValueComponent {
 
   @Input() key: string;
   @Input() defaultValue = '';
+  @Input() showDanger: boolean;
 
   private _value: string | number | Array<string>;
 
