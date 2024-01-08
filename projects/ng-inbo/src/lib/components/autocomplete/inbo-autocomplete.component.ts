@@ -20,6 +20,7 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
   readonly RequestState = RequestState;
 
   @Output() onOptionSelected = new EventEmitter<T>();
+  @Output() onValueCleared = new EventEmitter<T>();
 
   @Input() placeholder: string;
   @Input() label: string;
@@ -113,6 +114,9 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
   clearValue(): void {
     this.displayValue = '';
     this._value = undefined;
+    this.onValueCleared.emit();
+    // clear value why is model not updated?
+    this.onChange(undefined);
   }
 
   optionSelected(optionSelectedEvent: MatAutocompleteSelectedEvent) {
