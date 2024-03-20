@@ -2,6 +2,9 @@
   "name": "@inbo/ng-inbo",
   "version": "0.0.7",
   "repository": "https://github.com/inbo/inbo-component-library",
+  "overrides": {
+    "ip": "2.0.1"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
