@@ -4,14 +4,9 @@ All notable changes to this project will be documented in this file. See [standa
 
 ### [0.0.44](https://github.com/inbo/inbo-component-library/compare/v0.0.42...v0.0.44) (2024-05-02)
 
-### [0.0.45](https://github.com/inbo/inbo-component-library/compare/v0.0.42...v0.0.45) (2024-05-02)
-
-### [0.0.45](https://github.com/inbo/inbo-component-library/compare/v0.0.42...v0.0.45) (2024-05-02)
-
 ### [0.0.43](https://github.com/inbo/inbo-component-library/compare/v0.0.42...v0.0.43) (2024-05-02)
 
 ### [0.0.42](https://github.com/inbo/inbo-component-library/compare/v0.0.41...v0.0.42) (2023-12-17)
-
 
 ### Features
 
