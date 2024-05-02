@@ -10,10 +10,10 @@
     "save": "devDependencies"
   },
   "peerDependencies": {
-    "@angular/common": "^14.0.0",
-    "@angular/core": "^14.0.0",
-    "@angular/material": "^14.0.0",
-    "@angular/cdk": "^14.0.0",
+    "@angular/common": "^17.0.0",
+    "@angular/core": "^17.0.0",
+    "@angular/material": "^17.0.0",
+    "@angular/cdk": "^17.0.0",
     "date-fns": "^2.0.0",
     "lodash-es": "^4.17.0",
     "ngx-pipes": "^3.0.0"
