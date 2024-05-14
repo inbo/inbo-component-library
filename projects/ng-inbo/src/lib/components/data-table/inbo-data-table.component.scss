@@ -25,7 +25,9 @@
 }
 
 .mat-column-editColumn, .mat-column-deleteColumn, .mat-column-detailColumn {
-  min-width: 40px;
+  padding: 8px;
+  width: 64px;
+  max-width: 64px;
 }
 
 .action-button {
