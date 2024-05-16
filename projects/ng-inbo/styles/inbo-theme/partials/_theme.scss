@@ -1,5 +1,6 @@
 @use '@angular/material' as mat;
 @import 'palette';
+@import "typography";
 
 $flora-web-primary: mat.define-palette($inbo-primary);
 $flora-web-accent: mat.define-palette($inbo-primary, A200, A100, A400);
@@ -10,5 +11,6 @@ $flora-web-theme: mat.define-light-theme((
     primary: $flora-web-primary,
     accent: $flora-web-accent,
     warn: $flora-web-warn,
-  )
+  ),
+  typography: $flanders-typography,
 ));
