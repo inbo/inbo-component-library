@@ -40,7 +40,6 @@ you can import the variables in any scss file using `@import 'partials/variables
 
 ## Releasing
 
-For the moment, releasing the `@inbo/ng-inbo` library is not yet automated, but ideally, this would be a job in 
-TeamCity. To make a new release now, you can use `npm run release`. This will use the `standard-version` tool to 
-increase the version by 0.0.1 and push a new tag to GitHub. It will create a new build and release it to GitHub 
-packages. 
+For the moment, releasing the `@inbo/ng-inbo` library is not yet automated, but ideally, this would be an Actions in GitHub.
+To make a new release now, you can use `npm run release`. This will use the `standard-version` tool to 
+increase the version by 0.0.1 and push a new tag to GitHub. It will create a new build and release it to GitHub packages. 
