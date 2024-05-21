@@ -4,4 +4,5 @@ export interface SimpleMessageDialogData {
   continueButtonText?: string;
   cancelButtonText?: string;
   hideCancelButtonText?: boolean;
+  hideCloseIconButton?: boolean;
 }
