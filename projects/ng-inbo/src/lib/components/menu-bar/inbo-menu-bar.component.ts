@@ -12,4 +12,5 @@ export class InboMenuBarComponent {
   @Input() loggedInUserName: string;
 
   @Output() loginButtonClick = new EventEmitter<void>();
+  @Output() logoutButtonClick = new EventEmitter<void>();
 }
