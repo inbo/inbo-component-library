@@ -26,13 +26,20 @@
       </ng-container>
     </div>
 
-    <button mat-button *ngIf="loggedInUserName; else loginButton">
+    <button mat-button *ngIf="loggedInUserName; else loginButton" [matMenuTriggerFor]="userMenu">
       <mat-icon>person</mat-icon>
       {{loggedInUserName | ucwords}}
     </button>
     <ng-template #loginButton>
       <button mat-flat-button class="login-button" (click)="loginButtonClick.emit()">Aanmelden</button>
     </ng-template>
+
+    <mat-menu #userMenu="matMenu">
+      <button mat-menu-item (click)="logoutButtonClick.emit()">
+        <mat-icon>exit_to_app</mat-icon>
+        Logout
+      </button>
+    </mat-menu>
   </div>
 
 </mat-toolbar>
