@@ -26,7 +26,7 @@
   "devDependencies": {
     "@types/lodash-es": "4.17.6",
     "copyfiles": "file:../../node_modules/copyfiles",
-    "semantic-release": "22.0.4 ",
+    "semantic-release": "23.1.0",
     "typescript": "file:../../node_modules/typescript"
   }
 }
