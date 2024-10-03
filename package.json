@@ -1,5 +1,5 @@
 {
-  "name": "@inbo/ng-inbo",
+  "name": "inbo-component-library",
   "version": "0.0.7",
   "repository": "https://github.com/inbo/inbo-component-library",
   "overrides": {
@@ -8,7 +8,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build && npm run build-schematics",
+    "build": "tsc -p projects/ng-inbo/tsconfig.schematics.json",
+    "lint": "ng lint",
     "build-schematics": "cd projects/ng-inbo && npm run build",
     "release": "cd projects/ng-inbo && standard-version && cd ../.. && git push --follow-tags && npm run build && cd dist/ng-inbo && npm publish",
     "watch": "ng build --watch --configuration development",
@@ -54,6 +55,7 @@
     "karma-jasmine-html-reporter": "2.1.0",
     "ng-packagr": "17.3.0",
     "standard-version": "9.5.0",
+    "semantic-release": "^24.1.2",
     "typescript": "5.3.3"
   }
 }

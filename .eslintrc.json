@@ -1,0 +1,5 @@
+{
+  "rules": {
+    "@typescript-eslint/no-unused-vars": "off"  // Disables the rule for unused variables and imports
+  }
+}

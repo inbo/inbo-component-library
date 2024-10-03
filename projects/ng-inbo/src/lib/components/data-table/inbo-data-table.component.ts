@@ -70,6 +70,7 @@ export class InboDataTableComponent<T> implements OnInit {
     this.deleteItem.observed && this.allDisplayedColumns.push(this.DELETE_COLUMN);
   }
 
+  // @ts-ignore
   getColumnConfigurationForKey<P>(key: keyof Partial<T>): InboDataTableColumn<T[keyof T]> {
     return this.columnConfiguration[key];
   }

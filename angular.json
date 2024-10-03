@@ -9,6 +9,7 @@
       "sourceRoot": "projects/ng-inbo/src",
       "prefix": "inbo",
       "architect": {
+        "lint": {},
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
@@ -36,6 +37,7 @@
     }
   },
   "cli": {
-    "analytics": false
+    "analytics": false,
+    "schematicCollections": ["@angular-eslint/schematics"]
   }
 }

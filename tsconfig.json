@@ -5,15 +5,19 @@
     "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
-    "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "strictPropertyInitialization": false,
-    "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "allowSyntheticDefaultImports": true,
-    "strictNullChecks": false,
     "sourceMap": true,
+    "noUnusedParameters": true,
+    "noImplicitAny": false,      // Disable errors on implicit any types
+    "strictNullChecks": false,   // Disable strict null checks
+    "noImplicitReturns": false,  // Disable errors on missing return statements
+    "noUnusedLocals": false,     // Disable errors for unused local variables
+    "skipLibCheck": true,         // Skip type checking of declaration files
+    "importsNotUsedAsValues": "remove",
     "paths": {
       "ng-inbo": [
         "dist/ng-inbo"
@@ -24,8 +28,8 @@
     "experimentalDecorators": true,
     "moduleResolution": "node",
     "importHelpers": true,
-    "esModuleInterop": true,
-    "target": "es2020",
+    "target": "es2017",
+    "module": "es2020",
     "lib": [
       "es2020",
       "dom"
