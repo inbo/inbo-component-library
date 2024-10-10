@@ -34,37 +34,35 @@ jobs:
 
   # Job 2: Publish the library to npm on push to main
 
-  create-pr:
-    runs-on: ubuntu-latest
-    needs: test-and-build  # Ensure this job runs after publishing
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v7
-        with:
-          title: "Automated PR for Release"
-          body: "This PR is created automatically after publishing the library."
-          base: main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#  create-pr:
+#    runs-on: ubuntu-latest
+#    needs: test-and-build  # Ensure this job runs after publishing
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#
+#      - name: Create Pull Request
+#        uses: peter-evans/create-pull-request@v7
+#        with:
+#          title: "Automated PR for Release"
+#          body: "This PR is created automatically after publishing the library."
+#          base: main
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   auto-merge:
     runs-on: ubuntu-latest
-    needs: [create-pr]
-    if: ${{ github.event.pull_request.merged == false && success() }}
+    needs: [test-and-build]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@master
 
-      - name: Merge PR
+      - name: Merge staging -> uat
         uses: devmasx/merge-branch@master
         with:
           type: now
+          target_branch: uat
+          message: Merge staging into uat
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          target_branch: 'main'
-
 
   publish:
     if: github.event_name == 'push' && github.ref =='refs/heads/main' && github.repository_owner == 'govflanders'  # Triggered
