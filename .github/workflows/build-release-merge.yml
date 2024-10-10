@@ -60,8 +60,8 @@ jobs:
         uses: devmasx/merge-branch@master
         with:
           type: now
-          target_branch: uat
-          message: Merge staging into uat
+          target_branch: main
+          message: merge current into main
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
   publish:
