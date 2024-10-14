@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.49](https://github.com/inbo/inbo-component-library/compare/v0.0.48...v0.0.49) (2024-10-14)
+
 ### [0.0.48](https://github.com/inbo/inbo-component-library/compare/v0.0.47...v0.0.48) (2024-07-31)
 
 ### [0.0.47](https://github.com/inbo/inbo-component-library/compare/v0.0.44...v0.0.47) (2024-07-31)
