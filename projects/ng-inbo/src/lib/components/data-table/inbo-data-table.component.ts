@@ -15,13 +15,19 @@ import {ApiPage} from '../../services/api/api-page.model';
 import {RequestState} from '../../services/api/request-state.enum';
 import {MatColumnDef, MatTable} from '@angular/material/table';
 
+export interface InboDatatableItem {
+  isViewButtonDisabled?: boolean;
+  isDeleteButtonDisabled?: boolean;
+  isEditButtonDisabled?: boolean;
+}
+
 @Component({
   selector: 'inbo-data-table',
   templateUrl: 'inbo-data-table.component.html',
   styleUrls: ['inbo-data-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class InboDataTableComponent<T> implements OnInit {
+export class InboDataTableComponent<T extends InboDatatableItem> implements OnInit {
 
   @ViewChild(MatTable, {static: false})
   set table(table: MatTable<T>) {
@@ -59,9 +65,6 @@ export class InboDataTableComponent<T> implements OnInit {
   displayedColumns: Array<keyof T & string>;
   allDisplayedColumns: Array<string>;
 
-  constructor() {
-  }
-
   ngOnInit(): void {
     this.displayedColumns = Object.keys(this.columnConfiguration) as Array<keyof T & string>;
     this.allDisplayedColumns = [...this.displayedColumns];
@@ -72,5 +75,32 @@ export class InboDataTableComponent<T> implements OnInit {
 
   getColumnConfigurationForKey<P>(key: keyof Partial<T>): InboDataTableColumn<T[keyof T]> {
     return this.columnConfiguration[key];
+  }
+
+  onEditItemClick(event: MouseEvent, dataItem: T): void {
+    if (dataItem.isEditButtonDisabled) {
+      event.stopImmediatePropagation();
+      event.preventDefault();
+      return;
+    }
+    this.editItem.emit(dataItem);
+  }
+
+  onDeleteItemClick(event: MouseEvent, dataItem: T): void {
+    if (dataItem.isDeleteButtonDisabled) {
+      event.stopImmediatePropagation();
+      event.preventDefault();
+      return;
+    }
+    this.deleteItem.emit(dataItem);
+  }
+
+  onViewItemClick(event: MouseEvent, dataItem: T): void {
+    if (dataItem.isViewButtonDisabled) {
+      event.stopImmediatePropagation();
+      event.preventDefault();
+      return;
+    }
+    this.clickItem.emit(dataItem);
   }
 }
