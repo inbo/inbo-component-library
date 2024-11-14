@@ -70,7 +70,7 @@ jobs:
         run: npm run build --prod
 
       - name: Create .npmrc
-        run: echo "@govflanders:registry=https://registry.npmjs.org//registry.npmjs.org/:_authToke=${{ secrets.NPMJS_TOKEN }}" > ~/.npmrc
+        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
 
       - name: Publish to npm
         run: npm publish
