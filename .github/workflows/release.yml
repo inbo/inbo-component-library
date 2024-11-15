@@ -1,6 +1,7 @@
 name: Build and Publish Angular Library with Semantic Versioning
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
