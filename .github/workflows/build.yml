@@ -28,5 +28,6 @@ jobs:
         cache: 'npm'
         cache-dependency-path: package-lock.json
     - run: npm ci
+    - run: ng test ng-inbo --no-watch --code-coverage
     - run: npm run build --if-present
 
