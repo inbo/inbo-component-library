@@ -5,7 +5,7 @@ describe('InboDataTableComponent', () => {
   let componentUnderTest: InboDataTableComponent<TestDataClass>;
 
   beforeEach(() => {
-    componentUnderTest = new InboDataTableComponent();
+    componentUnderTest = new InboDataTableComponent<TestDataClass>();
   });
 
   describe('ngOnInit', () => {
