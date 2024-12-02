@@ -73,6 +73,7 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements OnIn
     this.deleteItem.observed && this.allDisplayedColumns.push(this.DELETE_COLUMN);
   }
 
+  // @ts-ignore
   getColumnConfigurationForKey<P>(key: keyof Partial<T>): InboDataTableColumn<T[keyof T]> {
     return this.columnConfiguration[key];
   }

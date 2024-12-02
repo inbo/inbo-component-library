@@ -84,9 +84,10 @@ describe('InboClickOutsideDirective', () => {
 
 class DocumentMock implements HasEventTargetAddRemove<any> {
 
+  // @ts-ignore
   addEventListener(type: string, listener: ((evt: any) => void) | EventListenerObject | null, options?: boolean | AddEventListenerOptions): void {
   }
-
+  // @ts-ignore
   removeEventListener(type: string, listener: ((evt: any) => void) | EventListenerObject | null, options?: EventListenerOptions | boolean): void {
   }
 

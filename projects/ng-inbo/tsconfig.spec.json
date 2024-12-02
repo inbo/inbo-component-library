@@ -10,10 +10,10 @@
     "target": "ES2015"
   },
   "files": [
-    "src/test.ts"
   ],
   "include": [
     "**/*.spec.ts",
-    "**/*.d.ts"
+    "**/*.d.ts",
+    "**/*.ts"
   ]
 }

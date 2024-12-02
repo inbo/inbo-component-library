@@ -1,4 +1,5 @@
 {
+  "extends": "./tsconfig.lib.json",
   "compilerOptions": {
     "baseUrl": ".",
     "lib": [
@@ -8,18 +9,12 @@
     "declaration": true,
     "module": "commonjs",
     "moduleResolution": "node",
-    "noEmitOnError": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "noUnusedParameters": true,
-    "noUnusedLocals": true,
-    "rootDir": "schematics",
+    "rootDir": "",
     "outDir": "../../dist/ng-inbo/schematics",
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
     "sourceMap": true,
-    "strictNullChecks": true,
+    "noUnusedLocals": false,
     "target": "es6",
     "types": [
       "jasmine",
@@ -27,7 +22,8 @@
     ]
   },
   "include": [
-    "schematics/**/*"
+    "src/**/*.ts",                     // All TypeScript files in the src directory
+    "schematics/**/*.ts"
   ],
   "exclude": [
     "schematics/*/files/**/*"
