@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, EventEmitter, Input, Output, ViewEncapsulation} from '@angular/core';
+import {ChangeDetectorRef, Component, EventEmitter, inject, Input, Output, ViewEncapsulation} from '@angular/core';
 import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
 import {RequestState} from '../../services/api/request-state.enum';
 import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
@@ -40,9 +40,7 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
   items: Array<T>;
   errorStateMatcher = new CustomErrorStateMatcher(() => this.showErrorMessage);
 
-  constructor(private changeDetectorRef: ChangeDetectorRef) {
-  }
-
+  private changeDetectorRef = inject(ChangeDetectorRef);
   private _value: T;
 
   get value(): T {
@@ -50,16 +48,13 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
   }
 
   set value(value: T) {
-    if (!isNil(value)) {
-      this._value = value;
-      this.displayValue = this.getDisplayValue(value);
-    }
+    this.displayValue = this.getDisplayValue(value);
+    this._value = value;
     this.onChange(value);
     this.onTouch(value);
   }
 
   onChange: (value?: T) => void = () => undefined;
-
   onTouch: (value?: T) => void = () => undefined;
 
   readonly getDisplayValue = (value: T): string => {
@@ -70,12 +65,11 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
       return `${value}`;
     }
     let result = this.displayPattern;
-    Object.keys(value as Partial<{ [key: string]: string }>)
-      .forEach(
-        key => {
-          result = result.replace(`\$\{${key}\}`, `${value[key]}`);
-        },
-      );
+    Object.keys(value as Partial<{ [key: string]: string }>).forEach(
+      key => {
+        result = result.replace(`\$\{${key}\}`, `${value[key]}`);
+      }
+    );
     return result.replace(new RegExp(/\$\{\S*}/, 'g'), '');
   };
 
@@ -102,17 +96,11 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
   validateFieldValue(): void {
     if (this.displayValue !== this.getDisplayValue(this.value)) {
       this.value = undefined;
-      this.clear();
     }
   }
 
-  clear(): void {
-    this.displayValue = '';
-  }
-
   clearValue(): void {
-    this.displayValue = '';
-    this._value = undefined;
+    this.value = undefined;
   }
 
   optionSelected(optionSelectedEvent: MatAutocompleteSelectedEvent) {
@@ -122,7 +110,7 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
 
   private doSearch(searchQuery: string): void {
     if (!this.searchFunction) {
-      console.error('No search function was provided. Don\'t forget to bind the component to the function you pass using a field with an arrow function or .bind(this)');
+      console.error('No search function was provided.');
       this.items = [];
       this.changeDetectorRef.detectChanges();
       return;
@@ -144,5 +132,3 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
     return items?.length > 0 ? RequestState.SUCCESS : RequestState.EMPTY;
   }
 }
-
-
