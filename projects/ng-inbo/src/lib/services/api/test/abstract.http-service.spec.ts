@@ -1,6 +1,6 @@
 import {AbstractHttpService} from '../abstract.http-service';
 import {deepEqual, instance, mock, when} from '@johanblumenberg/ts-mockito';
-import {HttpClient, HttpHeaders, HttpParams, HttpResponse} from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams, HttpResponse } from '@angular/common/http';
 import {Observable, of} from 'rxjs';
 import {HttpRequestOptions} from '../http-request-options.model';
 

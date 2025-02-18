@@ -1,4 +1,4 @@
-import {HttpContext, HttpHeaders, HttpParams} from '@angular/common/http';
+import { HttpContext, HttpHeaders, HttpParams } from '@angular/common/http';
 
 export interface HttpRequestOptions {
   headers?: HttpHeaders | {
