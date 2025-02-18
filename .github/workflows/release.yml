@@ -1,0 +1,58 @@
+name: Build and Publish Angular Library with Semantic Versioning
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - "projects/ng-inbo/**" # Trigger on changes in the library folder
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20.8.1]
+        angular-version: [19.1.6]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@inbo"
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Authenticate with GitHub Package Registry
+        run: |
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > ~/.npmrc
+
+      - name: Install dependencies
+        run: npm install # Use npm ci for faster, deterministic installs
+
+      - name: Install Angular CLI
+        run: npm install -g @angular/cli@19.1.6
+
+      - name: Build Angular library
+        run: ng build ng-inbo --configuration production
+
+      - name: git config
+        run: git config user.name "GitHub Actions" && git config user.email "inbo@inbo.be"
+
+      - name: install standard-version
+        run: npm install -g standard-version
+
+      - name: release
+        run: cd projects/ng-inbo && standard-version && cd ../.. && git push --follow-tags && npm run build && cd dist/ng-inbo && npm publish

@@ -4,15 +4,12 @@
   "compilerOptions": {
     "outDir": "../../out-tsc/lib",
     "declaration": true,
-    "declarationMap": true,
-    "inlineSources": true,
-    "sourceMap": true,
-    "strictNullChecks": false,
-    "strictPropertyInitialization": false,
-    "types": []
+    "noUnusedLocals": false,  // Emit type declaration files
+    "target": "es2015",
+    "module": "esnext",
+    "moduleResolution": "node",
   },
   "exclude": [
-    "src/test.ts",
-    "**/*.spec.ts"
+    "src/**/*.ts"
   ]
 }

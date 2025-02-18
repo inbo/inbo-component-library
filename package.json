@@ -1,14 +1,25 @@
 {
   "name": "@inbo/ng-inbo",
   "version": "0.0.7",
-  "repository": "https://github.com/inbo/inbo-component-library",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/inbo/inbo-component-library.git"
+  },
   "overrides": {
     "ip": "2.0.1"
+  },
+  "standard-version": {
+    "skip": {
+      "bump": true,
+      "commit": true,
+      "tag": true
+    }
   },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build && npm run build-schematics",
+    "build": "tsc -p projects/ng-inbo/tsconfig.schematics.json",
+    "lint": "ng lint",
     "build-schematics": "cd projects/ng-inbo && npm run build",
     "release": "cd projects/ng-inbo && standard-version && cd ../.. && git push --follow-tags && npm run build && cd dist/ng-inbo && npm publish",
     "watch": "ng build --watch --configuration development",
@@ -53,7 +64,7 @@
     "karma-jasmine": "5.1.0",
     "karma-jasmine-html-reporter": "2.1.0",
     "ng-packagr": "19.1.2",
-    "standard-version": "9.5.0",
+    "standard-version": "^9.5.0",
     "typescript": "^5.5.4"
   }
 }
