@@ -3,17 +3,17 @@
 @import 'theme';
 
 // Colors
-$color-config: mat.get-color-config($flora-web-primary);
+$color-config: mat.m2-get-color-config($flora-web-primary);
 $primary-palette: map.get($color-config, 'primary');
 $accent-palette: map.get($color-config, 'accent');
 $warn-palette: map.get($color-config, 'warn');
 
-$inbo-primary: mat.get-color-from-palette($flora-web-primary, 500);
-$inbo-primary-lighter: mat.get-color-from-palette($flora-web-primary, 300);
-$inbo-primary-super-light: mat.get-color-from-palette($flora-web-primary, 100);
-$inbo-primary-darker: mat.get-color-from-palette($flora-web-primary, 700);
-$inbo-warn: mat.get-color-from-palette($flora-web-warn, 500);
-$inbo-accent: mat.get-color-from-palette($flora-web-accent, 500);
+$inbo-primary: mat.m2-get-color-from-palette($flora-web-primary, 500);
+$inbo-primary-lighter: mat.m2-get-color-from-palette($flora-web-primary, 300);
+$inbo-primary-super-light: mat.m2-get-color-from-palette($flora-web-primary, 100);
+$inbo-primary-darker: mat.m2-get-color-from-palette($flora-web-primary, 700);
+$inbo-warn: mat.m2-get-color-from-palette($flora-web-warn, 500);
+$inbo-accent: mat.m2-get-color-from-palette($flora-web-accent, 500);
 $inbo-gray: #6B7280;
 $inbo-light-gray: rgb(229, 231, 235);
 $inbo-text-color: #373D3F;
