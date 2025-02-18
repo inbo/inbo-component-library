@@ -1,21 +1,14 @@
-name: Build and publish angular 19.1.6 library
+name: Build and publish angular 19 library
 
 on:
-  workflow_dispatch:
   push:
     branches:
-      - main
-    paths:
-      - "projects/ng-inbo/**" # Trigger on changes in the library folder
+      - angular-19
+
 
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [20.8.1]
-        angular-version: [19.1.6]
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
