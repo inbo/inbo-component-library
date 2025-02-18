@@ -1,4 +1,4 @@
-name: Build and Publish Angular Library with Semantic Versioning
+name: Build and publish angular 19.1.6 library
 
 on:
   workflow_dispatch:
