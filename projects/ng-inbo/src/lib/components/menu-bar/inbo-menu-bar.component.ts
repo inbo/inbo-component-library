@@ -2,9 +2,10 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {InboMenuItem} from './menu-item.model';
 
 @Component({
-  selector: 'inbo-menu-bar',
-  templateUrl: 'inbo-menu-bar.component.html',
-  styleUrls: ['inbo-menu-bar.component.scss'],
+    selector: 'inbo-menu-bar',
+    templateUrl: 'inbo-menu-bar.component.html',
+    styleUrls: ['inbo-menu-bar.component.scss'],
+    standalone: false
 })
 export class InboMenuBarComponent {
 

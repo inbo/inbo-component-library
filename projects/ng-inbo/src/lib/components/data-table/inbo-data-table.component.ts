@@ -22,10 +22,11 @@ export interface InboDatatableItem {
 }
 
 @Component({
-  selector: 'inbo-data-table',
-  templateUrl: 'inbo-data-table.component.html',
-  styleUrls: ['inbo-data-table.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'inbo-data-table',
+    templateUrl: 'inbo-data-table.component.html',
+    styleUrls: ['inbo-data-table.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class InboDataTableComponent<T extends InboDatatableItem> implements OnInit {
 

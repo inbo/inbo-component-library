@@ -1,10 +1,11 @@
 import {ChangeDetectionStrategy, Component, Input} from '@angular/core';
 
 @Component({
-  selector: 'inbo-key-value',
-  templateUrl: 'inbo-key-value.component.html',
-  styleUrls: ['inbo-key-value.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'inbo-key-value',
+    templateUrl: 'inbo-key-value.component.html',
+    styleUrls: ['inbo-key-value.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class InboKeyValueComponent {
 

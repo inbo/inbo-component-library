@@ -3,7 +3,10 @@ import {NgForm} from '@angular/forms';
 import {debounceTime, Subject, takeUntil} from 'rxjs';
 import {isNil} from 'lodash-es';
 
-@Directive({selector: '[inboFormChange]'})
+@Directive({
+    selector: '[inboFormChange]',
+    standalone: false
+})
 export class InboFormChangeDirective<T> implements OnInit, OnDestroy {
 
   private destroy = new Subject<void>();

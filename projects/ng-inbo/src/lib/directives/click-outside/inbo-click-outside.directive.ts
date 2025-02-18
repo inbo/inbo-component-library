@@ -3,7 +3,10 @@ import {inRange} from 'lodash-es';
 import {fromEvent, skip, Subject, takeUntil, tap} from 'rxjs';
 import {DOCUMENT} from '@angular/common';
 
-@Directive({selector: '[inboClickOutside]'})
+@Directive({
+    selector: '[inboClickOutside]',
+    standalone: false
+})
 export class InboClickOutsideDirective implements OnInit, OnDestroy {
 
   private unsubscribe = new Subject<void>();

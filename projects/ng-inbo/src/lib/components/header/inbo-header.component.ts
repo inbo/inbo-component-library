@@ -2,10 +2,11 @@ import {ChangeDetectionStrategy, Component, ElementRef, Inject, Input} from '@an
 import {DOCUMENT} from '@angular/common';
 
 @Component({
-  selector: 'inbo-header',
-  templateUrl: 'inbo-header.component.html',
-  styleUrls: ['inbo-header.component.scss'],
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    selector: 'inbo-header',
+    templateUrl: 'inbo-header.component.html',
+    styleUrls: ['inbo-header.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: false
 })
 export class InboHeaderComponent {
 

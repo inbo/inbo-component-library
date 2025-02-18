@@ -7,13 +7,14 @@ import {CustomErrorStateMatcher} from '../../utils/custom.error-state-matcher';
 import {finalize, Observable, tap} from 'rxjs';
 
 @Component({
-  selector: 'inbo-autocomplete',
-  templateUrl: 'inbo-autocomplete.component.html',
-  styleUrls: ['inbo-autocomplete.component.scss'],
-  encapsulation: ViewEncapsulation.None,
-  providers: [
-    {provide: NG_VALUE_ACCESSOR, useExisting: InboAutocompleteComponent, multi: true},
-  ],
+    selector: 'inbo-autocomplete',
+    templateUrl: 'inbo-autocomplete.component.html',
+    styleUrls: ['inbo-autocomplete.component.scss'],
+    encapsulation: ViewEncapsulation.None,
+    providers: [
+        { provide: NG_VALUE_ACCESSOR, useExisting: InboAutocompleteComponent, multi: true },
+    ],
+    standalone: false
 })
 export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>> implements ControlValueAccessor {
 
