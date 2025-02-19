@@ -3,7 +3,9 @@ name: Build and publish angular 19 library
 on:
   push:
     branches:
-      - angular-19
+      - main
+    paths:
+      - "projects/ng-inbo/**"
 
 
 jobs:
