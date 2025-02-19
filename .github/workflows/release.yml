@@ -58,7 +58,6 @@ jobs:
         run: npm run build
 
       - name: Publish to npm
-        run: cd dist/ng-inbo
-          npm publish
+        run: cd dist/ng-inbo && npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
