@@ -47,5 +47,18 @@ jobs:
       - name: install standard-version
         run: npm install -g standard-version
 
-      - name: release
-        run: cd projects/ng-inbo && standard-version && cd ../.. && git push --follow-tags && npm run build && cd dist/ng-inbo && npm publish
+      - name: Bump version and create tag
+        run: |
+          cd projects/ng-inbo
+          npx standard-version
+          cd ../..
+          git push --follow-tags
+
+      - name: Build project
+        run: npm run build
+
+      - name: Publish to npm
+        run: cd dist/ng-inbo
+          npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
