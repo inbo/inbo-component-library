@@ -22,9 +22,7 @@ describe('InboAutocompleteComponent', () => {
     changeDetectorRef = mock(ChangeDetectorRefTestImpl);
     mockSearchFunction = fnmock();
 
-    componentUnderTest = new InboAutocompleteComponent(
-      instance(changeDetectorRef),
-    );
+    componentUnderTest = new InboAutocompleteComponent(changeDetectorRef);
     componentUnderTest.searchFunction = mockSearchFunction;
   });
 
@@ -125,6 +123,9 @@ describe('InboAutocompleteComponent', () => {
     beforeEach(() => {
       itemsSubject = new Subject<Array<TestObject>>();
       componentUnderTest.searchFunction = () => itemsSubject.asObservable();
+
+      changeDetectorRef = mock(ChangeDetectorRefTestImpl);
+      componentUnderTest = new InboAutocompleteComponent(changeDetectorRef);
     });
 
     it('should not do a search and set items to empty array if the given string has a length of less than the minimum number of characters', () => {

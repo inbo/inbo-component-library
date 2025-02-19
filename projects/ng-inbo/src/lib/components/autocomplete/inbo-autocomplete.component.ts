@@ -41,7 +41,9 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
   items: Array<T>;
   errorStateMatcher = new CustomErrorStateMatcher(() => this.showErrorMessage);
 
-  private changeDetectorRef = inject(ChangeDetectorRef);
+
+  constructor(public changeDetectorRef: ChangeDetectorRef){}
+
   private _value: T;
 
   get value(): T {
