@@ -124,7 +124,9 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
       .pipe(
         tap(value => this.items = (value || [])),
         tap(items => this.requestState = this.getRequestStateForResults(items)),
-        finalize(() => this.changeDetectorRef.detectChanges()),
+        finalize(() => {
+          this.changeDetectorRef.detectChanges()
+        }),
       )
       .subscribe({
         error: () => this.requestState = RequestState.ERROR,
