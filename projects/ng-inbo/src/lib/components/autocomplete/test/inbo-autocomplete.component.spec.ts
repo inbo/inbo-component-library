@@ -22,9 +22,7 @@ describe('InboAutocompleteComponent', () => {
     changeDetectorRef = mock(ChangeDetectorRefTestImpl);
     mockSearchFunction = fnmock();
 
-    componentUnderTest = new InboAutocompleteComponent(
-      instance(changeDetectorRef),
-    );
+    componentUnderTest = new InboAutocompleteComponent(instance(changeDetectorRef));
     componentUnderTest.searchFunction = mockSearchFunction;
   });
 
@@ -123,6 +121,9 @@ describe('InboAutocompleteComponent', () => {
     const validSearchQuery = 'aaa';
 
     beforeEach(() => {
+      changeDetectorRef = mock(ChangeDetectorRefTestImpl);
+      componentUnderTest = new InboAutocompleteComponent(instance(changeDetectorRef));
+
       itemsSubject = new Subject<Array<TestObject>>();
       componentUnderTest.searchFunction = () => itemsSubject.asObservable();
     });

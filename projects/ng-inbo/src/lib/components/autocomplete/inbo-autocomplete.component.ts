@@ -7,13 +7,14 @@ import {CustomErrorStateMatcher} from '../../utils/custom.error-state-matcher';
 import {finalize, Observable, tap} from 'rxjs';
 
 @Component({
-  selector: 'inbo-autocomplete',
-  templateUrl: 'inbo-autocomplete.component.html',
-  styleUrls: ['inbo-autocomplete.component.scss'],
-  encapsulation: ViewEncapsulation.None,
-  providers: [
-    {provide: NG_VALUE_ACCESSOR, useExisting: InboAutocompleteComponent, multi: true},
-  ],
+    selector: 'inbo-autocomplete',
+    templateUrl: 'inbo-autocomplete.component.html',
+    styleUrls: ['inbo-autocomplete.component.scss'],
+    encapsulation: ViewEncapsulation.None,
+    providers: [
+        { provide: NG_VALUE_ACCESSOR, useExisting: InboAutocompleteComponent, multi: true },
+    ],
+    standalone: false
 })
 export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>> implements ControlValueAccessor {
 
@@ -40,7 +41,9 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
   items: Array<T>;
   errorStateMatcher = new CustomErrorStateMatcher(() => this.showErrorMessage);
 
-  private changeDetectorRef = inject(ChangeDetectorRef);
+
+  constructor(public changeDetectorRef: ChangeDetectorRef){}
+
   private _value: T;
 
   get value(): T {
@@ -121,7 +124,9 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
       .pipe(
         tap(value => this.items = (value || [])),
         tap(items => this.requestState = this.getRequestStateForResults(items)),
-        finalize(() => this.changeDetectorRef.detectChanges()),
+        finalize(() => {
+          this.changeDetectorRef.detectChanges()
+        }),
       )
       .subscribe({
         error: () => this.requestState = RequestState.ERROR,

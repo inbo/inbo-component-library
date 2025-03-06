@@ -3,7 +3,10 @@ import {NgModel} from '@angular/forms';
 import {debounceTime, Subject, takeUntil} from 'rxjs';
 import {isNil} from 'lodash-es';
 
-@Directive({selector: '[inboDebouncedInputChange]'})
+@Directive({
+    selector: '[inboDebouncedInputChange]',
+    standalone: false
+})
 export class InboDebouncedInputChange<T> implements OnInit, OnDestroy {
 
   private destroy = new Subject<void>();

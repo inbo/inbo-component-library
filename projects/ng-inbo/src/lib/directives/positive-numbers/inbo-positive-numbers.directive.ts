@@ -2,7 +2,8 @@ import {Directive, ElementRef, EventEmitter, HostListener, Output} from '@angula
 import {isNil, isEmpty} from 'lodash-es';
 
 @Directive({
-  selector: '[inboPositiveNumbers]',
+    selector: '[inboPositiveNumbers]',
+    standalone: false
 })
 export class InboPositiveNumbersDirective {
 

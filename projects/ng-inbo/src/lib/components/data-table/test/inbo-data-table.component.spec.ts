@@ -1,8 +1,9 @@
-import {InboDataTableComponent} from '../inbo-data-table.component';
+import { InboDataTableColumnConfiguration } from '../column-configuration.model';
+import {InboDataTableComponent, InboDatatableItem} from '../inbo-data-table.component';
 
 describe('InboDataTableComponent', () => {
 
-  let componentUnderTest: InboDataTableComponent<TestDataClass>;
+  let componentUnderTest: InboDataTableComponent<any>;
 
   beforeEach(() => {
     componentUnderTest = new InboDataTableComponent();
@@ -17,13 +18,14 @@ describe('InboDataTableComponent', () => {
         },
         propA: {
           name: 'Property A',
-        },
-      };
+        }
+      } as InboDataTableColumnConfiguration<InboDatatableItem>; // Explicitly cast
 
       componentUnderTest.ngOnInit();
 
       expect(componentUnderTest.displayedColumns).toEqual(['id', 'propA']);
     });
+
   });
 
 });

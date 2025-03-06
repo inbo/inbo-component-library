@@ -6,7 +6,7 @@ import {CommonModule} from '@angular/common';
 import {InboDataTableComponent} from './components/data-table/inbo-data-table.component';
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
-import {HttpClientModule} from '@angular/common/http';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import {API_URL} from './injection-tokens.constants';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatCardModule} from '@angular/material/card';
@@ -53,34 +53,28 @@ const componentsToExport = [
   // Pipes
 ];
 
-@NgModule({
-  declarations: [
-    VlaanderenLogoComponent,
-    ...componentsToExport,
-  ],
-  imports: [
-    MatToolbarModule,
-    CommonModule,
-    FormsModule,
-    MatTableModule,
-    MatPaginatorModule,
-    HttpClientModule,
-    MatProgressSpinnerModule,
-    MatCardModule,
-    MatIconModule,
-    MatButtonModule,
-    MatMenuModule,
-    RouterLink,
-    NgPipesModule,
-    MatAutocompleteModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatDialogModule,
-  ],
-  exports: [
-    ...componentsToExport,
-  ],
-})
+@NgModule({ declarations: [
+        VlaanderenLogoComponent,
+        ...componentsToExport,
+    ],
+    exports: [
+        ...componentsToExport,
+    ], imports: [MatToolbarModule,
+        CommonModule,
+        FormsModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatProgressSpinnerModule,
+        MatCardModule,
+        MatIconModule,
+        MatButtonModule,
+        MatMenuModule,
+        RouterLink,
+        NgPipesModule,
+        MatAutocompleteModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatDialogModule], providers: [provideHttpClient(withInterceptorsFromDi())] })
 export class NgInboModule {
 
   static forRoot(configuration: { apiUrl: string }): ModuleWithProviders<NgInboModule> {
