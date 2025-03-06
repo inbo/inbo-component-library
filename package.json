@@ -18,7 +18,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "tsc -p projects/ng-inbo/tsconfig.schematics.json",
+    "build": "ng build && npm run build-schematics",
     "lint": "ng lint",
     "build-schematics": "cd projects/ng-inbo && npm run build",
     "release": "cd projects/ng-inbo && standard-version && cd ../.. && git push --follow-tags && npm run build && cd dist/ng-inbo && npm publish",
