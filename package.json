@@ -1,6 +1,6 @@
 {
   "name": "@inbo/ng-inbo",
-  "version": "0.0.55",
+  "version": "1.0.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/inbo/inbo-component-library.git"
