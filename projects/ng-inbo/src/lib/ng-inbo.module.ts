@@ -34,6 +34,7 @@ import {
   InboSimpleMessageDialogComponent
 } from './components/dialogs/simple-message-dialog/inbo-simple-message-dialog.component';
 import {InboInputMaskDirective} from './directives/input-mask/inbo-input-mask.directive';
+import { MatSortModule } from '@angular/material/sort';
 
 const componentsToExport = [
   //Components
@@ -55,36 +56,37 @@ const componentsToExport = [
   // Pipes
 ];
 
-@NgModule({ declarations: [
-        VlaanderenLogoComponent,
-        ...componentsToExport,
-    ],
-    exports: [
-        ...componentsToExport,
-    ], imports: [MatToolbarModule,
-        CommonModule,
-        FormsModule,
-        MatTableModule,
-        MatPaginatorModule,
-        MatProgressSpinnerModule,
-        MatCardModule,
-        MatIconModule,
-        MatButtonModule,
-        MatMenuModule,
-        RouterLink,
-        NgPipesModule,
-        MatAutocompleteModule,
-        MatInputModule,
-        MatFormFieldModule,
-        MatDialogModule], providers: [provideHttpClient(withInterceptorsFromDi())] })
+@NgModule({
+  declarations: [VlaanderenLogoComponent, ...componentsToExport],
+  exports: [...componentsToExport],
+  imports: [
+    MatToolbarModule,
+    CommonModule,
+    FormsModule,
+    MatTableModule,
+    MatPaginatorModule,
+    MatProgressSpinnerModule,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatSortModule,
+    MatMenuModule,
+    RouterLink,
+    NgPipesModule,
+    MatAutocompleteModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatDialogModule,
+  ],
+  providers: [provideHttpClient(withInterceptorsFromDi())],
+})
 export class NgInboModule {
-
-  static forRoot(configuration: { apiUrl: string }): ModuleWithProviders<NgInboModule> {
+  static forRoot(configuration: {
+    apiUrl: string;
+  }): ModuleWithProviders<NgInboModule> {
     return {
       ngModule: NgInboModule,
-      providers: [
-        {provide: API_URL, useValue: configuration.apiUrl},
-      ],
+      providers: [{ provide: API_URL, useValue: configuration.apiUrl }],
     };
   }
 }
