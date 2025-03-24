@@ -17,7 +17,6 @@ import {
 import { ApiPage } from '../../services/api/api-page.model';
 import { RequestState } from '../../services/api/request-state.enum';
 import { MatColumnDef, MatTable } from '@angular/material/table';
-import { BehaviorSubject, distinctUntilChanged, map } from 'rxjs';
 import { Sort } from '@angular/material/sort';
 
 export interface InboDatatableItem {
