@@ -3,9 +3,9 @@
 
   <table mat-table class="data-table" [dataSource]="dataPage.content" matSort
     (matSortChange)="sortChanged.emit($event)">
-    <ng-container *ngFor=" let displayedColumn of displayedColumns; else noSortingHeader">
+    <ng-container *ngFor=" let displayedColumn of displayedColumns">
       <ng-container [matColumnDef]="displayedColumn">
-        <ng-container *ngIf="columnConfiguration[displayedColumn].sortablePropertyName">
+        <ng-container *ngIf="columnConfiguration[displayedColumn].sortablePropertyName != null; else noSortingHeader">
           <th mat-header-cell *matHeaderCellDef
             [attr.mat-sort-header]="columnConfiguration[displayedColumn].sortablePropertyName"
             [ngStyle]="columnConfiguration[displayedColumn].style || {}">
