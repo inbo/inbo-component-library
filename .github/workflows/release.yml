@@ -1,0 +1,108 @@
+name: Build and publish the INBO component library
+
+permissions:
+  contents: write
+  pull-requests: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+        default: 'patch'
+  push:
+    branches:
+      - main
+    paths:
+      - "projects/ng-inbo/**"
+
+jobs:
+  quality-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@inbo"
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test -- --no-watch --browsers ChromeHeadless
+
+      - name: Build Angular library
+        run: ng build ng-inbo --configuration production
+
+      - name: Build project
+        run: npm run build
+
+  publish:
+    needs: quality-checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20.x"
+          registry-url: "https://npm.pkg.github.com"
+          scope: "@inbo"
+
+      - name: Cache Node.js modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Authenticate with GitHub Package Registry
+        run: |
+          echo "//npm.pkg.github.com/:_authToken=${{ secrets.GITHUB_TOKEN }}" > ~/.npmrc
+
+      - name: git config
+        run: git config user.name "GitHub Actions" && git config user.email "inbo@inbo.be"
+
+      - name: Release and publish
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            if [ "${{ github.event.inputs.release_type }}" = "minor" ]; then
+              npm run release:minor
+            elif [ "${{ github.event.inputs.release_type }}" = "major" ]; then
+              npm run release:major
+            else
+              npm run release
+            fi
+          else
+            npm run release
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
