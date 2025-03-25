@@ -21,6 +21,9 @@ on:
       - main
     paths:
       - "projects/ng-inbo/**"
+  pull_request:
+    paths:
+      - "projects/ng-inbo/**"
 
 jobs:
   quality-checks:
