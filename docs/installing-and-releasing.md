@@ -41,5 +41,10 @@ you can import the variables in any scss file using `@import 'partials/variables
 ## Releasing
 
 For the moment, releasing the `@inbo/ng-inbo` library is not yet automated, but ideally, this would be an Actions in GitHub.
-To make a new release now, you can use `npm run release`. This will use the `standard-version` tool to 
-increase the version by 0.0.1 and push a new tag to GitHub. It will create a new build and release it to GitHub packages. 
+To make a new release, you can use one of the following commands:
+
+- `npm run release` - Creates a patch release (0.0.x) for bug fixes and small changes
+- `npm run release:minor` - Creates a minor release (0.x.0) for new features that don't break existing functionality
+- `npm run release:major` - Creates a major release (x.0.0) for breaking changes
+
+These commands use the `standard-version` tool to increase the version number and push a new tag to GitHub. They will create a new build and release it to GitHub packages. 
