@@ -1,0 +1,82 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* Import the custom font files from ng-inbo assets */
+@font-face {
+  font-family: 'Flanders';
+  src: url('/assets/fonts/FlandersArtSans-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Flanders';
+  src: url('/assets/fonts/FlandersArtSans-Regular.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Flanders';
+  src: url('/assets/fonts/FlandersArtSans-Medium.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Flanders';
+  src: url('/assets/fonts/FlandersArtSans-Bold.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* The theme is now imported in angular.json */
+/* @import "../../ng-inbo/styles/inbo-theme/inbo-theme.scss"; */
+
+/* Import variables from ng-inbo theme */
+@import "../../ng-inbo/styles/inbo-theme/partials/variables";
+
+/* Global styles */
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Flanders', sans-serif;
+}
+
+/* Component demo page styles */
+body {
+  background-color: $inbo-bg-light;
+  color: $inbo-text-color;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: $inbo-primary-darker;
+  margin-top: 0;
+}
+
+pre {
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* Add animations for route transitions */
+.content > * {
+  animation-duration: 0.3s;
+  animation-name: fadeIn;
+  animation-fill-mode: forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Add any additional global styles below */

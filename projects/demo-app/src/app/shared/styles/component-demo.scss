@@ -1,0 +1,37 @@
+// Shared styles for component demo pages
+
+.component-container {
+  padding: 20px;
+}
+
+.component-description {
+  margin-bottom: 20px;
+}
+
+.example-container {
+  margin-bottom: 20px;
+  padding: 20px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.usage-container {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 4px;
+}
+
+pre {
+  background-color: #f0f0f0;
+  padding: 10px;
+  border-radius: 4px;
+  overflow: auto;
+}
+
+// Additional style used in some components
+.selected-value {
+  margin-top: 20px;
+  padding: 10px;
+  background-color: #e6f7ff;
+  border-radius: 4px;
+} 

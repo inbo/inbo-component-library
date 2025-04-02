@@ -31,6 +31,7 @@ export * from './lib/directives/click-outside/inbo-click-outside.directive';
 export * from './lib/directives/form-change/inbo-form-change.directive';
 export * from './lib/directives/debounced-input-change/inbo-debounced-input-change.directive';
 export * from './lib/directives/auto-focus/inbo-autofocus.directive';
+export * from './lib/directives/input-mask/inbo-input-mask.directive';
 
 /* == PIPES == */
 
