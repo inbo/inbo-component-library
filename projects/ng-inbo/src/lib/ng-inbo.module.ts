@@ -6,7 +6,10 @@ import {CommonModule} from '@angular/common';
 import {InboDataTableComponent} from './components/data-table/inbo-data-table.component';
 import {MatTableModule} from '@angular/material/table';
 import {MatPaginatorModule} from '@angular/material/paginator';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import {
+    provideHttpClient,
+    withInterceptorsFromDi
+} from '@angular/common/http';
 import {API_URL} from './injection-tokens.constants';
 import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {MatCardModule} from '@angular/material/card';
@@ -31,62 +34,61 @@ import {InboDebouncedInputChange} from './directives/debounced-input-change/inbo
 import {InboAutofocusDirective} from './directives/auto-focus/inbo-autofocus.directive';
 import {MatDialogModule} from '@angular/material/dialog';
 import {
-  InboSimpleMessageDialogComponent
-} from './components/dialogs/simple-message-dialog/inbo-simple-message-dialog.component';
-import {InboInputMaskDirective} from './directives/input-mask/inbo-input-mask.directive';
-import { MatSortModule } from '@angular/material/sort';
+    InboSimpleMessageDialogComponent
+} from './components/dialogs/simple-message-dialog/inbo-simple-message-dialog.component';import {InboInputMaskDirective} from './directives/input-mask/inbo-input-mask.directive';
+import {MatSortModule} from '@angular/material/sort';
 
 const componentsToExport = [
-  //Components
-  InboHeaderComponent,
-  InboDataTableComponent,
-  InboKeyValueComponent,
-  InboLoadingSpinnerComponent,
-  InboMenuBarComponent,
-  InboButtonGroupComponent,
-  InboAutocompleteComponent,
-  InboSimpleMessageDialogComponent,
-  //Directives
-  InboPositiveNumbersDirective,
-  InboClickOutsideDirective,
-  InboFormChangeDirective,
-  InboDebouncedInputChange,
-  InboAutofocusDirective,
-  InboInputMaskDirective,
+    //Components
+    InboHeaderComponent,
+    InboDataTableComponent,
+    InboKeyValueComponent,
+    InboLoadingSpinnerComponent,
+    InboMenuBarComponent,
+    InboButtonGroupComponent,
+    InboAutocompleteComponent,
+    InboSimpleMessageDialogComponent,
+    //Directives
+    InboPositiveNumbersDirective,
+    InboClickOutsideDirective,
+    InboFormChangeDirective,
+    InboDebouncedInputChange,
+    InboAutofocusDirective,
+    InboInputMaskDirective,
   // Pipes
 ];
 
 @NgModule({
-  declarations: [VlaanderenLogoComponent, ...componentsToExport],
-  exports: [...componentsToExport],
-  imports: [
-    MatToolbarModule,
-    CommonModule,
-    FormsModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatProgressSpinnerModule,
-    MatCardModule,
-    MatIconModule,
-    MatButtonModule,
-    MatSortModule,
-    MatMenuModule,
-    RouterLink,
-    NgPipesModule,
-    MatAutocompleteModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatDialogModule,
-  ],
-  providers: [provideHttpClient(withInterceptorsFromDi())],
+    declarations: [VlaanderenLogoComponent, ...componentsToExport],
+    exports: [...componentsToExport],
+    imports: [
+        MatToolbarModule,
+        CommonModule,
+        FormsModule,
+        MatTableModule,
+        MatPaginatorModule,
+        MatProgressSpinnerModule,
+        MatCardModule,
+        MatIconModule,
+        MatButtonModule,
+        MatSortModule,
+        MatMenuModule,
+        RouterLink,
+        NgPipesModule,
+        MatAutocompleteModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatDialogModule,
+    ],
+    providers: [provideHttpClient(withInterceptorsFromDi())],
 })
 export class NgInboModule {
-  static forRoot(configuration: {
-    apiUrl: string;
-  }): ModuleWithProviders<NgInboModule> {
-    return {
-      ngModule: NgInboModule,
-      providers: [{ provide: API_URL, useValue: configuration.apiUrl }],
-    };
-  }
+    static forRoot(configuration: {
+        apiUrl: string;
+    }): ModuleWithProviders<NgInboModule> {
+        return {
+            ngModule: NgInboModule,
+            providers: [{provide: API_URL, useValue: configuration.apiUrl}],
+        };
+    }
 }
