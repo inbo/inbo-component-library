@@ -1,0 +1,69 @@
+<div class="component-container">
+  <h1>Autocomplete Component</h1>
+  <div class="component-description">
+    <p>The INBO Autocomplete component provides an autocomplete input field with search functionality.</p>
+  </div>
+
+  <div class="example-container">
+    <h2>Example</h2>
+
+    <inbo-autocomplete
+      label="Country"
+      placeholder="Search for a country"
+      [searchFunction]="searchCountries"
+      displayPattern="${name} (${code})"
+      [showClearIcon]="true"
+      (onOptionSelected)="onCountrySelected($event)">
+    </inbo-autocomplete>
+
+    <div *ngIf="selectedCountry" class="selected-value">
+      <p>Selected country: {{ selectedCountry.name }} ({{ selectedCountry.code }})</p>
+    </div>
+  </div>
+
+  <div class="example-container">
+    <h2>Example with Input Mask</h2>
+    <p>The example below demonstrates an input mask with pattern: 2 chars - 2 chars - 2 chars</p>
+
+    <inbo-autocomplete
+      label="Product Code"
+      placeholder="Enter product code (e.g. AB-12-C4)"
+      [searchFunction]="searchProducts"
+      mask="cc-cc-cc"
+      displayPattern="${code} - ${name}"
+      [showClearIcon]="true"
+      (onOptionSelected)="onProductSelected($event)">
+    </inbo-autocomplete>
+
+    <div *ngIf="selectedProduct" class="selected-value">
+      <p>Selected product: {{ selectedProduct.code }} - {{ selectedProduct.name }}</p>
+    </div>
+  </div>
+
+  <div class="usage-container">
+    <h2>Usage</h2>
+    <pre>
+&lt;inbo-autocomplete
+  label="Label"
+  placeholder="Placeholder"
+  [searchFunction]="searchFunction"
+  displayPattern="{{'{property1}'}} ({{'{property2}'}})"
+  [showClearIcon]="true"
+  (onOptionSelected)="onItemSelected($event)"&gt;
+&lt;/inbo-autocomplete&gt;
+    </pre>
+
+    <h3>With Input Mask</h3>
+    <pre>
+&lt;inbo-autocomplete
+  label="Label"
+  placeholder="Placeholder"
+  [searchFunction]="searchFunction"
+  mask="cc-cc-cc"  
+  displayPattern="{{'{property1}'}} ({{'{property2}'}})"
+  [showClearIcon]="true"
+  (onOptionSelected)="onItemSelected($event)"&gt;
+&lt;/inbo-autocomplete&gt;
+    </pre>
+  </div>
+</div>

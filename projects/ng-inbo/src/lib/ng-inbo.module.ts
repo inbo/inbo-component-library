@@ -33,6 +33,7 @@ import {MatDialogModule} from '@angular/material/dialog';
 import {
   InboSimpleMessageDialogComponent
 } from './components/dialogs/simple-message-dialog/inbo-simple-message-dialog.component';
+import {InboInputMaskDirective} from './directives/input-mask/inbo-input-mask.directive';
 
 const componentsToExport = [
   //Components
@@ -50,6 +51,7 @@ const componentsToExport = [
   InboFormChangeDirective,
   InboDebouncedInputChange,
   InboAutofocusDirective,
+  InboInputMaskDirective,
   // Pipes
 ];
 

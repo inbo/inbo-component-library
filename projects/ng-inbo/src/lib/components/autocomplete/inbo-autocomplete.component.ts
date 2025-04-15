@@ -26,6 +26,7 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
   @Input() label: string;
   @Input() minNumberOfCharacters = 1;
   @Input() searchFunction: (searchQuery: string) => Observable<Array<T>>;
+  @Input() mask: string;
 
   // Pattern can be any string where values from the value object are interpolated by marking them with ${<key>}
   // Default values for properties are used if the value from the display properties is null, undefined or a blank string. If no default is specified, it will just be an empty string.
@@ -77,11 +78,37 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
   };
 
   inputChanged(value: string) {
+    if (this.mask && value) {
+      value = this.applyMask(value);
+    }
+    
+    this.displayValue = value;
+    
     if (value?.length >= this.minNumberOfCharacters) {
       this.doSearch(value);
     } else {
       this.items = [];
     }
+  }
+
+  applyMask(value: string): string {    
+    const cleanValue = value.replace(/[^a-zA-Z0-9]/g, '');
+    
+    let result = '';
+    let cleanIndex = 0;
+    
+    for (let i = 0; i < this.mask.length && cleanIndex < cleanValue.length; i++) {
+      const maskChar = this.mask[i];
+      
+      if (maskChar === '-' || maskChar === ' ' || maskChar === '/') {
+        result += maskChar;
+      } else {
+        result += cleanValue[cleanIndex];
+        cleanIndex++;
+      }
+    }
+    
+    return result;
   }
 
   registerOnChange(onChangeFn: (val: T) => void): void {

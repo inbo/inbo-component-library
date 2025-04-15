@@ -9,6 +9,7 @@
          [(ngModel)]="value"
          (blur)="validateFieldValue()"
          (inboDebouncedInputChange)="inputChanged($event)"
+         [inboInputMask]="mask"
          [matAutocomplete]="itemSearch">
   <mat-icon matPrefix>search</mat-icon>
   <button *ngIf="value && showClearIcon" mat-icon-button matSuffix aria-label="Clear" (click)="clearValue()">

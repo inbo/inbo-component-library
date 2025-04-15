@@ -18,6 +18,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
+    "serve:demo": "ng serve demo-app --port 4201",
     "build": "ng build && npm run build-schematics",
     "lint": "ng lint",
     "build-schematics": "cd projects/ng-inbo && npm run build",

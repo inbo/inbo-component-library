@@ -1,0 +1,16 @@
+<div class="main-content">
+  <div class="sidebar">
+    <h2>Components</h2>
+    <nav>
+      <ul class="nav-menu">
+        <li *ngFor="let item of menuItems" class="nav-item">
+          <a [routerLink]="item.path" class="nav-link">{{ item.label }}</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+  <div class="content">
+    <router-outlet></router-outlet>
+  </div>
+</div>
