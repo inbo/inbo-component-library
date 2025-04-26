@@ -1,4 +1,4 @@
-import { InboDataTableColumnConfiguration } from '../column-configuration.model';
+import {InboDataTableColumnConfiguration} from '../column-configuration.model';
 import {InboDataTableComponent, InboDatatableItem} from '../inbo-data-table.component';
 
 describe('InboDataTableComponent', () => {
