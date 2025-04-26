@@ -35,7 +35,8 @@ import {InboAutofocusDirective} from './directives/auto-focus/inbo-autofocus.dir
 import {MatDialogModule} from '@angular/material/dialog';
 import {
   InboSimpleMessageDialogComponent
-} from './components/dialogs/simple-message-dialog/inbo-simple-message-dialog.component';import {InboInputMaskDirective} from './directives/input-mask/inbo-input-mask.directive';
+} from './components/dialogs/simple-message-dialog/inbo-simple-message-dialog.component';
+import {InboInputMaskDirective} from './directives/input-mask/inbo-input-mask.directive';
 import {MatSortModule} from '@angular/material/sort';
 
 const componentsToExport = [
