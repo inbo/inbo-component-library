@@ -1,0 +1,127 @@
+<div class="component-container">
+  <h1>Data Table Component</h1>
+  <div class="component-description">
+    <p>Effortlessly display and manage tabular data with the INBO Data Table component. Featuring built-in sorting, pagination, filtering, and customizable action buttons for a seamless user experience.</p>
+  </div>
+
+  <div class="example-container">
+    <h2>Basic Usage: Instant Data Loading</h2>
+    <p>Demonstrates the simplest use case where data is loaded instantly into the table without showing a loading indicator.</p>
+    <inbo-data-table
+        [dataPage]="instantDataPage$ | async"
+        [dataRequestState]="instantDataRequestState$ | async"
+        [columnConfiguration]="instantColumnConfig"
+        rowHeight="48px"
+        >
+    </inbo-data-table>
+  </div>
+
+  <div class="example-container">
+    <h2>Advanced Features Showcase</h2>
+    <p>Explore advanced capabilities like server-side pagination, dynamic sorting, text filtering (Name column), autocomplete filtering (Description column), conditional row actions, and interaction controls.</p>
+
+    <div class="controls">
+      <button mat-raised-button color="primary" (click)="toggleRequestState()">
+          Toggle Request State
+      </button>
+      <button mat-raised-button color="accent" (click)="toggleEmptyState()">
+          Toggle Empty State
+      </button>
+      <button mat-raised-button color="warn" (click)="setErrorState()">
+          Set Error State
+      </button>
+    </div>
+
+    <inbo-data-table 
+        [dataPage]="dataPage$ | async" 
+        rowHeight="80px"
+        [dataRequestState]="dataRequestState$ | async" 
+        [columnConfiguration]="columnConfig"
+        [sort]="currentSort"
+        (pageChange)="onPageChange($event)"
+        (sortChanged)="onSortChange($event)"
+        (filterChanged)="onFilterChange($event)"
+        (editItem)="onEditItem($event)"
+        (deleteItem)="onDeleteItem($event)"
+        (clickItem)="onClickItem($event)">
+    </inbo-data-table>
+  </div>
+
+  <div class="usage-container">
+    <h2>Usage</h2>
+    <pre>
+&lt;inbo-data-table
+    [dataPage]="dataPage$ | async"
+    [dataRequestState]="dataRequestState$ | async"
+    [columnConfiguration]="columnConfig"
+    (pageChange)="onPageChange($event)"
+    (sortChanged)="onSortChange($event)"
+    (editItem)="onEditItem($event)"
+    (deleteItem)="onDeleteItem($event)"
+    (clickItem)="onClickItem($event)"&gt;
+&lt;/inbo-data-table&gt;
+    </pre>
+
+    <h3>Enabling Sorting</h3>
+    <p>To make a column sortable, set the <code>sortablePropertyName</code> property within its configuration in the <code>columnConfiguration</code> object. This property should match the corresponding property name in your data items.</p>
+
+    <h3>Handling Sort Changes</h3>
+    <p>Listen to the <code>(sortChanged)</code> output event emitter. This event emits a <code>Sort</code> object (from <code>&#64;angular/material/sort</code>) containing the <code>active</code> (column ID) and <code>direction</code> ('asc' | 'desc' | '') properties. Use this information to update your data fetching logic.</p>
+    <pre>
+// Component Template
+&lt;inbo-data-table
+    ...
+    (sortChanged)="onSortChange($event)"&gt;
+&lt;/inbo-data-table&gt;
+
+// Component Class (Example)
+import {{ '{' }} Sort {{ '}' }} from '&#64;angular/material/sort';
+
+onSortChange(sort: Sort): void {{ '{' }}
+  console.log('Sort changed:', sort);
+  // Update your sorting state and re-fetch data based on sort.active and sort.direction
+  this.currentSort = sort;
+  this.fetchData(); // Example method to fetch/update data
+{{ '}' }}
+    </pre>
+
+    <h3>Column Configuration</h3>
+    <p>Learn how to configure columns, including enabling sorting, filtering, custom value formatting, and applying specific styles.</p>
+    <pre>
+// Define your data item interface (e.g., DemoItem)
+interface DemoItem extends InboDatatableItem {{ '{' }}
+  id: number;
+  name: string;
+  description: string;
+  date: Date;
+{{ '}' }}
+
+// Define the column configuration in your component
+columnConfig: InboDataTableColumnConfiguration&lt;DemoItem&gt; = {{ '{' }}
+  // Simple column, maps directly to the 'id' property
+  id: {{ '{' }} 
+    name: 'ID' 
+  {{ '}' }},
+  // Column with sorting and filtering enabled
+  name: {{ '{' }} 
+    name: 'Name', 
+    sortablePropertyName: 'name', 
+    filterable: true 
+  {{ '}' }},
+  // Column without sorting/filtering
+  description: {{ '{' }} 
+    name: 'Description' 
+  {{ '}' }},
+  // Column with custom value formatting and styling
+  date: {{ '{' }}
+    name: 'Date',
+    sortablePropertyName: 'date',
+    // Use getValue to format the data before display
+    getValue: (value: Date) =&gt; value ? value.toLocaleDateString() : '',
+    // Apply custom CSS styles
+    style: {{ '{' }} 'textAlign': 'right', 'width': '150px' {{ '}' }}
+  {{ '}' }}
+{{ '}' }};
+    </pre>
+  </div>
+</div> 

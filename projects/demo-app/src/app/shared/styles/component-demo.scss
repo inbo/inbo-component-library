@@ -4,12 +4,13 @@
   padding: 20px;
 }
 
-.component-description {
-  margin-bottom: 20px;
+.component-description,
+.example-container,
+.usage-container {
+  margin-bottom: 30px;
 }
 
 .example-container {
-  margin-bottom: 20px;
   padding: 20px;
   border: 1px solid #eee;
   border-radius: 4px;
@@ -28,10 +29,17 @@ pre {
   overflow: auto;
 }
 
-// Additional style used in some components
 .selected-value {
   margin-top: 20px;
   padding: 10px;
   background-color: #e6f7ff;
   border-radius: 4px;
-} 
+}
+
+h1 {
+  margin-bottom: 10px;
+}
+
+h2 {
+  margin-bottom: 15px;
+}

@@ -81,9 +81,9 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
     if (this.mask && value) {
       value = this.applyMask(value);
     }
-    
+
     this.displayValue = value;
-    
+
     if (value?.length >= this.minNumberOfCharacters) {
       this.doSearch(value);
     } else {
@@ -91,15 +91,15 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
     }
   }
 
-  applyMask(value: string): string {    
+  applyMask(value: string): string {
     const cleanValue = value.replace(/[^a-zA-Z0-9]/g, '');
-    
+
     let result = '';
     let cleanIndex = 0;
-    
+
     for (let i = 0; i < this.mask.length && cleanIndex < cleanValue.length; i++) {
       const maskChar = this.mask[i];
-      
+
       if (maskChar === '-' || maskChar === ' ' || maskChar === '/') {
         result += maskChar;
       } else {
@@ -107,7 +107,7 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
         cleanIndex++;
       }
     }
-    
+
     return result;
   }
 

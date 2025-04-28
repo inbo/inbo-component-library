@@ -1,92 +1,158 @@
-<ng-container
-  *ngIf="dataRequestState === RequestState.SUCCESS || dataRequestState === RequestState.EMPTY || dataRequestState === RequestState.PARTIAL_PENDING">
+@switch (dataRequestState()) {
+  @case (RequestState.PENDING) {
+    <div class="info-message-container">
+      <mat-progress-spinner [mode]="'indeterminate'" [diameter]="24"></mat-progress-spinner>
+    </div>
+  }
+  @case (RequestState.ERROR) {
+    <div class="info-message-container">
+      <img class="info-message-icon" src="/assets/images/Orion_drizzle.svg" alt="Regenwolk"/>
+      <p class="info-message-text">
+        Er ging iets mis bij het ophalen van de data. Probeer later opnieuw.
+      </p>
+    </div>
+  }
+  @case (RequestState.EMPTY) {
+    <div class="info-message-container">
+      <img class="info-message-icon" src="/assets/images/Orion_open-box.svg" alt="Lege doos"/>
+      <p class="info-message-text">
+        Deze tabel is leeg.
+      </p>
+    </div>
+  }
+  @default {
+    <div>
+      <table mat-table class="data-table" [dataSource]="dataPage().content"
+             matSort
+             [matSortActive]="sort()?.active"
+             [matSortDirection]="sort()?.direction"
+             (matSortChange)="sortChanged.emit($event)">
 
-  <table mat-table class="data-table" [dataSource]="dataPage.content" matSort
-         (matSortChange)="sortChanged.emit($event)">
-    <ng-container *ngFor=" let displayedColumn of displayedColumns">
-      <ng-container [matColumnDef]="displayedColumn">
-        <th mat-header-cell *matHeaderCellDef
-            [attr.mat-sort-header]="columnConfiguration[displayedColumn]?.sortablePropertyName || null"
-            [ngStyle]="columnConfiguration[displayedColumn].style || {}">
-          {{ columnConfiguration[displayedColumn].name }}
-        </th>
-        <td mat-cell *matCellDef="let dataItem" [ngStyle]="columnConfiguration[displayedColumn].style || {}">
-          {{
-            getColumnConfigurationForKey(displayedColumn).getValue ?
-              getColumnConfigurationForKey(displayedColumn).getValue(dataItem[displayedColumn]) :
-              dataItem[displayedColumn]
-          }}
-        </td>
-      </ng-container>
-    </ng-container>
+        @for (displayedColumn of displayedColumns(); track displayedColumn) {
+          <ng-container [matColumnDef]="displayedColumn">
+            <th mat-header-cell *matHeaderCellDef
+                [ngStyle]="getColumnConfigurationForKey(displayedColumn)?.style || {}"
+                class="data-table-header-cell">
+              <div class="header-content">
+                <span class="column-name"
+                      [class.no-filter-border]="!hasAnyFilterableColumn()"
+                      mat-sort-header="{{getColumnConfigurationForKey(displayedColumn)?.sortablePropertyName || null}}"
+                      [disabled]="!getColumnConfigurationForKey(displayedColumn)?.sortablePropertyName">
+                  {{ getColumnConfigurationForKey(displayedColumn)?.name }}
+                </span>
+                @if (hasAnyFilterableColumn()) {
+                  <div class="filter-control-wrapper"
+                       [class.filter-hidden]="!getColumnConfigurationForKey(displayedColumn)?.filterable">
 
-    <ng-content></ng-content>
+                    @switch (getFilterType(displayedColumn)) {
+                      @case ('text') {
+                        <mat-form-field class="filter-input-field" appearance="outline">
+                          <input matInput
+                                [ngModel]="temporaryFilterValues()[displayedColumn]"
+                                (ngModelChange)="updateTemporaryFilter(displayedColumn, $event)"
+                                (keyup.enter)="applyFilter(displayedColumn)"
+                                placeholder="Filter">
+                        </mat-form-field>
+                      }
+                      <!-- TODO: Improve autocomplete filter, the styling is not correct and we will need to make some updates to the autocomplete component -->
+                      @case ('autocomplete') {
+                        <inbo-autocomplete class="filter-input-field" 
+                                           [placeholder]="'Filter'"
+                                           [searchFunction]="getFilterSearchFunction(displayedColumn)!"
+                                           [displayPattern]="getFilterDisplayPattern(displayedColumn)!"
+                                           [ngModel]="temporaryFilterValues()[displayedColumn]"
+                                           (onOptionSelected)="updateTemporaryFilter(displayedColumn, $event); applyFilter(displayedColumn)"
+                                           [showClearIcon]="true">
+                        </inbo-autocomplete>
+                      }
+                    }
 
-    <ng-container *ngIf="editItem.observed" [matColumnDef]="EDIT_COLUMN">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let dataItem">
-        <button mat-icon-button class="action-button" [disabled]="dataItem.isEditButtonDisabled"
-                (click)="onEditItemClick($event, dataItem)"
-                [class.disabled-button]="dataItem.isEditButtonDisabled">
-          <mat-icon class="material-icons-sharp" title="Aanpassen">edit_square</mat-icon>
-        </button>
-      </td>
-    </ng-container>
+                    <div class="filter-buttons">
+                      <button mat-icon-button class="filter-action-button"
+                              (click)="clearFilter(displayedColumn)" aria-label="Clear filter"
+                              [disabled]="!(temporaryFilterValues()[displayedColumn] || filterValues()[displayedColumn])">
+                        <mat-icon>clear</mat-icon>
+                      </button>
+                      <button mat-icon-button class="filter-action-button"
+                              (click)="applyFilter(displayedColumn)" aria-label="Apply filter"
+                              [disabled]="!temporaryFilterValues()[displayedColumn] || temporaryFilterValues()[displayedColumn] === filterValues()[displayedColumn]">
+                        <mat-icon>check</mat-icon>
+                      </button>
+                    </div>
+                  </div>
+                }
+              </div>
+            </th>
+            <td mat-cell *matCellDef="let dataItem"
+                [ngStyle]="getColumnConfigurationForKey(displayedColumn)?.style || {}">
+              {{
+                getColumnConfigurationForKey(displayedColumn)?.getValue ?
+                  getColumnConfigurationForKey(displayedColumn)?.getValue(dataItem[displayedColumn]) :
+                  dataItem[displayedColumn]
+              }}
+            </td>
+          </ng-container>
+        }
 
-    <ng-container *ngIf="deleteItem.observed" [matColumnDef]="DELETE_COLUMN">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let dataItem">
-        <button mat-icon-button class="action-button" [disabled]="dataItem.isDeleteButtonDisabled"
-                (click)="onDeleteItemClick($event, dataItem)"
-                [ngClass]="{'disabled-button': dataItem.isDeleteButtonDisabled}">
-          <mat-icon class="material-icons-sharp" title="Verwijderen">delete</mat-icon>
-        </button>
-      </td>
-    </ng-container>
+        <ng-content></ng-content>
 
-    <ng-container *ngIf="clickItem.observed" [matColumnDef]="DETAIL_COLUMN">
-      <th mat-header-cell *matHeaderCellDef></th>
-      <td mat-cell *matCellDef="let dataItem">
-        <button mat-icon-button class="action-button" [disabled]="dataItem.isViewButtonDisabled"
-                (click)="onViewItemClick($event, dataItem)"
-                [ngClass]="{'disabled-button': dataItem.isViewButtonDisabled}">
-          <mat-icon class="material-icons-sharp" title="Bekijk details">visibility</mat-icon>
-        </button>
-      </td>
-    </ng-container>
+        @if (editItem.observed) {
+          <ng-container [matColumnDef]="EDIT_COLUMN">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let dataItem">
+              <button mat-icon-button class="action-button" [disabled]="dataItem.isEditButtonDisabled"
+                      (click)="onEditItemClick($event, dataItem)"
+                      [class.disabled-button]="dataItem.isEditButtonDisabled">
+                <mat-icon class="material-icons-sharp" title="Aanpassen">edit_square</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+        }
 
-    <tr mat-header-row *matHeaderRowDef="allDisplayedColumns"></tr>
+        @if (deleteItem.observed) {
+          <ng-container [matColumnDef]="DELETE_COLUMN">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let dataItem">
+              <button mat-icon-button class="action-button" [disabled]="dataItem.isDeleteButtonDisabled"
+                      (click)="onDeleteItemClick($event, dataItem)"
+                      [class.disabled-button]="dataItem.isDeleteButtonDisabled">
+                <mat-icon class="material-icons-sharp" title="Verwijderen">delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+        }
 
-    <tr mat-row [ngStyle]="{height: rowHeight}" *matRowDef="let row; columns: allDisplayedColumns"
-        (click)="clickItem.emit(row)"></tr>
+        @if (clickItem.observed) {
+          <ng-container [matColumnDef]="DETAIL_COLUMN">
+            <th mat-header-cell *matHeaderCellDef></th>
+            <td mat-cell *matCellDef="let dataItem">
+              <button mat-icon-button class="action-button" [disabled]="dataItem.isViewButtonDisabled"
+                      (click)="onViewItemClick($event, dataItem)"
+                      [class.disabled-button]="dataItem.isViewButtonDisabled">
+                <mat-icon class="material-icons-sharp" title="Bekijk details">visibility</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+        }
 
-  </table>
+        <tr mat-header-row *matHeaderRowDef="allDisplayedColumns()"></tr>
 
-  <div *ngIf="dataRequestState === RequestState.PARTIAL_PENDING" class="partial-spinner-container">
-    <mat-progress-spinner class="partial-spinner" [mode]="'indeterminate'" [diameter]="24"></mat-progress-spinner>
-  </div>
+        <tr mat-row *matRowDef="let row; columns: allDisplayedColumns()"
+            [style.height]="rowHeight()"
+            (click)="clickItem.emit(row)"></tr>
 
-  <mat-paginator
-    *ngIf="dataRequestState === RequestState.SUCCESS || dataRequestState === RequestState.PARTIAL_PENDING"
-    [pageSize]="dataPage.pageable.pageSize" [showFirstLastButtons]="true" [hidePageSize]="true"
-    [length]="dataPage.pageable.totalElements" (page)="pageChange.emit($event)">
-  </mat-paginator>
-</ng-container>
+      </table>
 
-<div *ngIf="dataRequestState === RequestState.EMPTY" class="info-message-container">
-  <img class="info-message-icon" src="/assets/images/Orion_open-box.svg" alt="Lege doos"/>
-  <p class="info-message-text">
-    Deze tabel is leeg.
-  </p>
-</div>
+      @if (dataRequestState() === RequestState.PARTIAL_PENDING) {
+        <div class="partial-spinner-container">
+          <mat-progress-spinner class="partial-spinner" [mode]="'indeterminate'" [diameter]="24"></mat-progress-spinner>
+        </div>
+      }
 
-<div *ngIf="dataRequestState === RequestState.ERROR" class="info-message-container">
-  <img class="info-message-icon" src="/assets/images/Orion_drizzle.svg" alt="Regenwolk"/>
-  <p class="info-message-text">
-    Er ging iets mis bij het ophalen van de data. Probeer later opnieuw.
-  </p>
-</div>
-
-<div *ngIf="dataRequestState === RequestState.PENDING" class="info-message-container">
-  <mat-progress-spinner [mode]="'indeterminate'" [diameter]="24"></mat-progress-spinner>
-</div>
+      <mat-paginator
+        [pageSize]="dataPage().pageable.pageSize" [showFirstLastButtons]="true" [hidePageSize]="true"
+        [length]="dataPage().pageable.totalElements" (page)="pageChange.emit($event)">
+      </mat-paginator>
+    </div>
+  }
+}

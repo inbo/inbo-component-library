@@ -1,10 +1,19 @@
+import {Observable} from "rxjs";
+
 export type InboDataTableColumnConfiguration<T> = {
   [key in keyof Partial<T>]: InboDataTableColumn<T[key]>;
 };
 
-export interface InboDataTableColumn<P> {
+export type FilterType = 'text' | 'autocomplete';
+
+export interface InboDataTableColumn<T> {
   name: string;
   style?: Partial<CSSStyleDeclaration>;
-  getValue?: (propValue: P) => string;
+  getValue?: (propertyValue: T) => string;
   sortablePropertyName?: string;
+  filterable?: boolean;
+  filterType?: FilterType;
+  filterSearchFunction?: (query: string) => Observable<Array<any>>;
+  filterDisplayPattern?: string;
+  filterValueSelector?: (item: any) => string | number;
 }

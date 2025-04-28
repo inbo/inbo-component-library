@@ -42,7 +42,6 @@ import {MatSortModule} from '@angular/material/sort';
 const componentsToExport = [
   //Components
   InboHeaderComponent,
-  InboDataTableComponent,
   InboKeyValueComponent,
   InboLoadingSpinnerComponent,
   InboMenuBarComponent,
