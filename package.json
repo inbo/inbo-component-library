@@ -15,16 +15,21 @@
       "tag": true
     }
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
     "serve:demo": "ng serve demo-app --port 4201",
-    "build": "ng build && npm run build-schematics",
+    "build": "npm run build:lib && npm run build:demo",
+    "build:lib": "ng build ng-inbo && npm run build-schematics",
+    "build:demo": "ng build demo-app",
     "lint": "ng lint",
     "build-schematics": "cd projects/ng-inbo && npm run build",
-    "release": "cd projects/ng-inbo && standard-version && cd ../.. && git push --follow-tags && npm run build && cd dist/ng-inbo && npm publish",
-    "release:minor": "cd projects/ng-inbo && standard-version --release-as minor && cd ../.. && git push --follow-tags && npm run build && cd dist/ng-inbo && npm publish",
-    "release:major": "cd projects/ng-inbo && standard-version --release-as major && cd ../.. && git push --follow-tags && npm run build && cd dist/ng-inbo && npm publish",
+    "release": "cd projects/ng-inbo && standard-version && cd ../.. && git push --follow-tags && npm run build:lib && cd dist/ng-inbo && npm publish",
+    "release:minor": "cd projects/ng-inbo && standard-version --release-as minor && cd ../.. && git push --follow-tags && npm run build:lib && cd dist/ng-inbo && npm publish",
+    "release:major": "cd projects/ng-inbo && standard-version --release-as major && cd ../.. && git push --follow-tags && npm run build:lib && cd dist/ng-inbo && npm publish",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
