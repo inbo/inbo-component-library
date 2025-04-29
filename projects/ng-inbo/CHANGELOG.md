@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/inbo/inbo-component-library/compare/v1.0.0...v1.1.0) (2025-04-29)
+
+
+### Features
+
+* add sortable directive to table ([#14](https://github.com/inbo/inbo-component-library/issues/14)) ([f03a24a](https://github.com/inbo/inbo-component-library/commit/f03a24adf7e799f46c18a452a739a9a1ce92609c))
+* can be in 1 tag ([#14](https://github.com/inbo/inbo-component-library/issues/14)) ([8441d96](https://github.com/inbo/inbo-component-library/commit/8441d9671a7c2834ec75a004a946fdfadad5cc97))
+
+
+### Bug Fixes
+
+* move else template to correct ngif ([#14](https://github.com/inbo/inbo-component-library/issues/14)) ([7443b91](https://github.com/inbo/inbo-component-library/commit/7443b9199ffbe69c6eb436218eb3c733de9d391b))
+
 ## [1.0.0](https://github.com/inbo/inbo-component-library/compare/v0.0.50...v1.0.0) (2025-03-06)
 
 ### 0.0.55 (2025-02-19)
