@@ -135,14 +135,11 @@ export class InboDataTableComponent<T extends InboDatatableItem> {
       const defsLength = defs?.length;
 
       if (table && defs && defsLength > 0) {
-        console.log(`Effect: Adding ${defsLength} column defs`);
         defs.forEach((columnDef) => {
           table.addColumnDef(columnDef);
         });
-      } else {
-        console.log('Effect: Table or defs not ready/populated', { table: !!table, defs: !!defs, length: defsLength });
       }
-    }, { allowSignalWrites: true });
+    });
   }
 
   getFilterType(key: keyof Partial<T>): FilterType {
@@ -153,7 +150,7 @@ export class InboDataTableComponent<T extends InboDatatableItem> {
     return this.getColumnConfigurationForKey(key)?.filterDisplayPattern;
   }
 
-  getFilterSearchFunction(key: keyof Partial<T>): ((query: string) => Observable<Array<any>>) | undefined {
+  getFilterSearchFunction(key: keyof Partial<T>): ((query: string) => Observable<Array<unknown>>) | undefined {
     return this.getColumnConfigurationForKey(key)?.filterSearchFunction;
   }
 

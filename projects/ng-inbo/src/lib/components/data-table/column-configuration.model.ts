@@ -13,7 +13,7 @@ export interface InboDataTableColumn<T> {
   sortablePropertyName?: string;
   filterable?: boolean;
   filterType?: FilterType;
-  filterSearchFunction?: (query: string) => Observable<Array<any>>;
+  filterSearchFunction?: (query: string) => Observable<Array<T>>;
   filterDisplayPattern?: string;
-  filterValueSelector?: (item: any) => string | number;
+  filterValueSelector?: (item: T) => string | number;
 }
