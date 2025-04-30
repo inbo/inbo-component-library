@@ -83,8 +83,8 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
       return result.replace(new RegExp(/\$\{\S*}/, 'g'), '');
     }
 
-    if (typeof value === 'object') {
-      return JSON.stringify(value);
+    if (typeof value === 'object' && value !== null) {
+      return '';
     }
 
     return `${value}`;
