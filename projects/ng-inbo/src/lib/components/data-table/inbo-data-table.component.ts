@@ -2,13 +2,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  ContentChildren,
-  effect,
   EventEmitter,
   input,
   InputSignal,
   Output,
-  QueryList,
   signal,
   Signal,
   ViewChild,
@@ -31,7 +28,7 @@ import {
 } from '@angular/material/table';
 import {MatSort, MatSortModule, Sort} from '@angular/material/sort';
 import {MatProgressSpinner} from "@angular/material/progress-spinner";
-import {NgStyle} from "@angular/common";
+import {NgIf, NgStyle, NgTemplateOutlet} from "@angular/common";
 import {MatIconButton} from "@angular/material/button";
 import {MatIcon} from "@angular/material/icon";
 import {MatFormFieldModule} from '@angular/material/form-field';
@@ -73,12 +70,12 @@ export interface InboDatatableItem {
     FormsModule,
     ReactiveFormsModule,
     MatSortModule,
-    NgInboModule
+    NgInboModule,
+    NgTemplateOutlet
   ]
 })
 export class InboDataTableComponent<T extends InboDatatableItem> {
   @ViewChild(MatTable, {static: false}) tableRef: MatTable<T>;
-  @ContentChildren(MatColumnDef) columnDefs: QueryList<MatColumnDef>;
 
   readonly RequestState = RequestState;
   readonly DETAIL_COLUMN = 'detailColumn';
@@ -88,7 +85,6 @@ export class InboDataTableComponent<T extends InboDatatableItem> {
   dataPage: InputSignal<ApiPage<T>> = input.required<ApiPage<T>>();
   dataRequestState: InputSignal<RequestState> = input.required<RequestState>();
   columnConfiguration: InputSignal<InboDataTableColumnConfiguration<T>> = input.required<InboDataTableColumnConfiguration<T>>();
-  customColumns: InputSignal<Array<string>> = input<Array<string>>([]);
   rowHeight: InputSignal<string> = input('48px');
   sort: InputSignal<Sort | undefined> = input<Sort | undefined>(undefined);
 
@@ -113,40 +109,26 @@ export class InboDataTableComponent<T extends InboDatatableItem> {
   });
 
   allDisplayedColumns: Signal<Array<string>> = computed(() => {
-    const baseColumns = this.displayedColumns();
-    const custom = this.customColumns();
-    const columns = [...baseColumns, ...custom];
+    const configColumns = this.displayedColumns();
+
+    const actionColumns: string[] = [];
     if (this.editItem.observed) {
-      columns.push(this.EDIT_COLUMN);
+      actionColumns.push(this.EDIT_COLUMN);
     }
     if (this.clickItem.observed) {
-      columns.push(this.DETAIL_COLUMN);
+      actionColumns.push(this.DETAIL_COLUMN);
     }
     if (this.deleteItem.observed) {
-      columns.push(this.DELETE_COLUMN);
+      actionColumns.push(this.DELETE_COLUMN);
     }
-    return columns;
+    return [...configColumns, ...actionColumns];
   });
-
-  constructor() {
-    effect(() => {
-      const table = this.tableRef;
-      const defs = this.columnDefs;
-      const defsLength = defs?.length;
-
-      if (table && defs && defsLength > 0) {
-        defs.forEach((columnDef) => {
-          table.addColumnDef(columnDef);
-        });
-      }
-    });
-  }
 
   getFilterType(key: keyof Partial<T>): FilterType {
     return this.getColumnConfigurationForKey(key)?.filterType ?? 'text';
   }
 
-  getFilterDisplayPattern(key: keyof Partial<T>): string | undefined {
+  getFilterDisplayPattern(key: keyof Partial<T>): ((option: any) => string) | undefined {
     return this.getColumnConfigurationForKey(key)?.filterDisplayPattern;
   }
 

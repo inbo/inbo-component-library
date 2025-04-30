@@ -7,10 +7,25 @@
   <div class="example-container">
     <h2>Basic Usage: Instant Data Loading</h2>
     <p>Demonstrates the simplest use case where data is loaded instantly into the table without showing a loading indicator.</p>
+    
+    <ng-template #statusCellTemplate let-statusValue let-rowItem="item">
+      @switch (statusValue) {
+        @case ('active') {
+          <span style="color: green; font-weight: bold;"><mat-icon style="font-size: 1em; vertical-align: middle;">check_circle</mat-icon> ({{ statusValue }})</span>
+        }
+        @case ('inactive') {
+          <span style="color: red;"><mat-icon style="font-size: 1em; vertical-align: middle;">cancel</mat-icon> ({{ statusValue }})</span>
+        }
+        @case ('pending') {
+          <span style="color: orange;"><mat-icon style="font-size: 1em; vertical-align: middle;">hourglass_empty</mat-icon> ({{ statusValue }})</span>
+        }
+      }
+    </ng-template>
+
     <inbo-data-table
         [dataPage]="instantDataPage$ | async"
         [dataRequestState]="instantDataRequestState$ | async"
-        [columnConfiguration]="instantColumnConfig"
+        [columnConfiguration]="instantColumnConfig()"
         rowHeight="48px"
         >
     </inbo-data-table>

@@ -1,4 +1,6 @@
 import {Observable} from "rxjs";
+import { SortDirection } from '@angular/material/sort';
+import { TemplateRef } from '@angular/core';
 
 export type InboDataTableColumnConfiguration<T> = {
   [key in keyof Partial<T>]: InboDataTableColumn<T[key]>;
@@ -13,7 +15,8 @@ export interface InboDataTableColumn<T> {
   sortablePropertyName?: string;
   filterable?: boolean;
   filterType?: FilterType;
-  filterSearchFunction?: (query: string) => Observable<Array<T>>;
-  filterDisplayPattern?: string;
-  filterValueSelector?: (item: T) => string | number;
+  filterSearchFunction?: (query: string) => Observable<Array<unknown>>;
+  filterDisplayPattern?: (option: T) => string;
+  filterValueSelector?: (option: T) => unknown;
+  cellTemplate?: TemplateRef<unknown>;
 }

@@ -157,3 +157,14 @@
     }
   }
 }
+
+.empty-data-row {
+  td {
+    border-bottom: none;
+    padding: 24px 0;
+
+    .empty-message-in-table {
+      margin-top: 0;
+    }
+  }
+}
