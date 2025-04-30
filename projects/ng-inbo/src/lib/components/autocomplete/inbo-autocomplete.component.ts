@@ -31,7 +31,7 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
   // Pattern can be any string where values from the value object are interpolated by marking them with ${<key>}
   // Default values for properties are used if the value from the display properties is null, undefined or a blank string. If no default is specified, it will just be an empty string.
   // Example: '${key1} - ${key2}' with object {key1: 'value1', key2: 'value2'} will be displayed as 'value1 - value2'
-  @Input() displayPattern: string;
+  @Input() displayPattern: ((option: T) => string) | string;
   @Input() disabled: boolean;
   @Input() showErrorMessage: boolean;
   @Input() showClearIcon: boolean = false;
@@ -62,28 +62,41 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
   onTouch: (value?: T) => void = () => undefined;
 
   readonly getDisplayValue = (value: T): string => {
-    if (isNil(value) || isNil(this.displayPattern)) {
+    if (isNil(value)) {
       return '';
     }
-    if (typeof value !== 'object') {
-      return `${value}`;
-    }
-    let result = this.displayPattern;
-    Object.keys(value as Partial<{ [key: string]: string }>).forEach(
-      key => {
-        result = result.replace(`\$\{${key}\}`, `${value[key]}`);
+
+    if (typeof this.displayPattern === 'function') {
+      try {
+        return this.displayPattern(value) || '';
+      } catch (e) {
+        console.error('Error executing displayPattern function', e);
+        return '[Error]';
       }
-    );
-    return result.replace(new RegExp(/\$\{\S*}/, 'g'), '');
+    } else if (typeof this.displayPattern === 'string' && typeof value === 'object') {
+      let result = this.displayPattern;
+      Object.keys(value as Partial<{ [key: string]: any }>).forEach(
+        key => {
+          result = result.replace(`\$\{${key}\}`, `${value[key] ?? ''}`);
+        }
+      );
+      return result.replace(new RegExp(/\$\{\S*}/, 'g'), '');
+    }
+
+    if (typeof value === 'object') {
+      return JSON.stringify(value);
+    }
+
+    return `${value}`;
   };
 
   inputChanged(value: string) {
     if (this.mask && value) {
       value = this.applyMask(value);
     }
-    
+
     this.displayValue = value;
-    
+
     if (value?.length >= this.minNumberOfCharacters) {
       this.doSearch(value);
     } else {
@@ -91,15 +104,15 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
     }
   }
 
-  applyMask(value: string): string {    
+  applyMask(value: string): string {
     const cleanValue = value.replace(/[^a-zA-Z0-9]/g, '');
-    
+
     let result = '';
     let cleanIndex = 0;
-    
+
     for (let i = 0; i < this.mask.length && cleanIndex < cleanValue.length; i++) {
       const maskChar = this.mask[i];
-      
+
       if (maskChar === '-' || maskChar === ' ' || maskChar === '/') {
         result += maskChar;
       } else {
@@ -107,7 +120,7 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
         cleanIndex++;
       }
     }
-    
+
     return result;
   }
 
