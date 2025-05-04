@@ -1,11 +1,14 @@
 import {
+  AfterViewChecked,
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
   EventEmitter,
   input,
   InputSignal,
   Output,
+  Renderer2,
   signal,
   Signal,
   ViewChild,
@@ -74,8 +77,10 @@ export interface InboDatatableItem {
     NgTemplateOutlet
   ]
 })
-export class InboDataTableComponent<T extends InboDatatableItem> {
+export class InboDataTableComponent<T extends InboDatatableItem> implements AfterViewChecked {
   @ViewChild(MatTable, {static: false}) tableRef: MatTable<T>;
+  @ViewChild(MatTable, { static: false, read: ElementRef }) tableElementRef: ElementRef<HTMLTableElement>;
+  @ViewChild(MatPaginator, { static: false, read: ElementRef }) paginatorElementRef: ElementRef<HTMLElement>;
 
   readonly RequestState = RequestState;
   readonly DETAIL_COLUMN = 'detailColumn';
@@ -97,6 +102,8 @@ export class InboDataTableComponent<T extends InboDatatableItem> {
 
   filterValues: WritableSignal<Record<string, any>> = signal({});
   temporaryFilterValues: WritableSignal<Record<string, any>> = signal({});
+
+  constructor(private renderer: Renderer2) {}
 
   displayedColumns: Signal<Array<keyof T & string>> = computed(() => {
     const config = this.columnConfiguration();
@@ -219,5 +226,25 @@ export class InboDataTableComponent<T extends InboDatatableItem> {
       }
     });
     this.filterChanged.emit(stringFilters);
+  }
+
+  ngAfterViewChecked(): void {
+    this.updatePaginatorWidth();
+  }
+
+  private updatePaginatorWidth(): void {
+    if (this.tableElementRef && this.paginatorElementRef && this.dataPage()?.content?.length > 0) {
+      const tableScrollWidth = this.tableElementRef.nativeElement.scrollWidth;
+      const currentMinWidth = this.paginatorElementRef.nativeElement.style.minWidth;
+      const newMinWidth = `${tableScrollWidth}px`;
+
+      if (currentMinWidth !== newMinWidth) {
+        this.renderer.setStyle(this.paginatorElementRef.nativeElement, 'min-width', newMinWidth);
+      }
+    } else if (this.paginatorElementRef) {
+      if (this.paginatorElementRef.nativeElement.style.minWidth !== 'auto') {
+          this.renderer.setStyle(this.paginatorElementRef.nativeElement, 'min-width', 'auto');
+      }
+    }
   }
 }
