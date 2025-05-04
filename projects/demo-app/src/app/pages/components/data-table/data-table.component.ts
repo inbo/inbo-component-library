@@ -73,7 +73,7 @@ export class DataTableComponent {
       filterType: 'text'
     } as any,
     description: {
-      name: 'Description (Autocomplete Filter)',
+      name: 'Description',
       sortablePropertyName: 'description',
       filterable: true,
       filterType: 'autocomplete',

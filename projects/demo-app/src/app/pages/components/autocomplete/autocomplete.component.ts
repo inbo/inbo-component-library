@@ -5,7 +5,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {of} from 'rxjs';
 import {delay} from 'rxjs/operators';
-import {NgInboModule} from "ng-inbo";
+import { NgInboModule } from 'ng-inbo';
 
 interface Country {
   name: string;
