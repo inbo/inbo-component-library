@@ -32,6 +32,19 @@
   </div>
 
   <div class="example-container">
+    <h2>Pagination Demo (5 items per page, 5 pages)</h2>
+    <p>This example demonstrates the data table with pagination enabled. It loads 25 items, displaying 5 items per page.</p>
+    <inbo-data-table
+        [dataPage]="paginationDemoDataPage$ | async"
+        [dataRequestState]="paginationDemoDataRequestState$ | async"
+        [columnConfiguration]="paginationDemoColumnConfig"
+        (pageChange)="onPaginationDemoPageChange($event)"
+        rowHeight="48px"
+        >
+    </inbo-data-table>
+  </div>
+
+  <div class="example-container">
     <h2>Advanced Features Showcase</h2>
     <p>Explore advanced capabilities like server-side pagination, dynamic sorting, text filtering (Name column), autocomplete filtering (Description column), conditional row actions, and interaction controls.</p>
 

@@ -118,10 +118,33 @@ export class DataTableComponent {
     return config;
   });
 
+  private paginationDemoData: DemoItem[] = [];
+  private paginationDemoPageable: DemoPageable = {
+    pageNumber: 0,
+    pageSize: 5,
+    totalElements: 25,
+    empty: false,
+    first: true,
+    last: false,
+    sorted: false,
+    totalPages: 5
+  };
+  private paginationDemoDataSubject = new BehaviorSubject<ApiPage<DemoItem> | null>(null);
+  paginationDemoDataPage$: Observable<ApiPage<DemoItem> | null> = this.paginationDemoDataSubject.asObservable();
+  private paginationDemoRequestStateSubject = new BehaviorSubject<RequestState>(RequestState.PENDING);
+  paginationDemoDataRequestState$: Observable<RequestState> = this.paginationDemoRequestStateSubject.asObservable();
+  paginationDemoColumnConfig: InboDataTableColumnConfiguration<DemoItem> = {
+    id: {name: 'ID'} as any,
+    name: {name: 'Name'} as any,
+    description: {name: 'Description'} as any,
+  };
+
   constructor(private snackBar: MatSnackBar) {
     this.generateData();
     this.fetchData();
     this.initializeInstantData();
+    this.initializePaginationDemoData();
+    this.fetchPaginationDemoData(this.paginationDemoPageable.pageNumber, this.paginationDemoPageable.pageSize);
   }
 
   private generateData(): void {
@@ -136,6 +159,50 @@ export class DataTableComponent {
       status: ['active', 'inactive', 'pending'][i % 3] as 'active' | 'inactive' | 'pending'
     }));
     this.currentPageable.totalPages = Math.ceil(this.currentPageable.totalElements / this.currentPageable.pageSize);
+  }
+
+  private initializePaginationDemoData(): void {
+    this.paginationDemoData = Array.from({length: this.paginationDemoPageable.totalElements}, (_, i) => ({
+      id: 2000 + i + 1,
+      name: `Paginated Item ${i + 1}`,
+      description: `This is paginated item ${i + 1}`,
+      date: new Date(Date.now() - Math.random() * 1e10),
+      status: ['active', 'inactive', 'pending'][i % 3] as 'active' | 'inactive' | 'pending'
+    }));
+    this.paginationDemoPageable.totalPages = Math.ceil(this.paginationDemoData.length / this.paginationDemoPageable.pageSize);
+  }
+
+  private fetchPaginationDemoData(pageNumber: number, pageSize: number): void {
+    this.paginationDemoRequestStateSubject.next(RequestState.PENDING);
+
+    const start = pageNumber * pageSize;
+    const end = start + pageSize;
+    const pageContent = this.paginationDemoData.slice(start, end);
+
+    this.paginationDemoPageable = {
+      ...this.paginationDemoPageable,
+      pageNumber,
+      pageSize,
+      totalElements: this.paginationDemoData.length,
+      totalPages: Math.ceil(this.paginationDemoData.length / pageSize),
+      empty: pageContent.length === 0,
+      first: pageNumber === 0,
+      last: pageNumber >= (Math.ceil(this.paginationDemoData.length / pageSize) -1)
+    };
+
+    of({
+      content: pageContent,
+      pageable: this.paginationDemoPageable,
+    }).pipe(
+      delay(500) // Simulate network delay
+    ).subscribe(page => {
+      if (page.content.length === 0) {
+        this.paginationDemoRequestStateSubject.next(RequestState.EMPTY);
+      } else {
+        this.paginationDemoRequestStateSubject.next(RequestState.SUCCESS);
+      }
+      this.paginationDemoDataSubject.next(page);
+    });
   }
 
   private fetchData(): void {
@@ -320,5 +387,9 @@ export class DataTableComponent {
     }));
 
     return of(options).pipe(delay(300));
+  }
+
+  onPaginationDemoPageChange(event: PageEvent): void {
+    this.fetchPaginationDemoData(event.pageIndex, event.pageSize);
   }
 }

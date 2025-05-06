@@ -154,6 +154,7 @@
         </table>
 
         <mat-paginator
+          [pageIndex]="dataPage().pageable.pageNumber"
           [pageSize]="dataPage().pageable.pageSize" [showFirstLastButtons]="true" [hidePageSize]="true"
           [length]="dataPage().pageable.totalElements" (page)="pageChange.emit($event)">
         </mat-paginator>
