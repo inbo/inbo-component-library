@@ -15,6 +15,8 @@ export interface InboDataTableColumn<T> {
   sortablePropertyName?: string;
   filterable?: boolean;
   filterType?: FilterType;
+  filterPlaceholder?: string;
+  filterMode?: 'local' | 'remote';
   filterSearchFunction?: (query: string) => Observable<Array<unknown>>;
   filterDisplayPattern?: (option: T) => string;
   filterValueSelector?: (option: T) => unknown;
