@@ -13,7 +13,8 @@ import {
   Signal,
   ViewChild,
   WritableSignal,
-  NgZone
+  NgZone,
+  effect
 } from '@angular/core';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
 import {InboDataTableColumn, InboDataTableColumnConfiguration, FilterType} from './column-configuration.model';
@@ -88,6 +89,8 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
   columnConfiguration: InputSignal<InboDataTableColumnConfiguration<T>> = input.required<InboDataTableColumnConfiguration<T>>();
   rowHeight: InputSignal<string> = input('48px');
   sort: InputSignal<Sort | undefined> = input<Sort | undefined>(undefined);
+  clientSideProcessing: InputSignal<boolean> = input(false);
+  clientPageSize: InputSignal<number | undefined> = input(undefined);
 
   @Output() pageChange = new EventEmitter<PageEvent>();
   @Output() editItem = new EventEmitter<T>();
@@ -99,15 +102,105 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
   filterValues: WritableSignal<Record<string, any>> = signal({});
   temporaryFilterValues: WritableSignal<Record<string, any>> = signal({});
 
+  private internalClientSort: WritableSignal<Sort | undefined> = signal(undefined);
+  private currentPageIndexForLocalFiltering: WritableSignal<number> = signal(0);
+
   private debouncedApplyFilters = new Subject<string>();
-  filteredData: Signal<T[]>;
   autocompleteOptionStreams: WritableSignal<Record<string, Observable<any[]>>> = signal({});
 
+  readonly DEFAULT_CLIENT_PAGE_SIZE = 5;
+
+  effectivePageSizeForDisplay: Signal<number> = computed(() => {
+    if (this.clientSideProcessing()) {
+      return this.clientPageSize() ?? this.DEFAULT_CLIENT_PAGE_SIZE;
+    }
+    return this.dataPage()?.pageable.pageSize ?? this.DEFAULT_CLIENT_PAGE_SIZE;
+  });
+
+  activeSortConfigurationForTable: Signal<Sort | undefined> = computed(() => {
+    return this.clientSideProcessing() ? this.internalClientSort() : this.sort();
+  });
+
+  private processedDataMasterList: Signal<T[]> = computed(() => {
+    const pageContent = this.dataPage()?.content ?? [];
+    let dataToProcess: T[] = [...pageContent]; 
+
+    if (this.clientSideProcessing()) {
+      dataToProcess = this.applyLocalSort(dataToProcess, this.internalClientSort());
+      dataToProcess = this.applyLocalFilters(dataToProcess, this.filterValues(), true);
+    } else {
+      dataToProcess = this.applyLocalFilters(dataToProcess, this.filterValues(), false);
+    }
+    return dataToProcess;
+  });
+
+  dataForRender: Signal<T[]> = computed(() => {
+    if (this.clientSideProcessing()) {
+      const fullList = this.processedDataMasterList();
+      const pageSize = this.effectivePageSizeForDisplay();
+      const startIndex = this.currentPageIndexForLocalFiltering() * pageSize;
+      const endIndex = startIndex + pageSize;
+      return fullList.slice(startIndex, endIndex);
+    } else {
+      return this.processedDataMasterList(); 
+    }
+  });
+
+  paginatorLength: Signal<number> = computed(() => {
+    if (this.clientSideProcessing()) {
+      return this.processedDataMasterList().length;
+    } else {
+      if (this.isAnyLocalFilterActive()) {
+        return this.processedDataMasterList().length; 
+      }
+      return this.dataPage()?.pageable?.totalElements ?? 0;
+    }
+  });
+
+  paginatorPageIndex: Signal<number> = computed(() => {
+    if (this.clientSideProcessing()) {
+      return this.currentPageIndexForLocalFiltering();
+    } else {
+      if (this.isAnyLocalFilterActive()) {
+        return 0;
+      }
+      return this.dataPage()?.pageable?.pageNumber ?? 0;
+    }
+  });
+
+  isAnyLocalFilterActive: Signal<boolean> = computed(() => {
+    const filters = this.filterValues();
+    const colConfig = this.columnConfiguration();
+    if (!filters || !colConfig) {
+      return false;
+    }
+    return Object.keys(filters).some(key => {
+      const filterValue = filters[key];
+      if (filterValue === undefined || filterValue === null || (typeof filterValue === 'string' && filterValue.trim() === '')) {
+        return false;
+      }
+      const config = colConfig[key as keyof T];
+      return config?.filterMode === 'local';
+    });
+  });
+
   constructor(private renderer: Renderer2, private zone: NgZone) {
-    this.filteredData = computed(() => {
-      const currentFilters = this.filterValues();
-      const originalData = this.dataPage()?.content ?? [];
-      return this.computeFilteredDataBody(currentFilters, originalData);
+    effect(() => {
+      if (this.clientSideProcessing()) {
+        this.internalClientSort.set(this.sort());
+        this.currentPageIndexForLocalFiltering.set(0); // Reset page on mode switch or initial sort set
+      } else {
+        // Optionally, reset internalClientSort if switching away from client-side processing
+        this.internalClientSort.set(undefined);
+      }
+    });
+
+    effect(() => {
+      // Effect to reset local pagination if data source changes during client-side processing
+      this.dataPage(); // Depend on dataPage
+      if (this.clientSideProcessing()) {
+        this.currentPageIndexForLocalFiltering.set(0);
+      }
     });
 
     this.debouncedApplyFilters.pipe(
@@ -261,22 +354,31 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
         }
         return newValues;
       });
+      if (this.clientSideProcessing()) {
+        this.currentPageIndexForLocalFiltering.set(0);
+      }
       this.emitFilterChanged();
     }
   }
 
   clearFilter(columnKey: string): void {
     let changed = false;
-    if (this.temporaryFilterValues()[columnKey] !== undefined && this.temporaryFilterValues()[columnKey] !== null && this.temporaryFilterValues()[columnKey] !== '') {
+    const currentFilterValue = this.filterValues()[columnKey];
+    const currentTempFilterValue = this.temporaryFilterValues()[columnKey];
+
+    if (currentTempFilterValue !== undefined && currentTempFilterValue !== null && currentTempFilterValue !== '') {
       this.temporaryFilterValues.update(current => ({...current, [columnKey]: undefined}));
       changed = true;
     }
-    if (this.filterValues()[columnKey] !== undefined && this.filterValues()[columnKey] !== null && this.filterValues()[columnKey] !== '') {
+    if (currentFilterValue !== undefined && currentFilterValue !== null && currentFilterValue !== '') {
       this.filterValues.update(current => ({...current, [columnKey]: undefined}));
       if (!changed) changed = true;
     }
 
     if (changed) {
+      if (this.clientSideProcessing()) {
+        this.currentPageIndexForLocalFiltering.set(0);
+      }
       this.emitFilterChanged();
     }
   }
@@ -311,20 +413,45 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
     this.filterChanged.emit(stringFilters);
   }
 
-  private computeFilteredDataBody(currentFilters: Record<string, any>, originalData: T[]): T[] {
-    const activeLocalFilters = Object.entries(currentFilters).filter(([keyStr, value]) => {
+  private applyLocalSort(data: T[], sort: Sort | undefined): T[] {
+    if (!sort || !sort.active || sort.direction === '') {
+      return data;
+    }
+    const dataCopy = [...data];
+    dataCopy.sort((a, b) => {
+      const valA = (a as any)[sort.active];
+      const valB = (b as any)[sort.active];
+
+      let comparison = 0;
+      if (valA === null || valA === undefined) comparison = -1;
+      if (valB === null || valB === undefined) comparison = 1;
+      if (valA === null && valB === null) comparison = 0;
+
+      if (valA > valB) comparison = 1;
+      else if (valA < valB) comparison = -1;
+      
+      return sort.direction === 'asc' ? comparison : comparison * -1;
+    });
+    return dataCopy;
+  }
+
+  private applyLocalFilters(data: T[], activeFilters: Record<string, any>, isClientSideContext: boolean): T[] {
+    const filtersToApply = Object.entries(activeFilters).filter(([keyStr, value]) => {
       if (value === undefined || value === null || value === '') return false;
       const key = keyStr as keyof T;
       const config = this.getColumnConfigurationForKey(key);
+      // When in clientSideProcessing context, all 'local' filters apply to the full list.
+      // When not, 'local' filters apply to the current page's data.
+      // 'remote' filters are never handled by this function.
       return (config?.filterMode ?? 'remote') === 'local';
     });
 
-    if (activeLocalFilters.length === 0) {
-      return originalData;
+    if (filtersToApply.length === 0) {
+      return data;
     }
 
-    const filtered = originalData.filter(item => {
-      return activeLocalFilters.every(([keyStr, value]) => {
+    const filtered = data.filter(item => {
+      return filtersToApply.every(([keyStr, value]) => {
         const key = keyStr as keyof T;
         const config = this.getColumnConfigurationForKey(key);
         const itemValue = (item as any)[key];
@@ -338,7 +465,20 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
           cellValueForFiltering = '';
         }
 
-        const filterText = String(value).toLowerCase();
+        let filterCriterion: any;
+        if (config?.filterType === 'autocomplete' && typeof value === 'object' && value !== null) {
+          if (config.filterValueSelector) {
+            filterCriterion = config.filterValueSelector(value as any);
+          } else if (value.hasOwnProperty('value')) {
+            filterCriterion = (value as any).value;
+          } else {
+            filterCriterion = value;
+          }
+        } else {
+          filterCriterion = value;
+        }
+
+        const filterText = String(filterCriterion).toLowerCase();
         return cellValueForFiltering.toLowerCase().includes(filterText);
       });
     });
@@ -362,6 +502,23 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
       if (this.paginatorElementRef.nativeElement.style.minWidth !== 'auto') {
           this.renderer.setStyle(this.paginatorElementRef.nativeElement, 'min-width', 'auto');
       }
+    }
+  }
+
+  handlePageEvent(event: PageEvent): void {
+    if (this.clientSideProcessing()) {
+      this.currentPageIndexForLocalFiltering.set(event.pageIndex);
+    } else {
+      this.pageChange.emit(event);
+    }
+  }
+
+  dispatchSortChangeEvent(sortEvent: Sort): void {
+    if (this.clientSideProcessing()) {
+      this.internalClientSort.set(sortEvent);
+      this.currentPageIndexForLocalFiltering.set(0);
+    } else {
+      this.sortChanged.emit(sortEvent);
     }
   }
 }

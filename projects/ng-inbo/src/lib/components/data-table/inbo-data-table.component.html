@@ -15,11 +15,11 @@
   @default {
     <div>
       <div class="table-scroll-container">
-        <table mat-table class="data-table" [dataSource]="filteredData()"
+        <table mat-table class="data-table" [dataSource]="dataForRender()"
                matSort
-               [matSortActive]="sort()?.active"
-               [matSortDirection]="sort()?.direction"
-               (matSortChange)="sortChanged.emit($event)">
+               [matSortActive]="activeSortConfigurationForTable()?.active"
+               [matSortDirection]="activeSortConfigurationForTable()?.direction"
+               (matSortChange)="dispatchSortChangeEvent($event)">
 
           @for (displayedColumn of displayedColumns(); track displayedColumn) {
             <ng-container [matColumnDef]="displayedColumn">
@@ -179,9 +179,9 @@
         </table>
 
         <mat-paginator
-          [pageIndex]="dataPage().pageable.pageNumber"
-          [pageSize]="dataPage().pageable.pageSize" [showFirstLastButtons]="true" [hidePageSize]="true"
-          [length]="dataPage().pageable.totalElements" (page)="pageChange.emit($event)">
+          [pageIndex]="paginatorPageIndex()"
+          [pageSize]="effectivePageSizeForDisplay()" [showFirstLastButtons]="true"
+          [length]="paginatorLength()" (page)="handlePageEvent($event)">
         </mat-paginator>
       </div>
 
