@@ -33,7 +33,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTable, MatTableModule } from '@angular/material/table';
 import { Observable, of, Subject } from 'rxjs';
-import { catchError, debounceTime, startWith } from 'rxjs/operators';
+import { catchError, debounceTime } from 'rxjs/operators';
 import { ApiPage } from '../../services/api/api-page.model';
 import { RequestState } from '../../services/api/request-state.enum';
 import {
@@ -313,16 +313,42 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     return this.columnConfiguration()[key];
   }
 
+  onAutocompleteFocus(columnKey: string): void {
+    const searchFn = this.getFilterSearchFunction(columnKey as keyof T);
+    if (searchFn) {
+      const currentVal = this.temporaryFilterValues()[columnKey];
+      const query = typeof currentVal === 'string' ? currentVal : '';
+      this.autocompleteOptionStreams.update((streams) => ({
+        ...streams,
+        [columnKey]: searchFn(query).pipe(
+          catchError((err) => {
+            console.error(
+              "Error fetching autocomplete options on focus for query '" +
+                query +
+                "':",
+              err
+            );
+            return of([]);
+          })
+        ),
+      }));
+    }
+  }
+
   onAutocompleteInputTextChanged(columnKey: string, event: Event): void {
     const value = (event.target as HTMLInputElement)?.value;
     const searchFn = this.getFilterSearchFunction(columnKey as keyof T);
-    if (searchFn && typeof value === 'string' && value.trim() !== '') {
+
+    if (searchFn) {
+      const query = typeof value === 'string' ? value : ''; // Ensure query is a string
       this.autocompleteOptionStreams.update((streams) => ({
         ...streams,
-        [columnKey]: searchFn(value).pipe(
-          startWith([]),
+        [columnKey]: searchFn(query).pipe(
           catchError((err) => {
-            console.error('Error fetching autocomplete options:', err);
+            console.error(
+              "Error fetching autocomplete options for query '" + query + "':",
+              err
+            );
             return of([]);
           })
         ),
@@ -330,7 +356,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     } else {
       this.autocompleteOptionStreams.update((streams) => {
         const newStreams = { ...streams };
-        newStreams[columnKey] = of([]);
+        delete newStreams[columnKey]; // Clears the stream for this column
         return newStreams;
       });
     }

@@ -119,6 +119,7 @@
                     onAutocompleteInputTextChanged(displayedColumn, $event)
                   "
                   (keyup.enter)="applyFilter(displayedColumn)"
+                  (focus)="onAutocompleteFocus(displayedColumn)"
                 />
                 <mat-autocomplete
                   #autoCompleteRef="matAutocomplete"
