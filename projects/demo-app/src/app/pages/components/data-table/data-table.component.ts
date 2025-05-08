@@ -80,7 +80,8 @@ export class DataTableComponent {
       filterable: true,
       filterType: 'autocomplete',
       filterSearchFunction: (query: string) => this.searchDescriptions(query),
-      filterDisplayPattern: (option: SimpleAutocompleteOption) => option?.display || ''
+      filterDisplayPattern: (option: SimpleAutocompleteOption) => option?.display || '',
+      filterValueSelector: (option: SimpleAutocompleteOption) => option.value
     } as any,
     date: {
       name: 'Date',

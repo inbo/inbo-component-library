@@ -32,16 +32,17 @@ import {
 } from '@angular/material/table';
 import {MatSort, MatSortModule, Sort} from '@angular/material/sort';
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
-import {NgIf, NgStyle, NgTemplateOutlet} from "@angular/common";
+import {NgIf, NgStyle, NgTemplateOutlet, AsyncPipe} from "@angular/common";
 import {MatButtonModule} from "@angular/material/button";
 import {MatIconModule} from "@angular/material/icon";
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import { Observable, Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { Observable, Subject, of } from 'rxjs';
+import { debounceTime, startWith, catchError } from 'rxjs/operators';
 import {NgInboModule} from "../../ng-inbo.module";
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 export interface InboDatatableItem {
   isViewButtonDisabled?: boolean;
@@ -67,8 +68,9 @@ export interface InboDatatableItem {
     FormsModule,
     ReactiveFormsModule,
     MatSortModule,
-    NgInboModule,
-    NgTemplateOutlet
+    MatAutocompleteModule,
+    NgTemplateOutlet,
+    AsyncPipe
   ]
 })
 export class InboDataTableComponent<T extends InboDatatableItem> implements AfterViewChecked {
@@ -99,6 +101,7 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
 
   private debouncedApplyFilters = new Subject<string>();
   filteredData: Signal<T[]>;
+  autocompleteOptionStreams: WritableSignal<Record<string, Observable<any[]>>> = signal({});
 
   constructor(private renderer: Renderer2, private zone: NgZone) {
     this.filteredData = computed(() => {
@@ -142,6 +145,15 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
     return [...configColumns, ...actionColumns];
   });
 
+  getColumnStyles(key: keyof Partial<T>): Partial<CSSStyleDeclaration> {
+    const config = this.getColumnConfigurationForKey(key);
+    const styles: Partial<CSSStyleDeclaration> = { ...config?.style };
+    if (config?.width !== undefined) {
+      styles.width = `${config.width}px`;
+    }
+    return styles;
+  }
+
   getFilterType(key: keyof Partial<T>): FilterType {
     return this.getColumnConfigurationForKey(key)?.filterType ?? 'text';
   }
@@ -162,6 +174,37 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
     key: keyof Partial<T>
   ): InboDataTableColumn<T[keyof T]> | undefined {
     return this.columnConfiguration()[key];
+  }
+
+  onAutocompleteInputTextChanged(columnKey: string, event: Event): void {
+    const value = (event.target as HTMLInputElement)?.value;
+    const searchFn = this.getFilterSearchFunction(columnKey as keyof T);
+    if (searchFn && typeof value === 'string' && value.trim() !== '') {
+      this.autocompleteOptionStreams.update(streams => ({
+        ...streams,
+        [columnKey]: searchFn(value).pipe(
+          startWith([]),
+          catchError(err => {
+            console.error('Error fetching autocomplete options:', err);
+            return of([]);
+          })
+        )
+      }));
+    } else {
+      this.autocompleteOptionStreams.update(streams => {
+        const newStreams = {...streams};
+        newStreams[columnKey] = of([]);
+        return newStreams;
+      });
+    }
+  }
+
+  getOptionDisplayText(columnKey: keyof Partial<T>, option: any): string {
+    const displayFn = this.getFilterDisplayPattern(columnKey);
+    if (displayFn) {
+      return displayFn(option);
+    }
+    return option ? String(option) : '';
   }
 
   onEditItemClick(event: MouseEvent, dataItem: T): void {

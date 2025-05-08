@@ -11,6 +11,7 @@ export type FilterType = 'text' | 'autocomplete';
 export interface InboDataTableColumn<T> {
   name: string;
   style?: Partial<CSSStyleDeclaration>;
+  width?: number;
   getValue?: (propertyValue: T) => string;
   sortablePropertyName?: string;
   filterable?: boolean;
