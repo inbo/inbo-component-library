@@ -1,49 +1,46 @@
+import { AsyncPipe, NgStyle, NgTemplateOutlet } from '@angular/common';
 import {
   AfterViewChecked,
   ChangeDetectionStrategy,
   Component,
   computed,
+  effect,
   ElementRef,
   EventEmitter,
   input,
   InputSignal,
+  NgZone,
   Output,
   Renderer2,
   signal,
   Signal,
   ViewChild,
   WritableSignal,
-  NgZone,
-  effect
 } from '@angular/core';
-import {MatPaginator, PageEvent} from '@angular/material/paginator';
-import {InboDataTableColumn, InboDataTableColumnConfiguration, FilterType} from './column-configuration.model';
-import {ApiPage} from '../../services/api/api-page.model';
-import {RequestState} from '../../services/api/request-state.enum';
-import {
-  MatCell,
-  MatCellDef,
-  MatColumnDef,
-  MatHeaderCell,
-  MatHeaderCellDef,
-  MatHeaderRow,
-  MatRow,
-  MatTable,
-  MatTableModule
-} from '@angular/material/table';
-import {MatSort, MatSortModule, Sort} from '@angular/material/sort';
-import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
-import {NgIf, NgStyle, NgTemplateOutlet, AsyncPipe} from "@angular/common";
-import {MatButtonModule} from "@angular/material/button";
-import {MatIconModule} from "@angular/material/icon";
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatInputModule} from '@angular/material/input';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import { Observable, Subject, of } from 'rxjs';
-import { debounceTime, startWith, catchError } from 'rxjs/operators';
-import {NgInboModule} from "../../ng-inbo.module";
-import { MatPaginatorModule } from '@angular/material/paginator';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import {
+  MatPaginator,
+  MatPaginatorModule,
+  PageEvent,
+} from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSortModule, Sort } from '@angular/material/sort';
+import { MatTable, MatTableModule } from '@angular/material/table';
+import { Observable, of, Subject } from 'rxjs';
+import { catchError, debounceTime, startWith } from 'rxjs/operators';
+import { ApiPage } from '../../services/api/api-page.model';
+import { RequestState } from '../../services/api/request-state.enum';
+import {
+  FilterType,
+  InboDataTableColumn,
+  InboDataTableColumnConfiguration,
+} from './column-configuration.model';
 
 export interface InboDatatableItem {
   isViewButtonDisabled?: boolean;
@@ -66,18 +63,23 @@ export interface InboDatatableItem {
     NgStyle,
     MatFormFieldModule,
     MatInputModule,
+    MatSelectModule,
     FormsModule,
     ReactiveFormsModule,
     MatSortModule,
     MatAutocompleteModule,
     NgTemplateOutlet,
-    AsyncPipe
-  ]
+    AsyncPipe,
+  ],
 })
-export class InboDataTableComponent<T extends InboDatatableItem> implements AfterViewChecked {
-  @ViewChild(MatTable, {static: false}) tableRef: MatTable<T>;
-  @ViewChild(MatTable, { static: false, read: ElementRef }) tableElementRef: ElementRef<HTMLTableElement>;
-  @ViewChild(MatPaginator, { static: false, read: ElementRef }) paginatorElementRef: ElementRef<HTMLElement>;
+export class InboDataTableComponent<T extends InboDatatableItem>
+  implements AfterViewChecked
+{
+  @ViewChild(MatTable, { static: false }) tableRef: MatTable<T>;
+  @ViewChild(MatTable, { static: false, read: ElementRef })
+  tableElementRef: ElementRef<HTMLTableElement>;
+  @ViewChild(MatPaginator, { static: false, read: ElementRef })
+  paginatorElementRef: ElementRef<HTMLElement>;
 
   readonly RequestState = RequestState;
   readonly DETAIL_COLUMN = 'detailColumn';
@@ -86,7 +88,8 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
 
   dataPage: InputSignal<ApiPage<T>> = input.required<ApiPage<T>>();
   dataRequestState: InputSignal<RequestState> = input.required<RequestState>();
-  columnConfiguration: InputSignal<InboDataTableColumnConfiguration<T>> = input.required<InboDataTableColumnConfiguration<T>>();
+  columnConfiguration: InputSignal<InboDataTableColumnConfiguration<T>> =
+    input.required<InboDataTableColumnConfiguration<T>>();
   rowHeight: InputSignal<string> = input('48px');
   sort: InputSignal<Sort | undefined> = input<Sort | undefined>(undefined);
   clientSideProcessing: InputSignal<boolean> = input(false);
@@ -102,11 +105,13 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
   filterValues: WritableSignal<Record<string, any>> = signal({});
   temporaryFilterValues: WritableSignal<Record<string, any>> = signal({});
 
-  private internalClientSort: WritableSignal<Sort | undefined> = signal(undefined);
+  private internalClientSort: WritableSignal<Sort | undefined> =
+    signal(undefined);
   private currentPageIndexForLocalFiltering: WritableSignal<number> = signal(0);
 
   private debouncedApplyFilters = new Subject<string>();
-  autocompleteOptionStreams: WritableSignal<Record<string, Observable<any[]>>> = signal({});
+  autocompleteOptionStreams: WritableSignal<Record<string, Observable<any[]>>> =
+    signal({});
 
   readonly DEFAULT_CLIENT_PAGE_SIZE = 5;
 
@@ -118,18 +123,31 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
   });
 
   activeSortConfigurationForTable: Signal<Sort | undefined> = computed(() => {
-    return this.clientSideProcessing() ? this.internalClientSort() : this.sort();
+    return this.clientSideProcessing()
+      ? this.internalClientSort()
+      : this.sort();
   });
 
   private processedDataMasterList: Signal<T[]> = computed(() => {
     const pageContent = this.dataPage()?.content ?? [];
-    let dataToProcess: T[] = [...pageContent]; 
+    let dataToProcess: T[] = [...pageContent];
 
     if (this.clientSideProcessing()) {
-      dataToProcess = this.applyLocalSort(dataToProcess, this.internalClientSort());
-      dataToProcess = this.applyLocalFilters(dataToProcess, this.filterValues(), true);
+      dataToProcess = this.applyLocalSort(
+        dataToProcess,
+        this.internalClientSort()
+      );
+      dataToProcess = this.applyLocalFilters(
+        dataToProcess,
+        this.filterValues(),
+        true
+      );
     } else {
-      dataToProcess = this.applyLocalFilters(dataToProcess, this.filterValues(), false);
+      dataToProcess = this.applyLocalFilters(
+        dataToProcess,
+        this.filterValues(),
+        false
+      );
     }
     return dataToProcess;
   });
@@ -142,7 +160,7 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
       const endIndex = startIndex + pageSize;
       return fullList.slice(startIndex, endIndex);
     } else {
-      return this.processedDataMasterList(); 
+      return this.processedDataMasterList();
     }
   });
 
@@ -151,7 +169,7 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
       return this.processedDataMasterList().length;
     } else {
       if (this.isAnyLocalFilterActive()) {
-        return this.processedDataMasterList().length; 
+        return this.processedDataMasterList().length;
       }
       return this.dataPage()?.pageable?.totalElements ?? 0;
     }
@@ -174,9 +192,13 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
     if (!filters || !colConfig) {
       return false;
     }
-    return Object.keys(filters).some(key => {
+    return Object.keys(filters).some((key) => {
       const filterValue = filters[key];
-      if (filterValue === undefined || filterValue === null || (typeof filterValue === 'string' && filterValue.trim() === '')) {
+      if (
+        filterValue === undefined ||
+        filterValue === null ||
+        (typeof filterValue === 'string' && filterValue.trim() === '')
+      ) {
         return false;
       }
       const config = colConfig[key as keyof T];
@@ -203,13 +225,13 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
       }
     });
 
-    this.debouncedApplyFilters.pipe(
-      debounceTime(300)
-    ).subscribe(columnKey => {
-      this.zone.run(() => {
-        this.applyFilter(columnKey);
+    this.debouncedApplyFilters
+      .pipe(debounceTime(300))
+      .subscribe((columnKey) => {
+        this.zone.run(() => {
+          this.applyFilter(columnKey);
+        });
       });
-    });
   }
 
   displayedColumns: Signal<Array<keyof T & string>> = computed(() => {
@@ -219,7 +241,7 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
 
   hasAnyFilterableColumn: Signal<boolean> = computed(() => {
     const config = this.columnConfiguration();
-    return !!config && Object.values(config).some(col => col?.filterable);
+    return !!config && Object.values(config).some((col) => col?.filterable);
   });
 
   allDisplayedColumns: Signal<Array<string>> = computed(() => {
@@ -247,20 +269,42 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
     return styles;
   }
 
-  getFilterType(key: keyof Partial<T>): FilterType {
-    return this.getColumnConfigurationForKey(key)?.filterType ?? 'text';
+  getFilterType(key: keyof Partial<T>): FilterType | undefined {
+    return this.getColumnConfigurationForKey(key)?.filterType;
   }
 
-  getFilterDisplayPattern(key: keyof Partial<T>): ((option: any) => string) | undefined {
+  getFilterDisplayPattern(
+    key: keyof Partial<T>
+  ): ((option: any) => string) | undefined {
     return this.getColumnConfigurationForKey(key)?.filterDisplayPattern;
   }
 
-  getFilterSearchFunction(key: keyof Partial<T>): ((query: string) => Observable<Array<unknown>>) | undefined {
+  getFilterSearchFunction(
+    key: keyof Partial<T>
+  ): ((query: string) => Observable<Array<unknown>>) | undefined {
     return this.getColumnConfigurationForKey(key)?.filterSearchFunction;
   }
 
   getFilterPlaceholder(key: keyof Partial<T>): string | undefined {
     return this.getColumnConfigurationForKey(key)?.filterPlaceholder;
+  }
+
+  getBooleanFilterTrueLabel(key: keyof Partial<T>): string {
+    return (
+      this.getColumnConfigurationForKey(key)?.booleanFilterTrueLabel ?? 'Yes'
+    );
+  }
+
+  getBooleanFilterFalseLabel(key: keyof Partial<T>): string {
+    return (
+      this.getColumnConfigurationForKey(key)?.booleanFilterFalseLabel ?? 'No'
+    );
+  }
+
+  getBooleanFilterBothLabel(key: keyof Partial<T>): string {
+    return (
+      this.getColumnConfigurationForKey(key)?.booleanFilterBothLabel ?? 'Both'
+    );
   }
 
   getColumnConfigurationForKey<P>(
@@ -273,19 +317,19 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
     const value = (event.target as HTMLInputElement)?.value;
     const searchFn = this.getFilterSearchFunction(columnKey as keyof T);
     if (searchFn && typeof value === 'string' && value.trim() !== '') {
-      this.autocompleteOptionStreams.update(streams => ({
+      this.autocompleteOptionStreams.update((streams) => ({
         ...streams,
         [columnKey]: searchFn(value).pipe(
           startWith([]),
-          catchError(err => {
+          catchError((err) => {
             console.error('Error fetching autocomplete options:', err);
             return of([]);
           })
-        )
+        ),
       }));
     } else {
-      this.autocompleteOptionStreams.update(streams => {
-        const newStreams = {...streams};
+      this.autocompleteOptionStreams.update((streams) => {
+        const newStreams = { ...streams };
         newStreams[columnKey] = of([]);
         return newStreams;
       });
@@ -328,9 +372,15 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
   }
 
   updateTemporaryFilter(columnKey: string, value: any): void {
-    this.temporaryFilterValues.update(current => ({...current, [columnKey]: value}));
+    this.temporaryFilterValues.update((current) => ({
+      ...current,
+      [columnKey]: value,
+    }));
     const config = this.getColumnConfigurationForKey(columnKey as keyof T);
-    if (config?.filterMode === 'local' && (config?.filterType === 'text' || !config?.filterType)) {
+    if (
+      config?.filterMode === 'local' &&
+      (config?.filterType === 'text' || !config?.filterType)
+    ) {
       this.debouncedApplyFilters.next(columnKey);
     }
   }
@@ -345,8 +395,8 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
     const currentActiveValue = this.filterValues()[columnKey];
 
     if (currentActiveValue !== temporaryValue) {
-      this.filterValues.update(current => {
-        const newValues = {...current};
+      this.filterValues.update((current) => {
+        const newValues = { ...current };
         if (temporaryValue === undefined) {
           delete newValues[columnKey];
         } else {
@@ -362,20 +412,49 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
   }
 
   clearFilter(columnKey: string): void {
-    let changed = false;
-    const currentFilterValue = this.filterValues()[columnKey];
-    const currentTempFilterValue = this.temporaryFilterValues()[columnKey];
+    const config = this.getColumnConfigurationForKey(columnKey as keyof T);
+    const clearValue: null | undefined =
+      config?.filterType === 'boolean' ? null : undefined;
+    let needsEmit = false;
 
-    if (currentTempFilterValue !== undefined && currentTempFilterValue !== null && currentTempFilterValue !== '') {
-      this.temporaryFilterValues.update(current => ({...current, [columnKey]: undefined}));
-      changed = true;
-    }
-    if (currentFilterValue !== undefined && currentFilterValue !== null && currentFilterValue !== '') {
-      this.filterValues.update(current => ({...current, [columnKey]: undefined}));
-      if (!changed) changed = true;
+    // Clear temporary filter value if it's not already cleared
+    if (this.temporaryFilterValues()[columnKey] !== clearValue) {
+      this.temporaryFilterValues.update((current) => {
+        const newValues = { ...current };
+        if (clearValue === null) {
+          // Specifically for boolean 'Both'
+          newValues[columnKey] = null;
+        } else {
+          // For text/autocomplete, or if boolean clear value was undefined (shouldn't happen with current logic)
+          delete newValues[columnKey];
+        }
+        return newValues;
+      });
+      // A change in temporary value doesn't trigger emit directly but might affect button states.
     }
 
-    if (changed) {
+    // Clear active filter value if it's not already effectively cleared
+    const currentActiveFilter = this.filterValues()[columnKey];
+    const isActiveFilterConsideredSet =
+      (config?.filterType === 'boolean' && currentActiveFilter !== null) ||
+      (config?.filterType !== 'boolean' &&
+        currentActiveFilter !== undefined &&
+        currentActiveFilter !== '');
+
+    if (isActiveFilterConsideredSet) {
+      this.filterValues.update((current) => {
+        const newValues = { ...current };
+        if (config?.filterType === 'boolean') {
+          newValues[columnKey] = null; // Set to 'Both'
+        } else {
+          delete newValues[columnKey]; // Remove for other types
+        }
+        return newValues;
+      });
+      needsEmit = true;
+    }
+
+    if (needsEmit) {
       if (this.clientSideProcessing()) {
         this.currentPageIndexForLocalFiltering.set(0);
       }
@@ -388,20 +467,36 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
     const currentFilters = this.filterValues();
     let activeRemoteFilterPresent = false;
 
-    Object.keys(currentFilters).forEach(keyStr => {
+    Object.keys(currentFilters).forEach((keyStr) => {
       const value = currentFilters[keyStr];
       const key = keyStr as keyof Partial<T>;
       const config = this.getColumnConfigurationForKey(key);
       const filterMode = config?.filterMode ?? 'remote';
 
-      if (value !== undefined && value !== null && value !== '') {
+      const isActiveRemoteFilter =
+        config?.filterType === 'boolean'
+          ? value === true || value === false
+          : value !== undefined && value !== null && value !== '';
+
+      if (isActiveRemoteFilter) {
         if (filterMode === 'remote') {
           activeRemoteFilterPresent = true;
           const filterValueSelector = config?.filterValueSelector;
           const filterType = config?.filterType ?? 'text';
-          if (filterType === 'autocomplete' && filterValueSelector) {
+
+          if (filterType === 'boolean') {
+            if (value === true) {
+              stringFilters[keyStr] = 'true';
+            } else if (value === false) {
+              stringFilters[keyStr] = 'false';
+            }
+            // If value is null (Both), isActiveRemoteFilter would be false
+          } else if (filterType === 'autocomplete' && filterValueSelector) {
             stringFilters[keyStr] = String(filterValueSelector(value));
-          } else if (filterType === 'autocomplete' && typeof value === 'object') {
+          } else if (
+            filterType === 'autocomplete' &&
+            typeof value === 'object'
+          ) {
             stringFilters[keyStr] = String((value as any)?.id ?? value);
           } else {
             stringFilters[keyStr] = String(value);
@@ -429,32 +524,51 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
 
       if (valA > valB) comparison = 1;
       else if (valA < valB) comparison = -1;
-      
+
       return sort.direction === 'asc' ? comparison : comparison * -1;
     });
     return dataCopy;
   }
 
-  private applyLocalFilters(data: T[], activeFilters: Record<string, any>, isClientSideContext: boolean): T[] {
-    const filtersToApply = Object.entries(activeFilters).filter(([keyStr, value]) => {
-      if (value === undefined || value === null || value === '') return false;
-      const key = keyStr as keyof T;
-      const config = this.getColumnConfigurationForKey(key);
-      // When in clientSideProcessing context, all 'local' filters apply to the full list.
-      // When not, 'local' filters apply to the current page's data.
-      // 'remote' filters are never handled by this function.
-      return (config?.filterMode ?? 'remote') === 'local';
-    });
+  private applyLocalFilters(
+    data: T[],
+    activeFilters: Record<string, any>,
+    isClientSideContext: boolean
+  ): T[] {
+    const filtersToApply = Object.entries(activeFilters).filter(
+      ([keyStr, value]) => {
+        if (value === undefined || value === null || value === '') return false;
+        const key = keyStr as keyof T;
+        const config = this.getColumnConfigurationForKey(key);
+        // When in clientSideProcessing context, all 'local' filters apply to the full list.
+        // When not, 'local' filters apply to the current page's data.
+        // 'remote' filters are never handled by this function.
+        return (config?.filterMode ?? 'remote') === 'local';
+      }
+    );
 
     if (filtersToApply.length === 0) {
       return data;
     }
 
-    const filtered = data.filter(item => {
+    const filtered = data.filter((item) => {
       return filtersToApply.every(([keyStr, value]) => {
         const key = keyStr as keyof T;
         const config = this.getColumnConfigurationForKey(key);
         const itemValue = (item as any)[key];
+
+        if (config?.filterType === 'boolean') {
+          if (value === null || value === undefined) {
+            // 'Both' or unselected
+            return true; // No filter applied for this column
+          }
+          // Ensure itemValue is treated as a boolean for comparison
+          const actualItemBooleanValue =
+            typeof itemValue === 'string'
+              ? itemValue.toLowerCase() === 'true'
+              : !!itemValue;
+          return actualItemBooleanValue === value;
+        }
 
         let cellValueForFiltering: string;
         if (config?.getValue) {
@@ -466,7 +580,11 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
         }
 
         let filterCriterion: any;
-        if (config?.filterType === 'autocomplete' && typeof value === 'object' && value !== null) {
+        if (
+          config?.filterType === 'autocomplete' &&
+          typeof value === 'object' &&
+          value !== null
+        ) {
           if (config.filterValueSelector) {
             filterCriterion = config.filterValueSelector(value as any);
           } else if (value.hasOwnProperty('value')) {
@@ -490,17 +608,30 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
   }
 
   private updatePaginatorWidth(): void {
-    if (this.tableElementRef && this.paginatorElementRef && this.dataPage()?.content?.length > 0) {
+    if (
+      this.tableElementRef &&
+      this.paginatorElementRef &&
+      this.dataPage()?.content?.length > 0
+    ) {
       const tableScrollWidth = this.tableElementRef.nativeElement.scrollWidth;
-      const currentMinWidth = this.paginatorElementRef.nativeElement.style.minWidth;
+      const currentMinWidth =
+        this.paginatorElementRef.nativeElement.style.minWidth;
       const newMinWidth = `${tableScrollWidth}px`;
 
       if (currentMinWidth !== newMinWidth) {
-        this.renderer.setStyle(this.paginatorElementRef.nativeElement, 'min-width', newMinWidth);
+        this.renderer.setStyle(
+          this.paginatorElementRef.nativeElement,
+          'min-width',
+          newMinWidth
+        );
       }
     } else if (this.paginatorElementRef) {
       if (this.paginatorElementRef.nativeElement.style.minWidth !== 'auto') {
-          this.renderer.setStyle(this.paginatorElementRef.nativeElement, 'min-width', 'auto');
+        this.renderer.setStyle(
+          this.paginatorElementRef.nativeElement,
+          'min-width',
+          'auto'
+        );
       }
     }
   }
