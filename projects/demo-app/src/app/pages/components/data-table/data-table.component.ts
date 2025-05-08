@@ -171,12 +171,15 @@ export class DataTableComponent {
       filterPlaceholder: 'Filter name locally...'
     } as any,
     description: {
-      name: 'Description (Local Filter)',
+      name: 'Description (Local Autocomplete Filter)',
       sortablePropertyName: 'description', // Added sortablePropertyName
       filterable: true,
-      filterType: 'text',
+      filterType: 'autocomplete',
       filterMode: 'local',
-      filterPlaceholder: 'Filter description locally...'
+      filterPlaceholder: 'Filter description locally...',
+      filterSearchFunction: (query: string) => this.searchLocalDescriptions(query),
+      filterDisplayPattern: (option: SimpleAutocompleteOption) => option?.display || '',
+      filterValueSelector: (option: SimpleAutocompleteOption) => option.value
     } as any,
   };
 
@@ -441,6 +444,22 @@ export class DataTableComponent {
     return of(options).pipe(delay(300));
   }
 
+  private searchLocalDescriptions(query: string): Observable<SimpleAutocompleteOption[]> {
+    const lowerQuery = query?.toLowerCase() || '';
+    // Search against the full local dataset for the showcase table
+    const uniqueDescriptions = [...new Set(this.localFilterAllData.map(item => item.description))];
+    const filteredDescriptions = uniqueDescriptions
+      .filter(desc => desc.toLowerCase().includes(lowerQuery))
+      .slice(0, 10); // Limit to 10 suggestions for performance
+
+    const options: SimpleAutocompleteOption[] = filteredDescriptions.map(desc => ({
+      value: desc, // The value to filter by will be the description string itself
+      display: desc  // How it's displayed in the autocomplete dropdown
+    }));
+
+    return of(options).pipe(delay(200)); // Shorter delay for local search
+  }
+
   onPaginationDemoPageChange(event: PageEvent): void {
     this.fetchPaginationDemoData(event.pageIndex, event.pageSize);
   }
@@ -449,70 +468,60 @@ export class DataTableComponent {
     this.localFilterAllData = Array.from({ length: this.localFilterCurrentPageable.totalElements }, (_, i) => ({
       id: 3000 + i + 1,
       name: `Local Item ${i + 1}`,
-      description: `Description for local item ${i + 1} - some have common words like 'example' or 'test'`,
+      description: `Description for local item ${i + 1} - some have common words like 'example' or 'test'. Item index: ${i}`,
       date: new Date(Date.now() - Math.random() * 1e11),
       status: ['active', 'inactive', 'pending'][i % 3] as 'active' | 'inactive' | 'pending'
     }));
-    // Add some specific descriptions for testing filtering
-    if (this.localFilterAllData.length > 5) this.localFilterAllData[2].description = "An example description";
-    if (this.localFilterAllData.length > 10) this.localFilterAllData[7].description = "Another test case example";
+    if (this.localFilterAllData.length > 5) this.localFilterAllData[2].description = "An example description. Item index: 2";
+    if (this.localFilterAllData.length > 10) this.localFilterAllData[7].description = "Another test case example. Item index: 7";
 
-
-    this.localFilterCurrentPageable.totalPages = Math.ceil(
-      this.localFilterAllData.length / this.localFilterCurrentPageable.pageSize
-    );
+    // No need to calculate totalPages here as it will be based on the full list passed to the table
+    // which then does its own pagination if clientSideProcessing=true
+    this.updateLocalFilterDataView(); // Initial call to populate the view
   }
 
   private updateLocalFilterDataView(): void {
-    // Apply sorting to the full localFilterAllData set first
-    const sortedData = [...this.localFilterAllData].sort((a, b) => {
-      const isAsc = this.currentLocalFilterSort.direction === 'asc';
-      const field = this.currentLocalFilterSort.active as keyof DemoItem;
-      const valA = a[field];
-      const valB = b[field];
+    // When clientSideProcessing is true for the inbo-data-table,
+    // we provide the *entire* dataset. The table will handle sorting, filtering, and pagination internally.
+    // The `currentLocalFilterSort` is passed as an input to the table for initial sort.
 
-      if (valA == null && valB == null) return 0;
-      if (valA == null) return isAsc ? -1 : 1;
-      if (valB == null) return isAsc ? 1 : -1;
+    const allData = [...this.localFilterAllData];
+    const totalElements = allData.length;
 
-      if (valA < valB) return isAsc ? -1 : 1;
-      else if (valA > valB) return isAsc ? 1 : -1;
-      else return 0;
-    });
-    
-    const start = this.localFilterCurrentPageable.pageNumber * this.localFilterCurrentPageable.pageSize;
-    const end = start + this.localFilterCurrentPageable.pageSize;
-    const pageContent = sortedData.slice(start, end);
-
-    this.localFilterCurrentPageable.totalElements = this.localFilterAllData.length; // Should be full data length
-    this.localFilterCurrentPageable.totalPages = Math.ceil(
-        this.localFilterAllData.length / this.localFilterCurrentPageable.pageSize
-    );
-    this.localFilterCurrentPageable.empty = pageContent.length === 0;
-    this.localFilterCurrentPageable.first = this.localFilterCurrentPageable.pageNumber === 0;
-    this.localFilterCurrentPageable.last = this.localFilterCurrentPageable.pageNumber >= (this.localFilterCurrentPageable.totalPages -1);
-
+    const pageableForClientProcessing: DemoPageable = {
+      first: true,
+      last: true,
+      empty: totalElements === 0,
+      pageNumber: 0,
+      pageSize: 2000, // As per user example for a single page containing all data
+      totalPages: 1,    // All data is on this one page
+      totalElements: totalElements,
+      sorted: false     // As per user example, initial sort driven by [sort] input on table
+    };
 
     const page: ApiPage<DemoItem> = {
-      content: pageContent,
-      pageable: { ...this.localFilterCurrentPageable } // Pass a copy
+      content: allData, // Pass the full, unsorted (by parent) data
+      pageable: pageableForClientProcessing
     };
+
     this.localFilterDataSubject.next(page);
-    // No need to change requestStateSubject, it's already SUCCESS
+    this.localFilterRequestStateSubject.next(RequestState.SUCCESS); // Assuming data is always ready
   }
 
   // Handler for the new table's page changes
   onLocalFilterPageChange(event: PageEvent): void {
+    // This might not be called if clientSideProcessing=true, as table handles its own pagination
+    console.log('Local Filter Showcase: PageChange event from table (should not happen with clientSideProcessing=true):', event);
     this.localFilterCurrentPageable.pageNumber = event.pageIndex;
-    this.localFilterCurrentPageable.pageSize = event.pageSize; // Though pageSize isn't changeable in this demo table
-    this.updateLocalFilterDataView();
+    // updateLocalFilterDataView() would typically be called here if parent managed pagination
   }
 
   // Handler for the new table's sort changes
   onLocalFilterSortChange(sort: Sort): void {
     this.currentLocalFilterSort = sort;
-    this.localFilterCurrentPageable.pageNumber = 0; // Reset to first page on sort
-    this.updateLocalFilterDataView();
+    // When clientSideProcessing=true, the inbo-data-table handles its own sorting using this.currentLocalFilterSort as its initial state.
+    // No need to call updateLocalFilterDataView() to re-sort and re-page, as the table does it.
+    console.log('Local Filter Showcase: Sort changed, new initial sort for table:', sort);
   }
 
   // Handler for the new table's filter changes (mostly for logging/observing)
