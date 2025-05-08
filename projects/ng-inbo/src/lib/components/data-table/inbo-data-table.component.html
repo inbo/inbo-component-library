@@ -15,7 +15,7 @@
   @default {
     <div>
       <div class="table-scroll-container">
-        <table mat-table class="data-table" [dataSource]="dataPage().content"
+        <table mat-table class="data-table" [dataSource]="filteredData()"
                matSort
                [matSortActive]="sort()?.active"
                [matSortDirection]="sort()?.direction"
@@ -24,7 +24,7 @@
           @for (displayedColumn of displayedColumns(); track displayedColumn) {
             <ng-container [matColumnDef]="displayedColumn">
               <th mat-header-cell *matHeaderCellDef
-                  [ngStyle]="getColumnConfigurationForKey(displayedColumn)?.style || {}"
+                  [ngStyle]="getColumnStyles(displayedColumn)"
                   class="data-table-header-cell">
                 <div class="header-content">
                   <span class="column-name"
@@ -43,31 +43,56 @@
                                   [ngModel]="temporaryFilterValues()[displayedColumn]"
                                   (ngModelChange)="updateTemporaryFilter(displayedColumn, $event)"
                                   (keyup.enter)="applyFilter(displayedColumn)"
-                                  placeholder="Filter">
+                                  [placeholder]="getFilterPlaceholder(displayedColumn) || 'Filter'">
                             <span matSuffix style="display: flex;">
                               <button mat-icon-button class="filter-action-button"
                                       (click)="clearFilter(displayedColumn)" aria-label="Clear filter"
                                       [disabled]="!(temporaryFilterValues()[displayedColumn] || filterValues()[displayedColumn])">
                                 <mat-icon>clear</mat-icon>
                               </button>
-                              <button mat-icon-button class="filter-action-button"
-                                      (click)="applyFilter(displayedColumn)" aria-label="Apply filter"
-                                      [disabled]="!temporaryFilterValues()[displayedColumn] || temporaryFilterValues()[displayedColumn] === filterValues()[displayedColumn]">
-                                <mat-icon>check</mat-icon>
-                              </button>
+                              @if (getColumnConfigurationForKey(displayedColumn)?.filterMode !== 'local') {
+                                <button mat-icon-button class="filter-action-button"
+                                        (click)="applyFilter(displayedColumn)" aria-label="Apply filter"
+                                        [disabled]="!temporaryFilterValues()[displayedColumn] || temporaryFilterValues()[displayedColumn] === filterValues()[displayedColumn]">
+                                  <mat-icon>check</mat-icon>
+                                </button>
+                              }
                             </span>
                           </mat-form-field>
                         }
-                        <!-- TODO: Improve autocomplete filter, the styling is not correct and we will need to make some updates to the autocomplete component -->
                         @case ('autocomplete') {
-                          <inbo-autocomplete class="filter-input-field" 
-                                             [placeholder]="'Filter'"
-                                             [searchFunction]="getFilterSearchFunction(displayedColumn)!"
-                                             [displayPattern]="getFilterDisplayPattern(displayedColumn)!"
-                                             [ngModel]="temporaryFilterValues()[displayedColumn]"
-                                             (onOptionSelected)="updateTemporaryFilter(displayedColumn, $event); applyFilter(displayedColumn)"
-                                             [showClearIcon]="true">
-                          </inbo-autocomplete>
+                          <mat-form-field class="filter-input-field" appearance="fill">
+                            <input matInput
+                                   [placeholder]="getFilterPlaceholder(displayedColumn) || 'Filter'"
+                                   [matAutocomplete]="autoCompleteRef"
+                                   [ngModel]="temporaryFilterValues()[displayedColumn]"
+                                   (ngModelChange)="updateTemporaryFilter(displayedColumn, $event)"
+                                   (input)="onAutocompleteInputTextChanged(displayedColumn, $event)"
+                                   (keyup.enter)="applyFilter(displayedColumn)">
+                            <mat-autocomplete #autoCompleteRef="matAutocomplete"
+                                            (optionSelected)="updateTemporaryFilter(displayedColumn, $event.option.value); applyFilter(displayedColumn)"
+                                            [displayWith]="getOptionDisplayText.bind(this, displayedColumn)">
+                              @for (option of (autocompleteOptionStreams()[displayedColumn] | async); track option) {
+                                <mat-option [value]="option">
+                                  {{ getOptionDisplayText(displayedColumn, option) }}
+                                </mat-option>
+                              }
+                            </mat-autocomplete>
+                            <span matSuffix style="display: flex;">
+                              <button mat-icon-button class="filter-action-button"
+                                      (click)="clearFilter(displayedColumn)" aria-label="Clear filter"
+                                      [disabled]="!(temporaryFilterValues()[displayedColumn] || filterValues()[displayedColumn])">
+                                <mat-icon>clear</mat-icon>
+                              </button>
+                              @if (getColumnConfigurationForKey(displayedColumn)?.filterMode !== 'local') {
+                                <button mat-icon-button class="filter-action-button"
+                                        (click)="applyFilter(displayedColumn)" aria-label="Apply filter"
+                                        [disabled]="!temporaryFilterValues()[displayedColumn] || temporaryFilterValues()[displayedColumn] === filterValues()[displayedColumn]">
+                                  <mat-icon>check</mat-icon>
+                                </button>
+                              }
+                            </span>
+                          </mat-form-field>
                         }
                       }
                     </div>
@@ -75,7 +100,7 @@
                 </div>
               </th>
               <td mat-cell *matCellDef="let dataItem"
-                  [ngStyle]="getColumnConfigurationForKey(displayedColumn)?.style || {}">
+                  [ngStyle]="getColumnStyles(displayedColumn)">
                 @if (getColumnConfigurationForKey(displayedColumn)?.cellTemplate; as cellTemplate) {
                   <ng-container
                     [ngTemplateOutlet]="cellTemplate"

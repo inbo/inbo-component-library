@@ -11,10 +11,13 @@ export type FilterType = 'text' | 'autocomplete';
 export interface InboDataTableColumn<T> {
   name: string;
   style?: Partial<CSSStyleDeclaration>;
+  width?: number;
   getValue?: (propertyValue: T) => string;
   sortablePropertyName?: string;
   filterable?: boolean;
   filterType?: FilterType;
+  filterPlaceholder?: string;
+  filterMode?: 'local' | 'remote';
   filterSearchFunction?: (query: string) => Observable<Array<unknown>>;
   filterDisplayPattern?: (option: T) => string;
   filterValueSelector?: (option: T) => unknown;

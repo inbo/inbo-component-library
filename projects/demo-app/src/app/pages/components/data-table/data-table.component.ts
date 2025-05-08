@@ -45,13 +45,13 @@ export class DataTableComponent {
   private data: DemoItem[] = [];
   private currentPageable: DemoPageable = {
     pageNumber: 0,
-    pageSize: 10,
+    pageSize: 5,
     totalElements: 100,
     empty: false,
     first: true,
     last: false,
     sorted: false,
-    totalPages: 10
+    totalPages: 20
   };
 
   currentSort: Sort = {active: 'name', direction: 'asc'};
@@ -67,18 +67,21 @@ export class DataTableComponent {
   columnConfig: InboDataTableColumnConfiguration<DemoItem> = {
     id: {name: 'ID', sortablePropertyName: 'id'} as any,
     name: {
-      name: 'Name (Text Filter)',
+      name: 'Name (Local Text Filter)',
       sortablePropertyName: 'name',
       filterable: true,
-      filterType: 'text'
+      filterType: 'text',
+      filterMode: 'local',
+      filterPlaceholder: 'Filter by name (local)'
     } as any,
     description: {
-      name: 'Description',
+      name: 'Description (Remote Autocomplete)',
       sortablePropertyName: 'description',
       filterable: true,
       filterType: 'autocomplete',
       filterSearchFunction: (query: string) => this.searchDescriptions(query),
-      filterDisplayPattern: (option: SimpleAutocompleteOption) => option?.display || ''
+      filterDisplayPattern: (option: SimpleAutocompleteOption) => option?.display || '',
+      filterValueSelector: (option: SimpleAutocompleteOption) => option.value
     } as any,
     date: {
       name: 'Date',
@@ -139,16 +142,56 @@ export class DataTableComponent {
     description: {name: 'Description'} as any,
   };
 
+  // Properties for the new "Local Filtering Showcase" table
+  private localFilterAllData: DemoItem[] = [];
+  private localFilterCurrentPageable: DemoPageable = {
+    pageNumber: 0,
+    pageSize: 5,
+    totalElements: 25, // 25 items, 5 pages
+    empty: false,
+    first: true,
+    last: false,
+    sorted: false,
+    totalPages: 5
+  };
+  currentLocalFilterSort: Sort = {active: 'name', direction: 'asc'}; // Added for local sort
+  private localFilterDataSubject = new BehaviorSubject<ApiPage<DemoItem> | null>(null);
+  localFilterDataPage$: Observable<ApiPage<DemoItem> | null> = this.localFilterDataSubject.asObservable();
+  private localFilterRequestStateSubject = new BehaviorSubject<RequestState>(RequestState.SUCCESS); // No loading spinner
+  localFilterDataRequestState$: Observable<RequestState> = this.localFilterRequestStateSubject.asObservable();
+
+  localFilterColumnConfig: InboDataTableColumnConfiguration<DemoItem> = {
+    id: { name: 'ID', sortablePropertyName: 'id' } as any, // Added sortablePropertyName
+    name: {
+      name: 'Name (Local Filter)',
+      sortablePropertyName: 'name', // Added sortablePropertyName
+      filterable: true,
+      filterType: 'text',
+      filterMode: 'local',
+      filterPlaceholder: 'Filter name locally...'
+    } as any,
+    description: {
+      name: 'Description (Local Filter)',
+      sortablePropertyName: 'description', // Added sortablePropertyName
+      filterable: true,
+      filterType: 'text',
+      filterMode: 'local',
+      filterPlaceholder: 'Filter description locally...'
+    } as any,
+  };
+
   constructor(private snackBar: MatSnackBar) {
     this.generateData();
     this.fetchData();
     this.initializeInstantData();
     this.initializePaginationDemoData();
     this.fetchPaginationDemoData(this.paginationDemoPageable.pageNumber, this.paginationDemoPageable.pageSize);
+    this.initializeLocalFilterData();
+    this.updateLocalFilterDataView();
   }
 
   private generateData(): void {
-    this.data = Array.from({length: this.currentPageable.totalElements}, (_, i) => ({
+    this.data = Array.from({length: 100}, (_, i) => ({
       id: i + 1,
       name: `Item ${i + 1}`,
       description: `Description for item ${i + 1}`,
@@ -158,6 +201,7 @@ export class DataTableComponent {
       isViewButtonDisabled: i % 7 === 0,
       status: ['active', 'inactive', 'pending'][i % 3] as 'active' | 'inactive' | 'pending'
     }));
+    this.currentPageable.totalElements = this.data.length;
     this.currentPageable.totalPages = Math.ceil(this.currentPageable.totalElements / this.currentPageable.pageSize);
   }
 
@@ -208,23 +252,31 @@ export class DataTableComponent {
   private fetchData(): void {
     this.requestStateSubject.next(RequestState.PENDING);
 
-    let filteredData = [...this.data];
+    let processedData = [...this.data];
+
+    // Apply REMOTE filters from this.currentFilters
     Object.keys(this.currentFilters).forEach(key => {
       const filterValue = this.currentFilters[key]?.toLowerCase();
-      if (filterValue) {
-        filteredData = filteredData.filter(item => {
-          const itemValue = String(item[key as keyof DemoItem])?.toLowerCase();
+      const columnKey = key as keyof DemoItem;
+      // Ensure columnConfig exists for the given key before trying to access its properties
+      const config = this.columnConfig && this.columnConfig[columnKey]; 
+
+      // Only apply filter here if it's a remote filter (or filterMode is not defined, default to remote)
+      if (filterValue && config && (config.filterMode === 'remote' || !config.filterMode)) {
+        processedData = processedData.filter(item => {
+          // Using a flexible way to get item value, similar to how it might be in a real scenario
+          const itemValue = String(item[columnKey] ?? '').toLowerCase(); 
           return itemValue.includes(filterValue);
         });
       }
     });
 
-    const totalFilteredElements = filteredData.length;
+    const totalFilteredElements = processedData.length;
 
     const start = this.currentPageable.pageNumber * this.currentPageable.pageSize;
     const end = start + this.currentPageable.pageSize;
 
-    const sortedData = [...filteredData].sort((a, b) => {
+    const sortedData = [...processedData].sort((a, b) => {
       const isAsc = this.currentSort.direction === 'asc';
       const field = this.currentSort.active as keyof DemoItem;
       const valA = a[field];
@@ -391,5 +443,87 @@ export class DataTableComponent {
 
   onPaginationDemoPageChange(event: PageEvent): void {
     this.fetchPaginationDemoData(event.pageIndex, event.pageSize);
+  }
+
+  private initializeLocalFilterData(): void {
+    this.localFilterAllData = Array.from({ length: this.localFilterCurrentPageable.totalElements }, (_, i) => ({
+      id: 3000 + i + 1,
+      name: `Local Item ${i + 1}`,
+      description: `Description for local item ${i + 1} - some have common words like 'example' or 'test'`,
+      date: new Date(Date.now() - Math.random() * 1e11),
+      status: ['active', 'inactive', 'pending'][i % 3] as 'active' | 'inactive' | 'pending'
+    }));
+    // Add some specific descriptions for testing filtering
+    if (this.localFilterAllData.length > 5) this.localFilterAllData[2].description = "An example description";
+    if (this.localFilterAllData.length > 10) this.localFilterAllData[7].description = "Another test case example";
+
+
+    this.localFilterCurrentPageable.totalPages = Math.ceil(
+      this.localFilterAllData.length / this.localFilterCurrentPageable.pageSize
+    );
+  }
+
+  private updateLocalFilterDataView(): void {
+    // Apply sorting to the full localFilterAllData set first
+    const sortedData = [...this.localFilterAllData].sort((a, b) => {
+      const isAsc = this.currentLocalFilterSort.direction === 'asc';
+      const field = this.currentLocalFilterSort.active as keyof DemoItem;
+      const valA = a[field];
+      const valB = b[field];
+
+      if (valA == null && valB == null) return 0;
+      if (valA == null) return isAsc ? -1 : 1;
+      if (valB == null) return isAsc ? 1 : -1;
+
+      if (valA < valB) return isAsc ? -1 : 1;
+      else if (valA > valB) return isAsc ? 1 : -1;
+      else return 0;
+    });
+    
+    const start = this.localFilterCurrentPageable.pageNumber * this.localFilterCurrentPageable.pageSize;
+    const end = start + this.localFilterCurrentPageable.pageSize;
+    const pageContent = sortedData.slice(start, end);
+
+    this.localFilterCurrentPageable.totalElements = this.localFilterAllData.length; // Should be full data length
+    this.localFilterCurrentPageable.totalPages = Math.ceil(
+        this.localFilterAllData.length / this.localFilterCurrentPageable.pageSize
+    );
+    this.localFilterCurrentPageable.empty = pageContent.length === 0;
+    this.localFilterCurrentPageable.first = this.localFilterCurrentPageable.pageNumber === 0;
+    this.localFilterCurrentPageable.last = this.localFilterCurrentPageable.pageNumber >= (this.localFilterCurrentPageable.totalPages -1);
+
+
+    const page: ApiPage<DemoItem> = {
+      content: pageContent,
+      pageable: { ...this.localFilterCurrentPageable } // Pass a copy
+    };
+    this.localFilterDataSubject.next(page);
+    // No need to change requestStateSubject, it's already SUCCESS
+  }
+
+  // Handler for the new table's page changes
+  onLocalFilterPageChange(event: PageEvent): void {
+    this.localFilterCurrentPageable.pageNumber = event.pageIndex;
+    this.localFilterCurrentPageable.pageSize = event.pageSize; // Though pageSize isn't changeable in this demo table
+    this.updateLocalFilterDataView();
+  }
+
+  // Handler for the new table's sort changes
+  onLocalFilterSortChange(sort: Sort): void {
+    this.currentLocalFilterSort = sort;
+    this.localFilterCurrentPageable.pageNumber = 0; // Reset to first page on sort
+    this.updateLocalFilterDataView();
+  }
+
+  // Handler for the new table's filter changes (mostly for logging/observing)
+  onLocalFilterFilterChange(filters: Record<string, string>): void {
+    console.log('Local filter table filters changed:', filters);
+    // Data view updates are handled by InboDataTableComponent's internal filtering
+    // for 'local' mode filters. The `dataPage` input it receives from here
+    // should be the paginated *original* data.
+    // However, if filters affect totalElements for pagination, we might need to act.
+    // But our InboDataTableComponent's local filtering does not re-emit to parent for re-pagination.
+    // It filters the *current page* of data.
+    // For this example, we will assume pagination remains on the full dataset.
   }
 }

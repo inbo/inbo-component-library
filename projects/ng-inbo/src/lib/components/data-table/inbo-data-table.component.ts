@@ -13,6 +13,7 @@ import {
   Signal,
   ViewChild,
   WritableSignal,
+  NgZone
 } from '@angular/core';
 import {MatPaginator, PageEvent} from '@angular/material/paginator';
 import {InboDataTableColumn, InboDataTableColumnConfiguration, FilterType} from './column-configuration.model';
@@ -30,15 +31,18 @@ import {
   MatTableModule
 } from '@angular/material/table';
 import {MatSort, MatSortModule, Sort} from '@angular/material/sort';
-import {MatProgressSpinner} from "@angular/material/progress-spinner";
-import {NgIf, NgStyle, NgTemplateOutlet} from "@angular/common";
-import {MatIconButton} from "@angular/material/button";
-import {MatIcon} from "@angular/material/icon";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import {NgIf, NgStyle, NgTemplateOutlet, AsyncPipe} from "@angular/common";
+import {MatButtonModule} from "@angular/material/button";
+import {MatIconModule} from "@angular/material/icon";
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatInputModule} from '@angular/material/input';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import { Observable } from 'rxjs';
+import { Observable, Subject, of } from 'rxjs';
+import { debounceTime, startWith, catchError } from 'rxjs/operators';
 import {NgInboModule} from "../../ng-inbo.module";
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 export interface InboDatatableItem {
   isViewButtonDisabled?: boolean;
@@ -53,28 +57,20 @@ export interface InboDatatableItem {
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
   imports: [
-    MatProgressSpinner,
-    MatPaginator,
+    MatProgressSpinnerModule,
+    MatPaginatorModule,
     MatTableModule,
-    MatRow,
-    MatHeaderRow,
-    MatHeaderCell,
-    MatCell,
-    MatIconButton,
-    MatIcon,
-    MatColumnDef,
-    MatHeaderCellDef,
-    MatCellDef,
+    MatButtonModule,
+    MatIconModule,
     NgStyle,
-    MatTable,
-    MatSort,
     MatFormFieldModule,
     MatInputModule,
     FormsModule,
     ReactiveFormsModule,
     MatSortModule,
-    NgInboModule,
-    NgTemplateOutlet
+    MatAutocompleteModule,
+    NgTemplateOutlet,
+    AsyncPipe
   ]
 })
 export class InboDataTableComponent<T extends InboDatatableItem> implements AfterViewChecked {
@@ -103,7 +99,25 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
   filterValues: WritableSignal<Record<string, any>> = signal({});
   temporaryFilterValues: WritableSignal<Record<string, any>> = signal({});
 
-  constructor(private renderer: Renderer2) {}
+  private debouncedApplyFilters = new Subject<string>();
+  filteredData: Signal<T[]>;
+  autocompleteOptionStreams: WritableSignal<Record<string, Observable<any[]>>> = signal({});
+
+  constructor(private renderer: Renderer2, private zone: NgZone) {
+    this.filteredData = computed(() => {
+      const currentFilters = this.filterValues();
+      const originalData = this.dataPage()?.content ?? [];
+      return this.computeFilteredDataBody(currentFilters, originalData);
+    });
+
+    this.debouncedApplyFilters.pipe(
+      debounceTime(300)
+    ).subscribe(columnKey => {
+      this.zone.run(() => {
+        this.applyFilter(columnKey);
+      });
+    });
+  }
 
   displayedColumns: Signal<Array<keyof T & string>> = computed(() => {
     const config = this.columnConfiguration();
@@ -131,6 +145,15 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
     return [...configColumns, ...actionColumns];
   });
 
+  getColumnStyles(key: keyof Partial<T>): Partial<CSSStyleDeclaration> {
+    const config = this.getColumnConfigurationForKey(key);
+    const styles: Partial<CSSStyleDeclaration> = { ...config?.style };
+    if (config?.width !== undefined) {
+      styles.width = `${config.width}px`;
+    }
+    return styles;
+  }
+
   getFilterType(key: keyof Partial<T>): FilterType {
     return this.getColumnConfigurationForKey(key)?.filterType ?? 'text';
   }
@@ -143,10 +166,45 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
     return this.getColumnConfigurationForKey(key)?.filterSearchFunction;
   }
 
+  getFilterPlaceholder(key: keyof Partial<T>): string | undefined {
+    return this.getColumnConfigurationForKey(key)?.filterPlaceholder;
+  }
+
   getColumnConfigurationForKey<P>(
     key: keyof Partial<T>
   ): InboDataTableColumn<T[keyof T]> | undefined {
     return this.columnConfiguration()[key];
+  }
+
+  onAutocompleteInputTextChanged(columnKey: string, event: Event): void {
+    const value = (event.target as HTMLInputElement)?.value;
+    const searchFn = this.getFilterSearchFunction(columnKey as keyof T);
+    if (searchFn && typeof value === 'string' && value.trim() !== '') {
+      this.autocompleteOptionStreams.update(streams => ({
+        ...streams,
+        [columnKey]: searchFn(value).pipe(
+          startWith([]),
+          catchError(err => {
+            console.error('Error fetching autocomplete options:', err);
+            return of([]);
+          })
+        )
+      }));
+    } else {
+      this.autocompleteOptionStreams.update(streams => {
+        const newStreams = {...streams};
+        newStreams[columnKey] = of([]);
+        return newStreams;
+      });
+    }
+  }
+
+  getOptionDisplayText(columnKey: keyof Partial<T>, option: any): string {
+    const displayFn = this.getFilterDisplayPattern(columnKey);
+    if (displayFn) {
+      return displayFn(option);
+    }
+    return option ? String(option) : '';
   }
 
   onEditItemClick(event: MouseEvent, dataItem: T): void {
@@ -178,12 +236,31 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
 
   updateTemporaryFilter(columnKey: string, value: any): void {
     this.temporaryFilterValues.update(current => ({...current, [columnKey]: value}));
+    const config = this.getColumnConfigurationForKey(columnKey as keyof T);
+    if (config?.filterMode === 'local' && (config?.filterType === 'text' || !config?.filterType)) {
+      this.debouncedApplyFilters.next(columnKey);
+    }
   }
 
   applyFilter(columnKey: string): void {
-    const temporaryValue = this.temporaryFilterValues()[columnKey];
-    if (this.filterValues()[columnKey] !== temporaryValue) {
-      this.filterValues.update(current => ({...current, [columnKey]: temporaryValue}));
+    let temporaryValue = this.temporaryFilterValues()[columnKey];
+
+    if (temporaryValue === '' || temporaryValue === null) {
+      temporaryValue = undefined;
+    }
+
+    const currentActiveValue = this.filterValues()[columnKey];
+
+    if (currentActiveValue !== temporaryValue) {
+      this.filterValues.update(current => {
+        const newValues = {...current};
+        if (temporaryValue === undefined) {
+          delete newValues[columnKey];
+        } else {
+          newValues[columnKey] = temporaryValue;
+        }
+        return newValues;
+      });
       this.emitFilterChanged();
     }
   }
@@ -207,25 +284,65 @@ export class InboDataTableComponent<T extends InboDatatableItem> implements Afte
   private emitFilterChanged(): void {
     const stringFilters: Record<string, string> = {};
     const currentFilters = this.filterValues();
+    let activeRemoteFilterPresent = false;
 
     Object.keys(currentFilters).forEach(keyStr => {
       const value = currentFilters[keyStr];
-      if (value !== undefined && value !== null && value !== '') {
-        const key = keyStr as keyof Partial<T>;
-        const config = this.getColumnConfigurationForKey(key);
-        const filterValueSelector = config?.filterValueSelector;
-        const filterType = config?.filterType ?? 'text';
+      const key = keyStr as keyof Partial<T>;
+      const config = this.getColumnConfigurationForKey(key);
+      const filterMode = config?.filterMode ?? 'remote';
 
-        if (filterType === 'autocomplete' && filterValueSelector) {
-          stringFilters[keyStr] = String(filterValueSelector(value));
-        } else if (filterType === 'autocomplete' && typeof value === 'object') {
-          stringFilters[keyStr] = String((value as any)?.id ?? value);
-        } else {
-          stringFilters[keyStr] = String(value);
+      if (value !== undefined && value !== null && value !== '') {
+        if (filterMode === 'remote') {
+          activeRemoteFilterPresent = true;
+          const filterValueSelector = config?.filterValueSelector;
+          const filterType = config?.filterType ?? 'text';
+          if (filterType === 'autocomplete' && filterValueSelector) {
+            stringFilters[keyStr] = String(filterValueSelector(value));
+          } else if (filterType === 'autocomplete' && typeof value === 'object') {
+            stringFilters[keyStr] = String((value as any)?.id ?? value);
+          } else {
+            stringFilters[keyStr] = String(value);
+          }
         }
       }
     });
+
     this.filterChanged.emit(stringFilters);
+  }
+
+  private computeFilteredDataBody(currentFilters: Record<string, any>, originalData: T[]): T[] {
+    const activeLocalFilters = Object.entries(currentFilters).filter(([keyStr, value]) => {
+      if (value === undefined || value === null || value === '') return false;
+      const key = keyStr as keyof T;
+      const config = this.getColumnConfigurationForKey(key);
+      return (config?.filterMode ?? 'remote') === 'local';
+    });
+
+    if (activeLocalFilters.length === 0) {
+      return originalData;
+    }
+
+    const filtered = originalData.filter(item => {
+      return activeLocalFilters.every(([keyStr, value]) => {
+        const key = keyStr as keyof T;
+        const config = this.getColumnConfigurationForKey(key);
+        const itemValue = (item as any)[key];
+
+        let cellValueForFiltering: string;
+        if (config?.getValue) {
+          cellValueForFiltering = String(config.getValue(itemValue));
+        } else if (itemValue !== undefined && itemValue !== null) {
+          cellValueForFiltering = String(itemValue);
+        } else {
+          cellValueForFiltering = '';
+        }
+
+        const filterText = String(value).toLowerCase();
+        return cellValueForFiltering.toLowerCase().includes(filterText);
+      });
+    });
+    return filtered;
   }
 
   ngAfterViewChecked(): void {

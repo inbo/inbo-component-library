@@ -45,6 +45,22 @@
   </div>
 
   <div class="example-container">
+    <h2>Local Filtering Showcase (No Loading Spinner)</h2>
+    <p>This example demonstrates local filtering. Data is loaded instantly, and filters operate on the client-side data for the current page. Sorting also operates on the full local dataset before pagination.</p>
+    <inbo-data-table
+        [dataPage]="localFilterDataPage$ | async"
+        [dataRequestState]="localFilterDataRequestState$ | async"
+        [columnConfiguration]="localFilterColumnConfig"
+        [sort]="currentLocalFilterSort"
+        (pageChange)="onLocalFilterPageChange($event)"
+        (sortChanged)="onLocalFilterSortChange($event)"
+        (filterChanged)="onLocalFilterFilterChange($event)"
+        rowHeight="48px"
+        >
+    </inbo-data-table>
+  </div>
+
+  <div class="example-container">
     <h2>Advanced Features Showcase</h2>
     <p>Explore advanced capabilities like server-side pagination, dynamic sorting, text filtering (Name column), autocomplete filtering (Description column), conditional row actions, and interaction controls.</p>
 
