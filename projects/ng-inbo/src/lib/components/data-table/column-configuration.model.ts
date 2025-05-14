@@ -5,7 +5,11 @@ export type InboDataTableColumnConfiguration<T> = {
   [key in keyof Partial<T>]: InboDataTableColumn<T[key]>;
 };
 
-export type FilterType = 'text' | 'autocomplete' | 'boolean';
+export enum FilterType {
+  Text = 'text',
+  Autocomplete = 'autocomplete',
+  Boolean = 'boolean',
+}
 
 export interface InboDataTableColumn<T> {
   name: string;

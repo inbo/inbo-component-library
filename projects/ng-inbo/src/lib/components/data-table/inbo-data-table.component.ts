@@ -405,7 +405,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     const config = this.getColumnConfigurationForKey(columnKey as keyof T);
     if (
       config?.filterMode === 'local' &&
-      (config?.filterType === 'text' || !config?.filterType)
+      (config?.filterType === FilterType.Text || !config?.filterType)
     ) {
       this.debouncedApplyFilters.next(columnKey);
     }
@@ -440,7 +440,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
   clearFilter(columnKey: string): void {
     const config = this.getColumnConfigurationForKey(columnKey as keyof T);
     const clearValue: null | undefined =
-      config?.filterType === 'boolean' ? null : undefined;
+      config?.filterType === FilterType.Boolean ? null : undefined;
     let needsEmit = false;
 
     // Clear temporary filter value if it's not already cleared
@@ -462,15 +462,16 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     // Clear active filter value if it's not already effectively cleared
     const currentActiveFilter = this.filterValues()[columnKey];
     const isActiveFilterConsideredSet =
-      (config?.filterType === 'boolean' && currentActiveFilter !== null) ||
-      (config?.filterType !== 'boolean' &&
+      (config?.filterType === FilterType.Boolean &&
+        currentActiveFilter !== null) ||
+      (config?.filterType !== FilterType.Boolean &&
         currentActiveFilter !== undefined &&
         currentActiveFilter !== '');
 
     if (isActiveFilterConsideredSet) {
       this.filterValues.update((current) => {
         const newValues = { ...current };
-        if (config?.filterType === 'boolean') {
+        if (config?.filterType === FilterType.Boolean) {
           newValues[columnKey] = null; // Set to 'Both'
         } else {
           delete newValues[columnKey]; // Remove for other types
@@ -498,9 +499,10 @@ export class InboDataTableComponent<T extends InboDatatableItem>
       const key = keyStr as keyof Partial<T>;
       const config = this.getColumnConfigurationForKey(key);
       const filterMode = config?.filterMode ?? 'remote';
+      const filterType = config?.filterType ?? FilterType.Text;
 
       const isActiveRemoteFilter =
-        config?.filterType === 'boolean'
+        filterType === FilterType.Boolean
           ? value === true || value === false
           : value !== undefined && value !== null && value !== '';
 
@@ -508,19 +510,21 @@ export class InboDataTableComponent<T extends InboDatatableItem>
         if (filterMode === 'remote') {
           activeRemoteFilterPresent = true;
           const filterValueSelector = config?.filterValueSelector;
-          const filterType = config?.filterType ?? 'text';
 
-          if (filterType === 'boolean') {
+          if (filterType === FilterType.Boolean) {
             if (value === true) {
               stringFilters[keyStr] = 'true';
             } else if (value === false) {
               stringFilters[keyStr] = 'false';
             }
             // If value is null (Both), isActiveRemoteFilter would be false
-          } else if (filterType === 'autocomplete' && filterValueSelector) {
+          } else if (
+            filterType === FilterType.Autocomplete &&
+            filterValueSelector
+          ) {
             stringFilters[keyStr] = String(filterValueSelector(value));
           } else if (
-            filterType === 'autocomplete' &&
+            filterType === FilterType.Autocomplete &&
             typeof value === 'object'
           ) {
             stringFilters[keyStr] = String((value as any)?.id ?? value);
@@ -583,7 +587,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
         const config = this.getColumnConfigurationForKey(key);
         const itemValue = (item as any)[key];
 
-        if (config?.filterType === 'boolean') {
+        if (config?.filterType === FilterType.Boolean) {
           if (value === null || value === undefined) {
             // 'Both' or unselected
             return true; // No filter applied for this column
@@ -607,7 +611,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
 
         let filterCriterion: any;
         if (
-          config?.filterType === 'autocomplete' &&
+          config?.filterType === FilterType.Autocomplete &&
           typeof value === 'object' &&
           value !== null
         ) {

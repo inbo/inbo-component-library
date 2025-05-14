@@ -13,6 +13,7 @@ import { PageEvent } from '@angular/material/paginator';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Sort } from '@angular/material/sort';
+import { FilterType } from 'projects/ng-inbo/src/lib/components/data-table/column-configuration.model';
 import {
   ApiPage,
   InboDataTableColumnConfiguration,
@@ -88,7 +89,7 @@ export class DataTableComponent {
       name: 'Name (Local Text Filter)',
       sortablePropertyName: 'name',
       filterable: true,
-      filterType: 'text',
+      filterType: FilterType.Text,
       filterMode: 'local',
       filterPlaceholder: 'Filter by name (local)',
     } as any,
@@ -96,7 +97,7 @@ export class DataTableComponent {
       name: 'Description (Remote Autocomplete)',
       sortablePropertyName: 'description',
       filterable: true,
-      filterType: 'autocomplete',
+      filterType: FilterType.Autocomplete,
       filterSearchFunction: (query: string) => this.searchDescriptions(query),
       filterDisplayPattern: (option: SimpleAutocompleteOption) =>
         option?.display || '',
@@ -203,7 +204,7 @@ export class DataTableComponent {
       name: 'Name (Local Filter)',
       sortablePropertyName: 'name', // Added sortablePropertyName
       filterable: true,
-      filterType: 'text',
+      filterType: FilterType.Text,
       filterMode: 'local',
       filterPlaceholder: 'Filter name locally...',
     } as any,
@@ -211,7 +212,7 @@ export class DataTableComponent {
       name: 'Description (Local Autocomplete Filter)',
       sortablePropertyName: 'description', // Added sortablePropertyName
       filterable: true,
-      filterType: 'autocomplete',
+      filterType: FilterType.Autocomplete,
       filterMode: 'local',
       filterPlaceholder: 'Filter description locally...',
       filterSearchFunction: (query: string) =>
@@ -225,7 +226,7 @@ export class DataTableComponent {
       name: 'Active Status (Boolean Filter)',
       sortablePropertyName: 'isActive',
       filterable: true,
-      filterType: 'boolean',
+      filterType: FilterType.Boolean,
       filterMode: 'local',
       filterPlaceholder: 'Filter by active status',
       booleanFilterTrueLabel: 'Currently Active',
