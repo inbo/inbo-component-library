@@ -1,20 +1,26 @@
-import {Component, TemplateRef, computed, viewChild, Signal} from '@angular/core';
-import {CommonModule} from '@angular/common';
-import {MatButtonModule} from '@angular/material/button';
-import {MatIconModule} from '@angular/material/icon';
-import {MatSnackBar} from '@angular/material/snack-bar';
-import {PageEvent} from '@angular/material/paginator';
-import {Sort} from '@angular/material/sort';
-import {BehaviorSubject, Observable, of, delay, filter, take} from 'rxjs';
+import { CommonModule } from '@angular/common';
+import {
+  Component,
+  Signal,
+  TemplateRef,
+  computed,
+  viewChild,
+} from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { PageEvent } from '@angular/material/paginator';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Sort } from '@angular/material/sort';
 import {
   ApiPage,
   InboDataTableColumnConfiguration,
   InboDataTableComponent,
   InboDatatableItem,
-  RequestState
+  RequestState,
 } from 'projects/ng-inbo/src/public-api';
-import {MatSlideToggleModule} from '@angular/material/slide-toggle';
-import {FormsModule} from '@angular/forms';
+import { BehaviorSubject, Observable, delay, filter, of, take } from 'rxjs';
 
 interface SimpleAutocompleteOption {
   value: string;
@@ -27,6 +33,8 @@ interface DemoItem extends InboDatatableItem {
   description: string;
   date: Date;
   status: 'active' | 'inactive' | 'pending';
+  isActive: boolean;
+  randomDetail?: string;
 }
 
 type DemoPageable = ApiPage<any>['pageable'];
@@ -34,12 +42,18 @@ type DemoPageable = ApiPage<any>['pageable'];
 @Component({
   selector: 'app-data-table',
   standalone: true,
-  imports: [CommonModule, InboDataTableComponent, MatButtonModule, MatIconModule, MatSlideToggleModule, FormsModule],
+  imports: [
+    CommonModule,
+    InboDataTableComponent,
+    MatButtonModule,
+    MatIconModule,
+    MatSlideToggleModule,
+    FormsModule,
+  ],
   templateUrl: './data-table.component.html',
   styleUrls: ['./data-table.component.scss'],
 })
 export class DataTableComponent {
-
   statusCellTemplateRef = viewChild<TemplateRef<any>>('statusCellTemplate');
 
   private data: DemoItem[] = [];
@@ -51,28 +65,32 @@ export class DataTableComponent {
     first: true,
     last: false,
     sorted: false,
-    totalPages: 20
+    totalPages: 20,
   };
 
-  currentSort: Sort = {active: 'name', direction: 'asc'};
+  currentSort: Sort = { active: 'name', direction: 'asc' };
   private currentRequestState = RequestState.PENDING;
   private currentFilters: Record<string, string> = {};
 
   private dataSubject = new BehaviorSubject<ApiPage<DemoItem> | null>(null);
-  dataPage$: Observable<ApiPage<DemoItem> | null> = this.dataSubject.asObservable();
+  dataPage$: Observable<ApiPage<DemoItem> | null> =
+    this.dataSubject.asObservable();
 
-  private requestStateSubject = new BehaviorSubject<RequestState>(this.currentRequestState);
-  dataRequestState$: Observable<RequestState> = this.requestStateSubject.asObservable();
+  private requestStateSubject = new BehaviorSubject<RequestState>(
+    this.currentRequestState
+  );
+  dataRequestState$: Observable<RequestState> =
+    this.requestStateSubject.asObservable();
 
   columnConfig: InboDataTableColumnConfiguration<DemoItem> = {
-    id: {name: 'ID', sortablePropertyName: 'id'} as any,
+    id: { name: 'ID', sortablePropertyName: 'id' } as any,
     name: {
       name: 'Name (Local Text Filter)',
       sortablePropertyName: 'name',
       filterable: true,
       filterType: 'text',
       filterMode: 'local',
-      filterPlaceholder: 'Filter by name (local)'
+      filterPlaceholder: 'Filter by name (local)',
     } as any,
     description: {
       name: 'Description (Remote Autocomplete)',
@@ -80,14 +98,15 @@ export class DataTableComponent {
       filterable: true,
       filterType: 'autocomplete',
       filterSearchFunction: (query: string) => this.searchDescriptions(query),
-      filterDisplayPattern: (option: SimpleAutocompleteOption) => option?.display || '',
-      filterValueSelector: (option: SimpleAutocompleteOption) => option.value
+      filterDisplayPattern: (option: SimpleAutocompleteOption) =>
+        option?.display || '',
+      filterValueSelector: (option: SimpleAutocompleteOption) => option.value,
     } as any,
     date: {
       name: 'Date',
       sortablePropertyName: 'date',
-      getValue: (value: Date) => value ? value.toLocaleDateString() : '',
-      style: {'textAlign': 'right', 'width': '150px'}
+      getValue: (value: Date) => (value ? value.toLocaleDateString() : ''),
+      style: { textAlign: 'right', width: '150px' },
     } as any,
   };
 
@@ -100,26 +119,34 @@ export class DataTableComponent {
     first: true,
     last: true,
     sorted: false,
-    totalPages: 1
+    totalPages: 1,
   };
-  private instantDataSubject = new BehaviorSubject<ApiPage<DemoItem> | null>(null);
-  instantDataPage$: Observable<ApiPage<DemoItem> | null> = this.instantDataSubject.asObservable();
-  private instantRequestStateSubject = new BehaviorSubject<RequestState>(RequestState.SUCCESS);
-  instantDataRequestState$: Observable<RequestState> = this.instantRequestStateSubject.asObservable();
+  private instantDataSubject = new BehaviorSubject<ApiPage<DemoItem> | null>(
+    null
+  );
+  instantDataPage$: Observable<ApiPage<DemoItem> | null> =
+    this.instantDataSubject.asObservable();
+  private instantRequestStateSubject = new BehaviorSubject<RequestState>(
+    RequestState.SUCCESS
+  );
+  instantDataRequestState$: Observable<RequestState> =
+    this.instantRequestStateSubject.asObservable();
 
-  instantColumnConfig: Signal<InboDataTableColumnConfiguration<DemoItem>> = computed(() => {
-    const template = this.statusCellTemplateRef();
-    const config: InboDataTableColumnConfiguration<DemoItem> = {
-      id: {name: 'ID'} as any,
-      name: {name: 'Name'} as any,
-      status: {name: 'Status'} as any,
-    };
+  instantColumnConfig: Signal<InboDataTableColumnConfiguration<DemoItem>> =
+    computed(() => {
+      const template = this.statusCellTemplateRef();
+      const config: InboDataTableColumnConfiguration<DemoItem> = {
+        id: { name: 'ID' } as any,
+        name: { name: 'Name' } as any,
+        randomDetail: { name: '' } as any,
+        status: { name: 'Status' } as any,
+      };
 
-    if (template) {
-      config.status = {...config.status, cellTemplate: template};
-    }
-    return config;
-  });
+      if (template) {
+        config.status = { ...config.status, cellTemplate: template };
+      }
+      return config;
+    });
 
   private paginationDemoData: DemoItem[] = [];
   private paginationDemoPageable: DemoPageable = {
@@ -130,16 +157,21 @@ export class DataTableComponent {
     first: true,
     last: false,
     sorted: false,
-    totalPages: 5
+    totalPages: 5,
   };
-  private paginationDemoDataSubject = new BehaviorSubject<ApiPage<DemoItem> | null>(null);
-  paginationDemoDataPage$: Observable<ApiPage<DemoItem> | null> = this.paginationDemoDataSubject.asObservable();
-  private paginationDemoRequestStateSubject = new BehaviorSubject<RequestState>(RequestState.PENDING);
-  paginationDemoDataRequestState$: Observable<RequestState> = this.paginationDemoRequestStateSubject.asObservable();
+  private paginationDemoDataSubject =
+    new BehaviorSubject<ApiPage<DemoItem> | null>(null);
+  paginationDemoDataPage$: Observable<ApiPage<DemoItem> | null> =
+    this.paginationDemoDataSubject.asObservable();
+  private paginationDemoRequestStateSubject = new BehaviorSubject<RequestState>(
+    RequestState.PENDING
+  );
+  paginationDemoDataRequestState$: Observable<RequestState> =
+    this.paginationDemoRequestStateSubject.asObservable();
   paginationDemoColumnConfig: InboDataTableColumnConfiguration<DemoItem> = {
-    id: {name: 'ID'} as any,
-    name: {name: 'Name'} as any,
-    description: {name: 'Description'} as any,
+    id: { name: 'ID' } as any,
+    name: { name: 'Name' } as any,
+    description: { name: 'Description' } as any,
   };
 
   // Properties for the new "Local Filtering Showcase" table
@@ -152,13 +184,18 @@ export class DataTableComponent {
     first: true,
     last: false,
     sorted: false,
-    totalPages: 5
+    totalPages: 5,
   };
-  currentLocalFilterSort: Sort = {active: 'name', direction: 'asc'}; // Added for local sort
-  private localFilterDataSubject = new BehaviorSubject<ApiPage<DemoItem> | null>(null);
-  localFilterDataPage$: Observable<ApiPage<DemoItem> | null> = this.localFilterDataSubject.asObservable();
-  private localFilterRequestStateSubject = new BehaviorSubject<RequestState>(RequestState.SUCCESS); // No loading spinner
-  localFilterDataRequestState$: Observable<RequestState> = this.localFilterRequestStateSubject.asObservable();
+  currentLocalFilterSort: Sort = { active: 'name', direction: 'asc' }; // Added for local sort
+  private localFilterDataSubject =
+    new BehaviorSubject<ApiPage<DemoItem> | null>(null);
+  localFilterDataPage$: Observable<ApiPage<DemoItem> | null> =
+    this.localFilterDataSubject.asObservable();
+  private localFilterRequestStateSubject = new BehaviorSubject<RequestState>(
+    RequestState.SUCCESS
+  ); // No loading spinner
+  localFilterDataRequestState$: Observable<RequestState> =
+    this.localFilterRequestStateSubject.asObservable();
 
   localFilterColumnConfig: InboDataTableColumnConfiguration<DemoItem> = {
     id: { name: 'ID', sortablePropertyName: 'id' } as any, // Added sortablePropertyName
@@ -168,7 +205,7 @@ export class DataTableComponent {
       filterable: true,
       filterType: 'text',
       filterMode: 'local',
-      filterPlaceholder: 'Filter name locally...'
+      filterPlaceholder: 'Filter name locally...',
     } as any,
     description: {
       name: 'Description (Local Autocomplete Filter)',
@@ -177,9 +214,23 @@ export class DataTableComponent {
       filterType: 'autocomplete',
       filterMode: 'local',
       filterPlaceholder: 'Filter description locally...',
-      filterSearchFunction: (query: string) => this.searchLocalDescriptions(query),
-      filterDisplayPattern: (option: SimpleAutocompleteOption) => option?.display || '',
-      filterValueSelector: (option: SimpleAutocompleteOption) => option.value
+      filterSearchFunction: (query: string) =>
+        this.searchLocalDescriptions(query),
+      filterDisplayPattern: (option: SimpleAutocompleteOption) =>
+        option?.display || '',
+      filterValueSelector: (option: SimpleAutocompleteOption) => option.value,
+    } as any,
+    randomDetail: { name: '' } as any, // New column with empty header for local filter table
+    isActive: {
+      name: 'Active Status (Boolean Filter)',
+      sortablePropertyName: 'isActive',
+      filterable: true,
+      filterType: 'boolean',
+      filterMode: 'local',
+      filterPlaceholder: 'Filter by active status',
+      booleanFilterTrueLabel: 'Currently Active',
+      booleanFilterFalseLabel: 'Currently Inactive',
+      booleanFilterBothLabel: 'Any Status',
     } as any,
   };
 
@@ -188,13 +239,16 @@ export class DataTableComponent {
     this.fetchData();
     this.initializeInstantData();
     this.initializePaginationDemoData();
-    this.fetchPaginationDemoData(this.paginationDemoPageable.pageNumber, this.paginationDemoPageable.pageSize);
+    this.fetchPaginationDemoData(
+      this.paginationDemoPageable.pageNumber,
+      this.paginationDemoPageable.pageSize
+    );
     this.initializeLocalFilterData();
     this.updateLocalFilterDataView();
   }
 
   private generateData(): void {
-    this.data = Array.from({length: 100}, (_, i) => ({
+    this.data = Array.from({ length: 100 }, (_, i) => ({
       id: i + 1,
       name: `Item ${i + 1}`,
       description: `Description for item ${i + 1}`,
@@ -202,21 +256,36 @@ export class DataTableComponent {
       isEditButtonDisabled: i % 5 === 0,
       isDeleteButtonDisabled: i % 3 === 0,
       isViewButtonDisabled: i % 7 === 0,
-      status: ['active', 'inactive', 'pending'][i % 3] as 'active' | 'inactive' | 'pending'
+      status: ['active', 'inactive', 'pending'][i % 3] as
+        | 'active'
+        | 'inactive'
+        | 'pending',
+      isActive: i % 2 === 0,
     }));
     this.currentPageable.totalElements = this.data.length;
-    this.currentPageable.totalPages = Math.ceil(this.currentPageable.totalElements / this.currentPageable.pageSize);
+    this.currentPageable.totalPages = Math.ceil(
+      this.currentPageable.totalElements / this.currentPageable.pageSize
+    );
   }
 
   private initializePaginationDemoData(): void {
-    this.paginationDemoData = Array.from({length: this.paginationDemoPageable.totalElements}, (_, i) => ({
-      id: 2000 + i + 1,
-      name: `Paginated Item ${i + 1}`,
-      description: `This is paginated item ${i + 1}`,
-      date: new Date(Date.now() - Math.random() * 1e10),
-      status: ['active', 'inactive', 'pending'][i % 3] as 'active' | 'inactive' | 'pending'
-    }));
-    this.paginationDemoPageable.totalPages = Math.ceil(this.paginationDemoData.length / this.paginationDemoPageable.pageSize);
+    this.paginationDemoData = Array.from(
+      { length: this.paginationDemoPageable.totalElements },
+      (_, i) => ({
+        id: 2000 + i + 1,
+        name: `Paginated Item ${i + 1}`,
+        description: `This is paginated item ${i + 1}`,
+        date: new Date(Date.now() - Math.random() * 1e10),
+        status: ['active', 'inactive', 'pending'][i % 3] as
+          | 'active'
+          | 'inactive'
+          | 'pending',
+        isActive: i % 2 === 0,
+      })
+    );
+    this.paginationDemoPageable.totalPages = Math.ceil(
+      this.paginationDemoData.length / this.paginationDemoPageable.pageSize
+    );
   }
 
   private fetchPaginationDemoData(pageNumber: number, pageSize: number): void {
@@ -234,22 +303,25 @@ export class DataTableComponent {
       totalPages: Math.ceil(this.paginationDemoData.length / pageSize),
       empty: pageContent.length === 0,
       first: pageNumber === 0,
-      last: pageNumber >= (Math.ceil(this.paginationDemoData.length / pageSize) -1)
+      last:
+        pageNumber >= Math.ceil(this.paginationDemoData.length / pageSize) - 1,
     };
 
     of({
       content: pageContent,
       pageable: this.paginationDemoPageable,
-    }).pipe(
-      delay(500) // Simulate network delay
-    ).subscribe(page => {
-      if (page.content.length === 0) {
-        this.paginationDemoRequestStateSubject.next(RequestState.EMPTY);
-      } else {
-        this.paginationDemoRequestStateSubject.next(RequestState.SUCCESS);
-      }
-      this.paginationDemoDataSubject.next(page);
-    });
+    })
+      .pipe(
+        delay(500) // Simulate network delay
+      )
+      .subscribe((page) => {
+        if (page.content.length === 0) {
+          this.paginationDemoRequestStateSubject.next(RequestState.EMPTY);
+        } else {
+          this.paginationDemoRequestStateSubject.next(RequestState.SUCCESS);
+        }
+        this.paginationDemoDataSubject.next(page);
+      });
   }
 
   private fetchData(): void {
@@ -258,17 +330,21 @@ export class DataTableComponent {
     let processedData = [...this.data];
 
     // Apply REMOTE filters from this.currentFilters
-    Object.keys(this.currentFilters).forEach(key => {
+    Object.keys(this.currentFilters).forEach((key) => {
       const filterValue = this.currentFilters[key]?.toLowerCase();
       const columnKey = key as keyof DemoItem;
       // Ensure columnConfig exists for the given key before trying to access its properties
-      const config = this.columnConfig && this.columnConfig[columnKey]; 
+      const config = this.columnConfig && this.columnConfig[columnKey];
 
       // Only apply filter here if it's a remote filter (or filterMode is not defined, default to remote)
-      if (filterValue && config && (config.filterMode === 'remote' || !config.filterMode)) {
-        processedData = processedData.filter(item => {
+      if (
+        filterValue &&
+        config &&
+        (config.filterMode === 'remote' || !config.filterMode)
+      ) {
+        processedData = processedData.filter((item) => {
           // Using a flexible way to get item value, similar to how it might be in a real scenario
-          const itemValue = String(item[columnKey] ?? '').toLowerCase(); 
+          const itemValue = String(item[columnKey] ?? '').toLowerCase();
           return itemValue.includes(filterValue);
         });
       }
@@ -276,7 +352,8 @@ export class DataTableComponent {
 
     const totalFilteredElements = processedData.length;
 
-    const start = this.currentPageable.pageNumber * this.currentPageable.pageSize;
+    const start =
+      this.currentPageable.pageNumber * this.currentPageable.pageSize;
     const end = start + this.currentPageable.pageSize;
 
     const sortedData = [...processedData].sort((a, b) => {
@@ -303,40 +380,46 @@ export class DataTableComponent {
     const pageableForCurrentPage: DemoPageable = {
       ...this.currentPageable,
       totalElements: totalFilteredElements,
-      totalPages: Math.ceil(totalFilteredElements / this.currentPageable.pageSize),
+      totalPages: Math.ceil(
+        totalFilteredElements / this.currentPageable.pageSize
+      ),
       empty: pageContent.length === 0,
       first: this.currentPageable.pageNumber === 0,
-      last: this.currentPageable.pageNumber >= Math.ceil(totalFilteredElements / this.currentPageable.pageSize) - 1,
+      last:
+        this.currentPageable.pageNumber >=
+        Math.ceil(totalFilteredElements / this.currentPageable.pageSize) - 1,
     };
 
     of({
       content: pageContent,
       pageable: pageableForCurrentPage,
-    }).pipe(
-      delay(1000)
-    ).subscribe(page => {
-      if (this.currentRequestState === RequestState.ERROR) {
-        // Keep error state if manually set
-        this.requestStateSubject.next(RequestState.ERROR);
-        this.dataSubject.next(null);
-      } else if (page.content.length === 0) {
-        this.requestStateSubject.next(RequestState.EMPTY);
-        this.dataSubject.next(page);
-      } else {
-        // Always set to SUCCESS on successful, non-empty fetch
-        // unless error state was manually triggered before fetch completed.
-        if (this.requestStateSubject.value !== RequestState.ERROR) {
-          this.requestStateSubject.next(RequestState.SUCCESS);
+    })
+      .pipe(delay(1000))
+      .subscribe((page) => {
+        if (this.currentRequestState === RequestState.ERROR) {
+          // Keep error state if manually set
+          this.requestStateSubject.next(RequestState.ERROR);
+          this.dataSubject.next(null);
+        } else if (page.content.length === 0) {
+          this.requestStateSubject.next(RequestState.EMPTY);
+          this.dataSubject.next(page);
+        } else {
+          // Always set to SUCCESS on successful, non-empty fetch
+          // unless error state was manually triggered before fetch completed.
+          if (this.requestStateSubject.value !== RequestState.ERROR) {
+            this.requestStateSubject.next(RequestState.SUCCESS);
+          }
+          this.dataSubject.next(page);
         }
-        this.dataSubject.next(page);
-      }
-    });
+      });
   }
 
   onPageChange(event: PageEvent): void {
     this.currentPageable.pageNumber = event.pageIndex;
     this.currentPageable.pageSize = event.pageSize;
-    this.currentPageable.totalPages = Math.ceil(this.currentPageable.totalElements / this.currentPageable.pageSize);
+    this.currentPageable.totalPages = Math.ceil(
+      this.currentPageable.totalElements / this.currentPageable.pageSize
+    );
     this.fetchData();
   }
 
@@ -354,28 +437,42 @@ export class DataTableComponent {
   }
 
   onEditItem(item: DemoItem): void {
-    this.snackBar.open(`Edit item: ${item.name}`, 'Close', {duration: 2000});
+    this.snackBar.open(`Edit item: ${item.name}`, 'Close', { duration: 2000 });
   }
 
   onDeleteItem(item: DemoItem): void {
-    this.snackBar.open(`Delete item: ${item.name}`, 'Close', {duration: 2000});
-    this.data = this.data.filter(d => d.id !== item.id);
+    this.snackBar.open(`Delete item: ${item.name}`, 'Close', {
+      duration: 2000,
+    });
+    this.data = this.data.filter((d) => d.id !== item.id);
     this.currentPageable.totalElements = this.data.length;
-    this.currentPageable.totalPages = Math.ceil(this.currentPageable.totalElements / this.currentPageable.pageSize);
-    if (this.currentPageable.pageNumber * this.currentPageable.pageSize >= this.currentPageable.totalElements) {
-      this.currentPageable.pageNumber = Math.max(0, this.currentPageable.totalPages - 1);
+    this.currentPageable.totalPages = Math.ceil(
+      this.currentPageable.totalElements / this.currentPageable.pageSize
+    );
+    if (
+      this.currentPageable.pageNumber * this.currentPageable.pageSize >=
+      this.currentPageable.totalElements
+    ) {
+      this.currentPageable.pageNumber = Math.max(
+        0,
+        this.currentPageable.totalPages - 1
+      );
     }
     this.fetchData();
   }
 
   onClickItem(item: DemoItem): void {
-    this.snackBar.open(`Clicked item: ${item.name}`, 'Close', {duration: 2000});
+    this.snackBar.open(`Clicked item: ${item.name}`, 'Close', {
+      duration: 2000,
+    });
   }
 
   toggleRequestState(): void {
     if (this.requestStateSubject.value === RequestState.SUCCESS) {
       this.currentRequestState = RequestState.PARTIAL_PENDING;
-    } else if (this.requestStateSubject.value === RequestState.PARTIAL_PENDING) {
+    } else if (
+      this.requestStateSubject.value === RequestState.PARTIAL_PENDING
+    ) {
       this.currentRequestState = RequestState.PENDING;
     } else {
       this.currentRequestState = RequestState.SUCCESS;
@@ -386,19 +483,21 @@ export class DataTableComponent {
   toggleEmptyState(): void {
     if (this.requestStateSubject.value !== RequestState.EMPTY) {
       const originalData = [...this.data];
-      const originalPageable = {...this.currentPageable};
+      const originalPageable = { ...this.currentPageable };
       this.data = [];
       this.currentPageable.totalElements = 0;
       this.currentPageable.totalPages = 0;
       this.currentPageable.pageNumber = 0;
       this.fetchData();
-      this.dataRequestState$.pipe(
-        filter(s => s !== RequestState.PENDING),
-        take(1)
-      ).subscribe(() => {
-        this.data = originalData;
-        this.currentPageable = originalPageable;
-      });
+      this.dataRequestState$
+        .pipe(
+          filter((s) => s !== RequestState.PENDING),
+          take(1)
+        )
+        .subscribe(() => {
+          this.data = originalData;
+          this.currentPageable = originalPageable;
+        });
     } else {
       this.generateData();
       this.currentRequestState = RequestState.SUCCESS;
@@ -412,14 +511,26 @@ export class DataTableComponent {
   }
 
   private initializeInstantData(): void {
-    const statuses: Array<'active' | 'inactive' | 'pending'> = ['active', 'inactive', 'pending'];
-    this.instantData = Array.from({length: this.instantCurrentPageable.totalElements}, (_, i) => ({
-      id: 1000 + i + 1,
-      name: `Instant Item ${i + 1}`,
-      description: `Desc ${i + 1}`,
-      date: new Date(),
-      status: statuses[i % statuses.length]
-    }));
+    const statuses: Array<'active' | 'inactive' | 'pending'> = [
+      'active',
+      'inactive',
+      'pending',
+    ];
+    this.instantData = Array.from(
+      { length: this.instantCurrentPageable.totalElements },
+      (_, i) => ({
+        id: 1000 + i + 1,
+        name: `Instant Item ${i + 1}`,
+        description: `Desc ${i + 1}`,
+        date: new Date(),
+        status: statuses[i % statuses.length],
+        isActive: i % 2 === 0,
+        randomDetail: `RND-${Math.random()
+          .toString(36)
+          .substring(2, 7)
+          .toUpperCase()}`,
+      })
+    );
 
     const page: ApiPage<DemoItem> = {
       content: this.instantData,
@@ -429,33 +540,45 @@ export class DataTableComponent {
     this.instantRequestStateSubject.next(RequestState.SUCCESS);
   }
 
-  private searchDescriptions(query: string): Observable<SimpleAutocompleteOption[]> {
+  private searchDescriptions(
+    query: string
+  ): Observable<SimpleAutocompleteOption[]> {
     const lowerQuery = query?.toLowerCase() || '';
-    const uniqueDescriptions = [...new Set(this.data.map(item => item.description))];
+    const uniqueDescriptions = [
+      ...new Set(this.data.map((item) => item.description)),
+    ];
     const filteredDescriptions = uniqueDescriptions
-      .filter(desc => desc.toLowerCase().includes(lowerQuery))
+      .filter((desc) => desc.toLowerCase().includes(lowerQuery))
       .slice(0, 10);
 
-    const options: SimpleAutocompleteOption[] = filteredDescriptions.map(desc => ({
-      value: desc,
-      display: desc
-    }));
+    const options: SimpleAutocompleteOption[] = filteredDescriptions.map(
+      (desc) => ({
+        value: desc,
+        display: desc,
+      })
+    );
 
     return of(options).pipe(delay(300));
   }
 
-  private searchLocalDescriptions(query: string): Observable<SimpleAutocompleteOption[]> {
+  private searchLocalDescriptions(
+    query: string
+  ): Observable<SimpleAutocompleteOption[]> {
     const lowerQuery = query?.toLowerCase() || '';
     // Search against the full local dataset for the showcase table
-    const uniqueDescriptions = [...new Set(this.localFilterAllData.map(item => item.description))];
+    const uniqueDescriptions = [
+      ...new Set(this.localFilterAllData.map((item) => item.description)),
+    ];
     const filteredDescriptions = uniqueDescriptions
-      .filter(desc => desc.toLowerCase().includes(lowerQuery))
+      .filter((desc) => desc.toLowerCase().includes(lowerQuery))
       .slice(0, 10); // Limit to 10 suggestions for performance
 
-    const options: SimpleAutocompleteOption[] = filteredDescriptions.map(desc => ({
-      value: desc, // The value to filter by will be the description string itself
-      display: desc  // How it's displayed in the autocomplete dropdown
-    }));
+    const options: SimpleAutocompleteOption[] = filteredDescriptions.map(
+      (desc) => ({
+        value: desc, // The value to filter by will be the description string itself
+        display: desc, // How it's displayed in the autocomplete dropdown
+      })
+    );
 
     return of(options).pipe(delay(200)); // Shorter delay for local search
   }
@@ -465,15 +588,32 @@ export class DataTableComponent {
   }
 
   private initializeLocalFilterData(): void {
-    this.localFilterAllData = Array.from({ length: this.localFilterCurrentPageable.totalElements }, (_, i) => ({
-      id: 3000 + i + 1,
-      name: `Local Item ${i + 1}`,
-      description: `Description for local item ${i + 1} - some have common words like 'example' or 'test'. Item index: ${i}`,
-      date: new Date(Date.now() - Math.random() * 1e11),
-      status: ['active', 'inactive', 'pending'][i % 3] as 'active' | 'inactive' | 'pending'
-    }));
-    if (this.localFilterAllData.length > 5) this.localFilterAllData[2].description = "An example description. Item index: 2";
-    if (this.localFilterAllData.length > 10) this.localFilterAllData[7].description = "Another test case example. Item index: 7";
+    this.localFilterAllData = Array.from(
+      { length: this.localFilterCurrentPageable.totalElements },
+      (_, i) => ({
+        id: 3000 + i + 1,
+        name: `Local Item ${i + 1}`,
+        description: `Description for local item ${
+          i + 1
+        } - some have common words like 'example' or 'test'. Item index: ${i}`,
+        date: new Date(Date.now() - Math.random() * 1e11),
+        status: ['active', 'inactive', 'pending'][i % 3] as
+          | 'active'
+          | 'inactive'
+          | 'pending',
+        isActive: i % 2 === 0,
+        randomDetail: `RND_LOCAL-${Math.random()
+          .toString(36)
+          .substring(2, 7)
+          .toUpperCase()}`, // Populate for local filter data
+      })
+    );
+    if (this.localFilterAllData.length > 5)
+      this.localFilterAllData[2].description =
+        'An example description. Item index: 2';
+    if (this.localFilterAllData.length > 10)
+      this.localFilterAllData[7].description =
+        'Another test case example. Item index: 7';
 
     // No need to calculate totalPages here as it will be based on the full list passed to the table
     // which then does its own pagination if clientSideProcessing=true
@@ -494,14 +634,14 @@ export class DataTableComponent {
       empty: totalElements === 0,
       pageNumber: 0,
       pageSize: 2000, // As per user example for a single page containing all data
-      totalPages: 1,    // All data is on this one page
+      totalPages: 1, // All data is on this one page
       totalElements: totalElements,
-      sorted: false     // As per user example, initial sort driven by [sort] input on table
+      sorted: false, // As per user example, initial sort driven by [sort] input on table
     };
 
     const page: ApiPage<DemoItem> = {
       content: allData, // Pass the full, unsorted (by parent) data
-      pageable: pageableForClientProcessing
+      pageable: pageableForClientProcessing,
     };
 
     this.localFilterDataSubject.next(page);
@@ -511,7 +651,10 @@ export class DataTableComponent {
   // Handler for the new table's page changes
   onLocalFilterPageChange(event: PageEvent): void {
     // This might not be called if clientSideProcessing=true, as table handles its own pagination
-    console.log('Local Filter Showcase: PageChange event from table (should not happen with clientSideProcessing=true):', event);
+    console.log(
+      'Local Filter Showcase: PageChange event from table (should not happen with clientSideProcessing=true):',
+      event
+    );
     this.localFilterCurrentPageable.pageNumber = event.pageIndex;
     // updateLocalFilterDataView() would typically be called here if parent managed pagination
   }
@@ -521,7 +664,10 @@ export class DataTableComponent {
     this.currentLocalFilterSort = sort;
     // When clientSideProcessing=true, the inbo-data-table handles its own sorting using this.currentLocalFilterSort as its initial state.
     // No need to call updateLocalFilterDataView() to re-sort and re-page, as the table does it.
-    console.log('Local Filter Showcase: Sort changed, new initial sort for table:', sort);
+    console.log(
+      'Local Filter Showcase: Sort changed, new initial sort for table:',
+      sort
+    );
   }
 
   // Handler for the new table's filter changes (mostly for logging/observing)

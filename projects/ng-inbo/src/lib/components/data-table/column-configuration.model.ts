@@ -1,12 +1,11 @@
-import {Observable} from "rxjs";
-import { SortDirection } from '@angular/material/sort';
 import { TemplateRef } from '@angular/core';
+import { Observable } from 'rxjs';
 
 export type InboDataTableColumnConfiguration<T> = {
   [key in keyof Partial<T>]: InboDataTableColumn<T[key]>;
 };
 
-export type FilterType = 'text' | 'autocomplete';
+export type FilterType = 'text' | 'autocomplete' | 'boolean';
 
 export interface InboDataTableColumn<T> {
   name: string;
@@ -21,5 +20,8 @@ export interface InboDataTableColumn<T> {
   filterSearchFunction?: (query: string) => Observable<Array<unknown>>;
   filterDisplayPattern?: (option: T) => string;
   filterValueSelector?: (option: T) => unknown;
+  booleanFilterTrueLabel?: string;
+  booleanFilterFalseLabel?: string;
+  booleanFilterBothLabel?: string;
   cellTemplate?: TemplateRef<unknown>;
 }
