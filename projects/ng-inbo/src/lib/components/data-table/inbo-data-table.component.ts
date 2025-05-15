@@ -37,6 +37,7 @@ import { catchError, debounceTime } from 'rxjs/operators';
 import { ApiPage } from '../../services/api/api-page.model';
 import { RequestState } from '../../services/api/request-state.enum';
 import {
+  FilterMode,
   FilterType,
   InboDataTableColumn,
   InboDataTableColumnConfiguration,
@@ -202,7 +203,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
         return false;
       }
       const config = colConfig[key as keyof T];
-      return config?.filterMode === 'local';
+      return config?.filterMode === FilterMode.Local;
     });
   });
 
@@ -404,7 +405,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     }));
     const config = this.getColumnConfigurationForKey(columnKey as keyof T);
     if (
-      config?.filterMode === 'local' &&
+      config?.filterMode === FilterMode.Local &&
       (config?.filterType === FilterType.Text || !config?.filterType)
     ) {
       this.debouncedApplyFilters.next(columnKey);
@@ -498,7 +499,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
       const value = currentFilters[keyStr];
       const key = keyStr as keyof Partial<T>;
       const config = this.getColumnConfigurationForKey(key);
-      const filterMode = config?.filterMode ?? 'remote';
+      const filterMode = config?.filterMode ?? FilterMode.Remote;
       const filterType = config?.filterType ?? FilterType.Text;
 
       const isActiveRemoteFilter =
@@ -507,7 +508,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
           : value !== undefined && value !== null && value !== '';
 
       if (isActiveRemoteFilter) {
-        if (filterMode === 'remote') {
+        if (filterMode === FilterMode.Remote) {
           activeRemoteFilterPresent = true;
           const filterValueSelector = config?.filterValueSelector;
 
@@ -573,7 +574,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
         // When in clientSideProcessing context, all 'local' filters apply to the full list.
         // When not, 'local' filters apply to the current page's data.
         // 'remote' filters are never handled by this function.
-        return (config?.filterMode ?? 'remote') === 'local';
+        return (config?.filterMode ?? FilterMode.Remote) === FilterMode.Local;
       }
     );
 
