@@ -5,7 +5,7 @@ import {isNil} from 'lodash-es';
 
 @Directive({
     selector: '[inboDebouncedInputChange]',
-    standalone: false
+    standalone: true
 })
 export class InboDebouncedInputChange<T> implements OnInit, OnDestroy {
 

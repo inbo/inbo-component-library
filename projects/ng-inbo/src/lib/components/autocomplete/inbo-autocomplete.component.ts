@@ -1,49 +1,90 @@
-import {ChangeDetectorRef, Component, EventEmitter, inject, Input, Output, ViewEncapsulation} from '@angular/core';
-import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
-import {RequestState} from '../../services/api/request-state.enum';
-import {MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
-import {isNil} from 'lodash-es';
-import {CustomErrorStateMatcher} from '../../utils/custom.error-state-matcher';
-import {finalize, Observable, tap} from 'rxjs';
+import {
+  ChangeDetectorRef,
+  Component,
+  input,
+  output,
+  ViewEncapsulation,
+} from '@angular/core';
+import {
+  ControlValueAccessor,
+  FormsModule,
+  NG_VALUE_ACCESSOR,
+} from '@angular/forms';
+import {
+  MatAutocompleteModule,
+  MatAutocompleteSelectedEvent,
+} from '@angular/material/autocomplete';
+import { MatIconButton } from '@angular/material/button';
+import { MatOptionModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
+import { isNil } from 'lodash-es';
+import { finalize, Observable, tap } from 'rxjs';
+import { InboDebouncedInputChange } from '../../directives/debounced-input-change/inbo-debounced-input-change.directive';
+import { InboInputMaskDirective } from '../../directives/input-mask/inbo-input-mask.directive';
+import { RequestState } from '../../services/api/request-state.enum';
+import { CustomErrorStateMatcher } from '../../utils/custom.error-state-matcher';
 
 @Component({
-    selector: 'inbo-autocomplete',
-    templateUrl: 'inbo-autocomplete.component.html',
-    styleUrls: ['inbo-autocomplete.component.scss'],
-    encapsulation: ViewEncapsulation.None,
-    providers: [
-        { provide: NG_VALUE_ACCESSOR, useExisting: InboAutocompleteComponent, multi: true },
-    ],
-    standalone: false
+  selector: 'inbo-autocomplete',
+  templateUrl: 'inbo-autocomplete.component.html',
+  styleUrls: ['inbo-autocomplete.component.scss'],
+  encapsulation: ViewEncapsulation.None,
+  imports: [
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatOptionModule,
+    MatAutocompleteModule,
+    FormsModule,
+    InboInputMaskDirective,
+    InboDebouncedInputChange,
+    MatIconButton,
+    MatProgressSpinner,
+  ],
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: InboAutocompleteComponent,
+      multi: true,
+    },
+  ],
+  standalone: true,
 })
-export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>> implements ControlValueAccessor {
-
+export class InboAutocompleteComponent<
+  T extends Partial<{ [key: string]: any }>
+> implements ControlValueAccessor
+{
   readonly RequestState = RequestState;
 
-  @Output() onOptionSelected = new EventEmitter<T>();
+  readonly onOptionSelected = output<T>();
 
-  @Input() placeholder: string;
-  @Input() label: string;
-  @Input() minNumberOfCharacters = 1;
-  @Input() searchFunction: (searchQuery: string) => Observable<Array<T>>;
-  @Input() mask: string;
+  readonly placeholder = input<string>();
+  readonly label = input<string>();
+  readonly minNumberOfCharacters = input(1);
+  readonly searchFunction =
+    input<(searchQuery: string) => Observable<Array<T>>>();
+  readonly mask = input<string>();
 
   // Pattern can be any string where values from the value object are interpolated by marking them with ${<key>}
   // Default values for properties are used if the value from the display properties is null, undefined or a blank string. If no default is specified, it will just be an empty string.
   // Example: '${key1} - ${key2}' with object {key1: 'value1', key2: 'value2'} will be displayed as 'value1 - value2'
-  @Input() displayPattern: ((option: T) => string) | string;
-  @Input() disabled: boolean;
-  @Input() showErrorMessage: boolean;
-  @Input() showClearIcon: boolean = false;
-  @Input() errorMessage: string;
+  readonly displayPattern = input<((option: T) => string) | string>();
+  readonly disabled = input<boolean>();
+  readonly showErrorMessage = input<boolean>();
+  readonly showClearIcon = input(false);
+  readonly errorMessage = input<string>();
 
   displayValue: string = '';
   requestState = RequestState.DEFAULT;
   items: Array<T>;
-  errorStateMatcher = new CustomErrorStateMatcher(() => this.showErrorMessage);
+  errorStateMatcher = new CustomErrorStateMatcher(() =>
+    this.showErrorMessage()
+  );
 
-
-  constructor(public changeDetectorRef: ChangeDetectorRef){}
+  constructor(public changeDetectorRef: ChangeDetectorRef) {}
 
   private _value: T;
 
@@ -66,20 +107,21 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
       return '';
     }
 
-    if (typeof this.displayPattern === 'function') {
+    if (typeof this.displayPattern() === 'function') {
       try {
-        return this.displayPattern(value) || '';
+        return (this.displayPattern() as (option: T) => string)(value) || '';
       } catch (e) {
         console.error('Error executing displayPattern function', e);
         return '[Error]';
       }
-    } else if (typeof this.displayPattern === 'string' && typeof value === 'object') {
-      let result = this.displayPattern;
-      Object.keys(value as Partial<{ [key: string]: any }>).forEach(
-        key => {
-          result = result.replace(`\$\{${key}\}`, `${value[key] ?? ''}`);
-        }
-      );
+    } else if (
+      typeof this.displayPattern() === 'string' &&
+      typeof value === 'object'
+    ) {
+      let result = this.displayPattern() as string;
+      Object.keys(value as Partial<{ [key: string]: any }>).forEach((key) => {
+        result = result.replace(`\$\{${key}\}`, `${value[key] ?? ''}`);
+      });
       return result.replace(new RegExp(/\$\{\S*}/, 'g'), '');
     }
 
@@ -91,37 +133,13 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
   };
 
   inputChanged(value: string) {
-    if (this.mask && value) {
-      value = this.applyMask(value);
-    }
-
     this.displayValue = value;
 
-    if (value?.length >= this.minNumberOfCharacters) {
+    if (value?.length >= this.minNumberOfCharacters()) {
       this.doSearch(value);
     } else {
       this.items = [];
     }
-  }
-
-  applyMask(value: string): string {
-    const cleanValue = value.replace(/[^a-zA-Z0-9]/g, '');
-
-    let result = '';
-    let cleanIndex = 0;
-
-    for (let i = 0; i < this.mask.length && cleanIndex < cleanValue.length; i++) {
-      const maskChar = this.mask[i];
-
-      if (maskChar === '-' || maskChar === ' ' || maskChar === '/') {
-        result += maskChar;
-      } else {
-        result += cleanValue[cleanIndex];
-        cleanIndex++;
-      }
-    }
-
-    return result;
   }
 
   registerOnChange(onChangeFn: (val: T) => void): void {
@@ -152,7 +170,7 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
   }
 
   private doSearch(searchQuery: string): void {
-    if (!this.searchFunction) {
+    if (!this.searchFunction()) {
       console.error('No search function was provided.');
       this.items = [];
       this.changeDetectorRef.detectChanges();
@@ -160,16 +178,18 @@ export class InboAutocompleteComponent<T extends Partial<{ [key: string]: any }>
     }
 
     this.requestState = RequestState.PENDING;
-    this.searchFunction(searchQuery)
+    this.searchFunction()!(searchQuery)
       .pipe(
-        tap(value => this.items = (value || [])),
-        tap(items => this.requestState = this.getRequestStateForResults(items)),
+        tap((value) => (this.items = value || [])),
+        tap(
+          (items) => (this.requestState = this.getRequestStateForResults(items))
+        ),
         finalize(() => {
-          this.changeDetectorRef.detectChanges()
-        }),
+          this.changeDetectorRef.detectChanges();
+        })
       )
       .subscribe({
-        error: () => this.requestState = RequestState.ERROR,
+        error: () => (this.requestState = RequestState.ERROR),
       });
   }
 

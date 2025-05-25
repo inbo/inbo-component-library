@@ -1,57 +1,73 @@
-import {InboPositiveNumbersDirective} from '../inbo-positive-numbers.directive';
-import {instance, mock, spy, verify, when} from '@johanblumenberg/ts-mockito';
-import {ElementRef, EventEmitter} from '@angular/core';
+import { Component, DebugElement } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { InboPositiveNumbersDirective } from '../inbo-positive-numbers.directive';
+
+@Component({
+  standalone: true,
+  imports: [InboPositiveNumbersDirective],
+  template: `<input
+    type="text"
+    inboPositiveNumbers
+    (ngModelChange)="changedValue = $event"
+  />`,
+})
+class TestHostComponent {
+  changedValue: string | undefined;
+}
 
 describe('InboPositiveNumbersDirective', () => {
-
-  let elementRefMock: ElementRef<HTMLInputElement>;
-  let ngModelChangeEventEmitterMock: EventEmitter<string>;
-
-  let directiveUnderTest: InboPositiveNumbersDirective;
+  let fixture: ComponentFixture<TestHostComponent>;
+  let inputEl: DebugElement;
+  let component: TestHostComponent;
 
   beforeEach(() => {
-    elementRefMock = mock(ElementRef<HTMLInputElement>);
-
-    directiveUnderTest = new InboPositiveNumbersDirective(
-      instance(elementRefMock),
-    );
-    ngModelChangeEventEmitterMock = spy(directiveUnderTest.ngModelChange) as any;
+    TestBed.configureTestingModule({
+      imports: [TestHostComponent],
+    });
+    fixture = TestBed.createComponent(TestHostComponent);
+    component = fixture.componentInstance;
+    inputEl = fixture.debugElement.query(By.css('input'));
+    fixture.detectChanges();
   });
 
-  describe('handleInputEvent', () => {
+  it('should filter out all non-positive number characters', () => {
+    const inputElement = inputEl.nativeElement as HTMLInputElement;
+    inputElement.value = '123f';
+    inputElement.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
 
-    let inputElement: HTMLInputElement;
-
-    beforeEach(() => {
-      inputElement = {value: undefined} as any as HTMLInputElement;
-      when(elementRefMock.nativeElement).thenReturn(inputElement);
-    });
-
-    it('should filter out all none positive number characters', () => {
-      inputElement.value = '123f';
-
-      directiveUnderTest.handleInputEvent();
-
-      expect(inputElement.value).toEqual('123');
-      verify(ngModelChangeEventEmitterMock.emit('123')).once();
-    });
-
-    it('should do nothing if the value is only positive number characters', () => {
-      inputElement.value = '123';
-
-      directiveUnderTest.handleInputEvent();
-
-      expect(inputElement.value).toEqual('123');
-      verify(ngModelChangeEventEmitterMock.emit('123')).once();
-    });
-
-    it('should do nothing if the value is an empty string', () => {
-      inputElement.value = '';
-
-      directiveUnderTest.handleInputEvent();
-
-      verify(ngModelChangeEventEmitterMock.emit(undefined)).once();
-    });
+    expect(inputElement.value).toEqual('123');
+    expect(component.changedValue).toEqual('123');
   });
 
+  it('should do nothing if the value is only positive number characters', () => {
+    const inputElement = inputEl.nativeElement as HTMLInputElement;
+    inputElement.value = '123';
+    inputElement.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(inputElement.value).toEqual('123');
+    expect(component.changedValue).toEqual('123');
+  });
+
+  it('should emit undefined if the value is an empty string after filtering', () => {
+    const inputElement = inputEl.nativeElement as HTMLInputElement;
+    inputElement.value = 'abc';
+    inputElement.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(inputElement.value).toEqual('');
+    expect(component.changedValue).toBeUndefined();
+  });
+
+  it('should emit undefined if the value is initially an empty string', () => {
+    const inputElement = inputEl.nativeElement as HTMLInputElement;
+    inputElement.value = '';
+    inputElement.dispatchEvent(new Event('input'));
+    fixture.detectChanges();
+
+    expect(inputElement.value).toEqual('');
+    expect(component.changedValue).toBeUndefined();
+  });
 });

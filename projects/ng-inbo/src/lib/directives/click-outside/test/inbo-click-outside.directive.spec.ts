@@ -1,93 +1,88 @@
-import {InboClickOutsideDirective} from '../inbo-click-outside.directive';
-import {instance, mock, spy, verify, when} from '@johanblumenberg/ts-mockito';
-import {ElementRef, EventEmitter} from '@angular/core';
-import {HasEventTargetAddRemove} from 'rxjs/internal/observable/fromEvent';
-import * as rxjs from 'rxjs';
-import {Subject} from 'rxjs';
+import { DOCUMENT } from '@angular/common';
+import { Component, DebugElement } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
+import { InboClickOutsideDirective } from '../inbo-click-outside.directive';
+
+@Component({
+  standalone: true,
+  imports: [InboClickOutsideDirective],
+  template: `<div inboClickOutside (onClickOutside)="onClickOutside()"></div>`,
+})
+class TestHostComponent {
+  onClickOutside = jasmine.createSpy('onClickOutside');
+}
 
 describe('InboClickOutsideDirective', () => {
-
-  let directiveUnderTest: InboClickOutsideDirective;
-
-  let elementRef: ElementRef<HTMLElement>;
-  let nativeElementMock: HTMLElement;
-  let documentMock: Document;
-  let mouseEventSubject: Subject<MouseEvent>;
-  let clickOutsideEventEmitter: EventEmitter<void>;
+  let fixture: ComponentFixture<TestHostComponent>;
+  let directiveElement: DebugElement;
+  let testHostComponent: TestHostComponent;
+  let doc: Document;
 
   beforeEach(() => {
-    mouseEventSubject = new Subject<MouseEvent>();
+    TestBed.configureTestingModule({
+      imports: [TestHostComponent],
+    });
 
-    elementRef = mock(ElementRef<HTMLElement>);
-    nativeElementMock = mock(HTMLElement);
-    documentMock = mock(DocumentMock) as Document;
-
-    directiveUnderTest = new InboClickOutsideDirective(
-      instance(elementRef),
-      instance(documentMock),
+    fixture = TestBed.createComponent(TestHostComponent);
+    testHostComponent = fixture.componentInstance;
+    directiveElement = fixture.debugElement.query(
+      By.directive(InboClickOutsideDirective)
     );
+    doc = TestBed.inject(DOCUMENT);
 
-    clickOutsideEventEmitter = spy(directiveUnderTest.onClickOutside);
+    spyOn(
+      directiveElement.nativeElement,
+      'getBoundingClientRect'
+    ).and.returnValue({
+      x: 5,
+      y: 10,
+      width: 10,
+      height: 5,
+    } as DOMRect);
 
-    when(elementRef.nativeElement).thenReturn(instance(nativeElementMock));
-    when(nativeElementMock.getBoundingClientRect()).thenReturn({x: 5, y: 10, width: 10, height: 5} as DOMRect);
+    fixture.detectChanges();
 
-    spyOnProperty(rxjs, 'fromEvent', 'get').and.returnValue(() => mouseEventSubject.asObservable());
+    doc.dispatchEvent(
+      new MouseEvent('click', { bubbles: true, clientX: 0, clientY: 0 })
+    );
+    fixture.detectChanges();
   });
 
   describe('ngOnInit', () => {
-
-    it('should listen for clicks on document and skip the first event', () => {
-      directiveUnderTest.ngOnInit();
-
-      mouseEventSubject.next({x: 10, y: 10} as MouseEvent);
-
-      verify(nativeElementMock.getBoundingClientRect()).never();
+    it('should not emit an event if the click is within the bounds of the host element', () => {
+      doc.dispatchEvent(
+        new MouseEvent('click', { bubbles: true, clientX: 10, clientY: 10 })
+      );
+      fixture.detectChanges();
+      expect(testHostComponent.onClickOutside).not.toHaveBeenCalled();
     });
 
-    it('should listen for clicks on document and not emit an event if the click is within the bounds of the element on which the directive has been placed', () => {
-      directiveUnderTest.ngOnInit();
-
-      mouseEventSubject.next({x: 0, y: 0} as MouseEvent); // First event that will be discarded
-      mouseEventSubject.next({x: 10, y: 10} as MouseEvent);
-
-      verify(clickOutsideEventEmitter.emit()).never();
-    });
-
-    it('should listen for clicks on document and emit an event if the click is outside the bounds of the element on which the directive has been placed', () => {
-      directiveUnderTest.ngOnInit();
-
-      mouseEventSubject.next({x: 0, y: 0} as MouseEvent); // First event that will be discarded
-      mouseEventSubject.next({x: 20, y: 20} as MouseEvent);
-
-      verify(clickOutsideEventEmitter.emit()).once();
+    it('should emit an event if the click is outside the bounds of the host element', () => {
+      doc.dispatchEvent(
+        new MouseEvent('click', { bubbles: true, clientX: 20, clientY: 20 })
+      );
+      fixture.detectChanges();
+      expect(testHostComponent.onClickOutside).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe('OnDestroy', () => {
-    it('should unsubscribe from the mouseEvents', () => {
-      directiveUnderTest.ngOnInit();
+  describe('ngOnDestroy', () => {
+    it('should unsubscribe from mouse events', () => {
+      doc.dispatchEvent(
+        new MouseEvent('click', { bubbles: true, clientX: 20, clientY: 20 })
+      );
+      fixture.detectChanges();
+      expect(testHostComponent.onClickOutside).toHaveBeenCalledTimes(1);
 
-      mouseEventSubject.next({x: 0, y: 0} as MouseEvent); // First event that will be discarded
-      mouseEventSubject.next({x: 20, y: 20} as MouseEvent);
+      fixture.destroy();
+      fixture.detectChanges();
 
-      verify(clickOutsideEventEmitter.emit()).once();
-
-      directiveUnderTest.ngOnDestroy();
-
-      mouseEventSubject.next({x: 20, y: 20} as MouseEvent);
-
-      verify(clickOutsideEventEmitter.emit()).once();
+      doc.dispatchEvent(
+        new MouseEvent('click', { bubbles: true, clientX: 30, clientY: 30 })
+      );
+      fixture.detectChanges();
+      expect(testHostComponent.onClickOutside).toHaveBeenCalledTimes(1);
     });
   });
 });
-
-class DocumentMock implements HasEventTargetAddRemove<any> {
-
-  addEventListener(type: string, listener: ((evt: any) => void) | EventListenerObject | null, options?: boolean | AddEventListenerOptions): void {
-  }
-
-  removeEventListener(type: string, listener: ((evt: any) => void) | EventListenerObject | null, options?: EventListenerOptions | boolean): void {
-  }
-
-}

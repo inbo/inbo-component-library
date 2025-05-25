@@ -1,8 +1,8 @@
-import { Directive, ElementRef, OnInit } from "@angular/core";
+import { Directive, ElementRef, OnInit } from '@angular/core';
 
 @Directive({
-    selector: "[inboAutofocus]",
-    standalone: false
+  selector: '[inboAutofocus]',
+  standalone: true,
 })
 export class InboAutofocusDirective implements OnInit {
   private inputElement: HTMLElement;
