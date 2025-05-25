@@ -10,14 +10,17 @@ $warn-palette: map.get($color-config, 'warn');
 
 $inbo-primary: mat.m2-get-color-from-palette($flora-web-primary, 500);
 $inbo-primary-lighter: mat.m2-get-color-from-palette($flora-web-primary, 300);
-$inbo-primary-super-light: mat.m2-get-color-from-palette($flora-web-primary, 100);
+$inbo-primary-super-light: mat.m2-get-color-from-palette(
+  $flora-web-primary,
+  100
+);
 $inbo-primary-darker: mat.m2-get-color-from-palette($flora-web-primary, 700);
 $inbo-warn: mat.m2-get-color-from-palette($flora-web-warn, 500);
 $inbo-accent: mat.m2-get-color-from-palette($flora-web-accent, 500);
-$inbo-gray: #6B7280;
+$inbo-gray: #6b7280;
 $inbo-light-gray: rgb(229, 231, 235);
-$inbo-text-color: #373D3F;
-$inbo-bg-light: #F9FAFB;
+$inbo-text-color: #373d3f;
+$inbo-bg-light: #f9fafb;
 
 // Fonts
 $flanders-font: Flanders;

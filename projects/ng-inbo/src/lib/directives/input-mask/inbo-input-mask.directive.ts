@@ -14,7 +14,7 @@ import { NgControl } from '@angular/forms';
 export class InboInputMaskDirective implements OnInit {
   @Input() inboInputMask: string;
 
-  private previousValue: string = '';
+  private previousValue = '';
 
   constructor(
     private elementRef: ElementRef<HTMLInputElement>,

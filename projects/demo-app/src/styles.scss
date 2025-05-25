@@ -37,10 +37,11 @@
 /* @import "../../ng-inbo/styles/inbo-theme/inbo-theme.scss"; */
 
 /* Import variables from ng-inbo theme */
-@import "../../ng-inbo/styles/inbo-theme/partials/variables";
+@import '../../ng-inbo/styles/inbo-theme/partials/variables';
 
 /* Global styles */
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   font-family: 'Flanders', sans-serif;
@@ -52,7 +53,12 @@ body {
   color: $inbo-text-color;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: $inbo-primary-darker;
   margin-top: 0;
 }

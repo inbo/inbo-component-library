@@ -1,16 +1,18 @@
 @use '@angular/material' as mat;
 @import 'palette';
-@import "typography";
+@import 'typography';
 
 $flora-web-primary: mat.m2-define-palette($inbo-primary);
 $flora-web-accent: mat.m2-define-palette($inbo-primary, A200, A100, A400);
 $flora-web-warn: mat.m2-define-palette($inbo-warn);
 
-$flora-web-theme: mat.m2-define-light-theme((
-  color: (
-    primary: $flora-web-primary,
-    accent: $flora-web-accent,
-    warn: $flora-web-warn,
-  ),
-  typography: $flanders-typography,
-));
+$flora-web-theme: mat.m2-define-light-theme(
+  (
+    color: (
+      primary: $flora-web-primary,
+      accent: $flora-web-accent,
+      warn: $flora-web-warn,
+    ),
+    typography: $flanders-typography,
+  )
+);

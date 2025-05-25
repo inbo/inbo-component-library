@@ -5,11 +5,13 @@ This is a demo application for testing and developing the INBO component library
 ## Getting Started
 
 1. First, build the library and watch for changes:
+
    ```
    npm run watch
    ```
 
 2. In a separate terminal, run the demo application:
+
    ```
    npm run serve:demo
    ```
@@ -32,4 +34,4 @@ This is a demo application for testing and developing the INBO component library
 
 1. Create or modify components in the library
 2. Test them in this demo application
-3. Once components are working correctly, they can be published to npm 
+3. Once components are working correctly, they can be published to npm

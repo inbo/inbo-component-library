@@ -10,11 +10,10 @@ import { InboInputMaskDirective } from './inbo-input-mask.directive';
   template: `<input
     type="text"
     [inboInputMask]="mask"
-    [formControl]="control"
-  />`,
+    [formControl]="control" />`,
 })
 class TestHostComponent {
-  mask: string = '';
+  mask = '';
   control = new FormControl('');
 }
 
@@ -213,7 +212,6 @@ describe('InboInputMaskDirective', () => {
     component.mask = '00-00';
     fixture.detectChanges();
     const inputElement = inputEl.nativeElement as HTMLInputElement;
-    const directiveInstance = inputEl.injector.get(InboInputMaskDirective);
 
     inputElement.value = '1234';
     inputElement.dispatchEvent(new Event('input'));

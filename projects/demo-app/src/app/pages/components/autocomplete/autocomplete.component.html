@@ -1,7 +1,10 @@
 <div class="component-container">
   <h1>Autocomplete Component</h1>
   <div class="component-description">
-    <p>The INBO Autocomplete component provides an autocomplete input field with search functionality.</p>
+    <p>
+      The INBO Autocomplete component provides an autocomplete input field with
+      search functionality.
+    </p>
   </div>
 
   <div class="example-container">
@@ -17,13 +20,20 @@
     </inbo-autocomplete>
 
     <div *ngIf="selectedCountry" class="selected-value">
-      <p>Selected country: {{ selectedCountry.name }} ({{ selectedCountry.code }})</p>
+      <p>
+        Selected country: {{ selectedCountry.name }} ({{
+          selectedCountry.code
+        }})
+      </p>
     </div>
   </div>
 
   <div class="example-container">
     <h2>Example with Input Mask</h2>
-    <p>The example below demonstrates an input mask with pattern: 2 chars - 2 chars - 2 chars</p>
+    <p>
+      The example below demonstrates an input mask with pattern: 2 chars - 2
+      chars - 2 chars
+    </p>
 
     <inbo-autocomplete
       label="Product Code"
@@ -36,7 +46,10 @@
     </inbo-autocomplete>
 
     <div *ngIf="selectedProduct" class="selected-value">
-      <p>Selected product: {{ selectedProduct.code }} - {{ selectedProduct.name }}</p>
+      <p>
+        Selected product: {{ selectedProduct.code }} -
+        {{ selectedProduct.name }}
+      </p>
     </div>
   </div>
 
@@ -47,7 +60,7 @@
   label="Label"
   placeholder="Placeholder"
   [searchFunction]="searchFunction"
-  displayPattern="{{'{property1}'}} ({{'{property2}'}})"
+  displayPattern="{{ '{property1}' }} ({{ '{property2}' }})"
   [showClearIcon]="true"
   (onOptionSelected)="onItemSelected($event)"&gt;
 &lt;/inbo-autocomplete&gt;
@@ -60,7 +73,7 @@
   placeholder="Placeholder"
   [searchFunction]="searchFunction"
   mask="cc-cc-cc"  
-  displayPattern="{{'{property1}'}} ({{'{property2}'}})"
+  displayPattern="{{ '{property1}' }} ({{ '{property2}' }})"
   [showClearIcon]="true"
   (onOptionSelected)="onItemSelected($event)"&gt;
 &lt;/inbo-autocomplete&gt;

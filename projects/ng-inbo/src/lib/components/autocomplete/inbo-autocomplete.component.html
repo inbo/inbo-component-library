@@ -11,37 +11,42 @@
     (blur)="validateFieldValue()"
     (inboDebouncedInputChange)="inputChanged(inputField.value)"
     [inboInputMask]="mask()"
-    [matAutocomplete]="itemSearch"
-  />
+    [matAutocomplete]="itemSearch" />
   <mat-icon matPrefix>search</mat-icon>
   @if (value && showClearIcon) {
-  <button mat-icon-button matSuffix aria-label="Clear" (click)="clearValue()">
-    <mat-icon>clear</mat-icon>
-  </button>
+    <button mat-icon-button matSuffix aria-label="Clear" (click)="clearValue()">
+      <mat-icon>clear</mat-icon>
+    </button>
   }
   <mat-autocomplete
     autoActiveFirstOption
-    (optionSelected)="optionSelected($event)"
+    (optionSelected)="onOptionSelected($event)"
     #itemSearch="matAutocomplete"
-    [displayWith]="getDisplayValue"
-  >
-    @switch (requestState) { @case (RequestState.PENDING) {
-    <mat-option disabled class="message-option">
-      <mat-spinner diameter="25"></mat-spinner>
-    </mat-option>
-    } @case (RequestState.EMPTY) {
-    <mat-option disabled class="message-option">
-      <span>Geen resultaten gevonden.</span>
-    </mat-option>
-    } @case (RequestState.ERROR) {
-    <mat-option disabled class="message-option">
-      <span>Er ging iets mis bij het ophalen van de resultaten.</span>
-    </mat-option>
-    } @case (RequestState.SUCCESS) { @for (item of items; track item) {
-    <mat-option [value]="item">
-      {{ getDisplayValue(item) }}
-    </mat-option>
-    } } }
+    [displayWith]="getDisplayValue">
+    @switch (requestState) {
+      @case (RequestState.PENDING) {
+        <mat-option disabled class="message-option">
+          <mat-spinner diameter="25"></mat-spinner>
+        </mat-option>
+      }
+      @case (RequestState.EMPTY) {
+        <mat-option disabled class="message-option">
+          <span>Geen resultaten gevonden.</span>
+        </mat-option>
+      }
+      @case (RequestState.ERROR) {
+        <mat-option disabled class="message-option">
+          <span>Er ging iets mis bij het ophalen van de resultaten.</span>
+        </mat-option>
+      }
+      @case (RequestState.SUCCESS) {
+        @for (item of items; track item) {
+          <mat-option [value]="item">
+            {{ getDisplayValue(item) }}
+          </mat-option>
+        }
+      }
+    }
   </mat-autocomplete>
   <mat-error>{{ errorMessage() }}</mat-error>
 </mat-form-field>

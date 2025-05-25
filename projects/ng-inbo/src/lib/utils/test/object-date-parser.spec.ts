@@ -1,24 +1,7 @@
-// export const parseDates = <T>(response: T, dateFields: Array<keyof T>): T => {
-//   let result: T = {...response};
-//   dateFields.forEach(dateField => {
-//     const dateFieldValue = response[dateField];
-//     if (typeof dateFieldValue === 'string') {
-//       const parsedDate = parseISO(dateFieldValue as string);
-//       result = {
-//         ...result,
-//         ...(isValid(parsedDate) ? {[dateField]: parsedDate} : {}),
-//       };
-//     }
-//   });
-//
-//   return result;
-// };
-
-import {parseDates} from '../http-response-date-parser';
-import {parseISO} from 'date-fns';
+import { parseISO } from 'date-fns';
+import { parseDates } from '../http-response-date-parser';
 
 describe('parseDates', () => {
-
   const validIsoDate = '2023-02-08';
   const invalidIsoDate = '2023-02bla-08';
 
@@ -29,7 +12,7 @@ describe('parseDates', () => {
 
     const actual = parseDates(testObject, ['a']);
 
-    expect(actual.a as any).toEqual(parseISO(validIsoDate));
+    expect(actual.a as unknown).toEqual(parseISO(validIsoDate));
   });
 
   it('should leave properties as they are if the given property is not a valid ISO string', () => {
@@ -51,5 +34,4 @@ describe('parseDates', () => {
 
     expect(actual).toEqual(testObject);
   });
-
 });

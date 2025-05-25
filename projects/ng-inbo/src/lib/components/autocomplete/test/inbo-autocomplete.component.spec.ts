@@ -30,20 +30,19 @@ import { InboAutocompleteComponent } from '../inbo-autocomplete.component';
       [showErrorMessage]="hostShowErrorMessage"
       [showClearIcon]="hostShowClearIcon"
       [errorMessage]="hostErrorMessage"
-      (onOptionSelected)="hostOnOptionSelected($event)"
-    ></inbo-autocomplete>
+      (onOptionSelected)="hostOnOptionSelected($event)"></inbo-autocomplete>
   `,
 })
 class TestHostComponent {
   hostPlaceholder: string;
   hostLabel: string;
-  hostMinNumberOfCharacters: number = 1;
+  hostMinNumberOfCharacters = 1;
   hostSearchFunction: (searchQuery: string) => Observable<Array<TestObject>>;
   hostMask: string;
   hostDisplayPattern: ((option: TestObject) => string) | string;
   hostDisabled: boolean;
   hostShowErrorMessage: boolean;
-  hostShowClearIcon: boolean = false;
+  hostShowClearIcon = false;
   hostErrorMessage: string;
   hostOnOptionSelected = fnmock<(value: TestObject) => void>();
 }
@@ -93,7 +92,7 @@ describe('InboAutocompleteComponent', () => {
     });
 
     it('should call onChange and onTouched if the value is undefined', () => {
-      componentUnderTest.value = undefined as any;
+      componentUnderTest.value = undefined;
       hostFixture.detectChanges();
 
       verify(onChangeFn(undefined)).once();
@@ -150,7 +149,9 @@ describe('InboAutocompleteComponent', () => {
       testHostComponent.hostDisplayPattern = displayPattern;
       hostFixture.detectChanges();
 
-      const actual = componentUnderTest.getDisplayValue('bla' as any);
+      const actual = componentUnderTest.getDisplayValue(
+        'bla' as unknown as TestObject
+      );
       expect(actual).toEqual('bla');
     });
 
@@ -158,7 +159,9 @@ describe('InboAutocompleteComponent', () => {
       testHostComponent.hostDisplayPattern = displayPattern;
       hostFixture.detectChanges();
 
-      const actual = componentUnderTest.getDisplayValue(5 as any);
+      const actual = componentUnderTest.getDisplayValue(
+        5 as unknown as TestObject
+      );
       expect(actual).toEqual('5');
     });
 
@@ -166,7 +169,9 @@ describe('InboAutocompleteComponent', () => {
       testHostComponent.hostDisplayPattern = displayPattern;
       hostFixture.detectChanges();
 
-      const actual = componentUnderTest.getDisplayValue(true as any);
+      const actual = componentUnderTest.getDisplayValue(
+        true as unknown as TestObject
+      );
       expect(actual).toEqual('true');
     });
   });
@@ -394,6 +399,7 @@ interface TestObject {
   propA: string;
   propB: string;
   propC: number;
+  [key: string]: string | number;
 }
 
 // Removed ChangeDetectorRefTestImpl as TestBed will handle ChangeDetectorRef

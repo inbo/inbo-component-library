@@ -1,8 +1,9 @@
 <p class="mat-caption key">{{ key() }}</p>
 
-@if (isArray(processedValue())) { @for (valueItem of asArray(processedValue());
-track valueItem) {
-<p class="mat-body value value--multiple">• {{ valueItem | ucfirst }}</p>
-} } @else {
-<p class="mat-body value">{{ processedValue() | ucfirst }}</p>
+@if (isArray(processedValue())) {
+  @for (valueItem of asArray(processedValue()); track valueItem) {
+    <p class="mat-body value value--multiple">• {{ valueItem | ucfirst }}</p>
+  }
+} @else {
+  <p class="mat-body value">{{ processedValue() | ucfirst }}</p>
 }

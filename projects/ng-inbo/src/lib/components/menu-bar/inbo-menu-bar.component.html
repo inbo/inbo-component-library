@@ -1,43 +1,45 @@
 <mat-toolbar class="header" color="primary">
   <div class="header-content">
     <div class="navigation">
-      @for (menuItem of menuItems; track menuItem) { @if (menuItem.externalLink)
-      {
-      <a mat-button [href]="menuItem.url" target="_blank">
-        <span>{{ menuItem.name }}</span>
-        <mat-icon class="button-icon">open_in_new</mat-icon>
-      </a>
-      } @else { @if (!menuItem.submenuItems) {
-      <button mat-button [routerLink]="menuItem.url">
-        {{ menuItem.name }}
-      </button>
-      } @else {
-      <button mat-button [matMenuTriggerFor]="$any(submenu)">
-        {{ menuItem.name }}
-      </button>
-      <mat-menu #submenu="matMenu">
-        @for (submenuItem of menuItem.submenuItems; track submenuItem) {
-        <button mat-menu-item [routerLink]="submenuItem.url">
-          <span>{{ submenuItem.name }}</span>
-        </button>
+      @for (menuItem of menuItems; track menuItem) {
+        @if (menuItem.externalLink) {
+          <a mat-button [href]="menuItem.url" target="_blank">
+            <span>{{ menuItem.name }}</span>
+            <mat-icon class="button-icon">open_in_new</mat-icon>
+          </a>
+        } @else {
+          @if (!menuItem.submenuItems) {
+            <button mat-button [routerLink]="menuItem.url">
+              {{ menuItem.name }}
+            </button>
+          } @else {
+            <button mat-button [matMenuTriggerFor]="$any(submenu)">
+              {{ menuItem.name }}
+            </button>
+            <mat-menu #submenu="matMenu">
+              @for (submenuItem of menuItem.submenuItems; track submenuItem) {
+                <button mat-menu-item [routerLink]="submenuItem.url">
+                  <span>{{ submenuItem.name }}</span>
+                </button>
+              }
+            </mat-menu>
+          }
         }
-      </mat-menu>
-      } } }
+      }
     </div>
 
     @if (loggedInUserName) {
-    <button mat-button [matMenuTriggerFor]="userMenu">
-      <mat-icon>person</mat-icon>
-      {{ loggedInUserName | ucwords }}
-    </button>
+      <button mat-button [matMenuTriggerFor]="userMenu">
+        <mat-icon>person</mat-icon>
+        {{ loggedInUserName | ucwords }}
+      </button>
     } @else {
-    <button
-      mat-flat-button
-      class="login-button"
-      (click)="loginButtonClick.emit()"
-    >
-      Aanmelden
-    </button>
+      <button
+        mat-flat-button
+        class="login-button"
+        (click)="loginButtonClick.emit()">
+        Aanmelden
+      </button>
     }
 
     <mat-menu #userMenu="matMenu">

@@ -20,14 +20,16 @@
   margin-top: 8px;
 }
 
-.mat-column-editColumn, .mat-column-deleteColumn, .mat-column-detailColumn {
+.mat-column-editColumn,
+.mat-column-deleteColumn,
+.mat-column-detailColumn {
   padding: 8px;
   width: 64px;
   max-width: 64px;
 }
 
 .action-button {
-  color: rgba(0, 0, 0, .54);
+  color: rgba(0, 0, 0, 0.54);
 }
 
 .partial-spinner-container {
@@ -35,7 +37,7 @@
   height: 100%;
   display: flex;
   justify-content: center;
-  background: rgba(255, 255, 255, .65);
+  background: rgba(255, 255, 255, 0.65);
   position: absolute;
   top: 0;
   left: 0;
@@ -92,7 +94,7 @@
 
 .data-table-header-cell {
   vertical-align: top;
-  padding:0;
+  padding: 0;
 
   .header-content {
     display: flex;

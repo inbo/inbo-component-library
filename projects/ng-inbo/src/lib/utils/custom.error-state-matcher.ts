@@ -1,12 +1,9 @@
-import {ErrorStateMatcher} from '@angular/material/core';
+import { ErrorStateMatcher } from '@angular/material/core';
 
 export class CustomErrorStateMatcher implements ErrorStateMatcher {
-
-  constructor(private matcher: () => boolean) {
-  }
+  constructor(private matcher: () => boolean) {}
 
   isErrorState(): boolean {
     return this.matcher();
   }
-
 }

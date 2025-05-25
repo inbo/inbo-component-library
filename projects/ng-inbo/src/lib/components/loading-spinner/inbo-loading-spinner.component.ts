@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import {MatProgressSpinner} from "@angular/material/progress-spinner";
+import { MatProgressSpinner } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'inbo-loading-spinner',
@@ -7,8 +7,6 @@ import {MatProgressSpinner} from "@angular/material/progress-spinner";
   styleUrls: ['inbo-loading-spinner.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [
-    MatProgressSpinner
-  ]
+  imports: [MatProgressSpinner],
 })
 export class InboLoadingSpinnerComponent {}

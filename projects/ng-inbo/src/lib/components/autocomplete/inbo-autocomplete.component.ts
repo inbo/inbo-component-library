@@ -22,7 +22,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { isNil } from 'lodash-es';
 import { finalize, Observable, tap } from 'rxjs';
-import { InboDebouncedInputChange } from '../../directives/debounced-input-change/inbo-debounced-input-change.directive';
+import { InboDebouncedInputChangeDirective } from '../../directives/debounced-input-change/inbo-debounced-input-change.directive';
 import { InboInputMaskDirective } from '../../directives/input-mask/inbo-input-mask.directive';
 import { RequestState } from '../../services/api/request-state.enum';
 import { CustomErrorStateMatcher } from '../../utils/custom.error-state-matcher';
@@ -40,7 +40,7 @@ import { CustomErrorStateMatcher } from '../../utils/custom.error-state-matcher'
     MatAutocompleteModule,
     FormsModule,
     InboInputMaskDirective,
-    InboDebouncedInputChange,
+    InboDebouncedInputChangeDirective,
     MatIconButton,
     MatProgressSpinner,
   ],
@@ -54,12 +54,12 @@ import { CustomErrorStateMatcher } from '../../utils/custom.error-state-matcher'
   standalone: true,
 })
 export class InboAutocompleteComponent<
-  T extends Partial<{ [key: string]: any }>
+  T extends Partial<Record<string, unknown>>,
 > implements ControlValueAccessor
 {
   readonly RequestState = RequestState;
 
-  readonly onOptionSelected = output<T>();
+  readonly optionSelected = output<T>();
 
   readonly placeholder = input<string>();
   readonly label = input<string>();
@@ -77,7 +77,7 @@ export class InboAutocompleteComponent<
   readonly showClearIcon = input(false);
   readonly errorMessage = input<string>();
 
-  displayValue: string = '';
+  displayValue = '';
   requestState = RequestState.DEFAULT;
   items: Array<T>;
   errorStateMatcher = new CustomErrorStateMatcher(() =>
@@ -119,8 +119,8 @@ export class InboAutocompleteComponent<
       typeof value === 'object'
     ) {
       let result = this.displayPattern() as string;
-      Object.keys(value as Partial<{ [key: string]: any }>).forEach((key) => {
-        result = result.replace(`\$\{${key}\}`, `${value[key] ?? ''}`);
+      Object.keys(value as Partial<Record<string, unknown>>).forEach(key => {
+        result = result.replace(`$\{${key}}`, `${value[key] ?? ''}`);
       });
       return result.replace(new RegExp(/\$\{\S*}/, 'g'), '');
     }
@@ -164,9 +164,9 @@ export class InboAutocompleteComponent<
     this.value = undefined;
   }
 
-  optionSelected(optionSelectedEvent: MatAutocompleteSelectedEvent) {
+  onOptionSelected(optionSelectedEvent: MatAutocompleteSelectedEvent) {
     this.value = optionSelectedEvent.option.value;
-    this.onOptionSelected.emit(this.value);
+    this.optionSelected.emit(this.value);
   }
 
   private doSearch(searchQuery: string): void {
@@ -180,9 +180,9 @@ export class InboAutocompleteComponent<
     this.requestState = RequestState.PENDING;
     this.searchFunction()!(searchQuery)
       .pipe(
-        tap((value) => (this.items = value || [])),
+        tap(value => (this.items = value || [])),
         tap(
-          (items) => (this.requestState = this.getRequestStateForResults(items))
+          items => (this.requestState = this.getRequestStateForResults(items))
         ),
         finalize(() => {
           this.changeDetectorRef.detectChanges();
@@ -193,7 +193,7 @@ export class InboAutocompleteComponent<
       });
   }
 
-  private getRequestStateForResults(items: Array<any>): RequestState {
+  private getRequestStateForResults(items: Array<unknown>): RequestState {
     return items?.length > 0 ? RequestState.SUCCESS : RequestState.EMPTY;
   }
 }

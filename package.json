@@ -26,12 +26,15 @@
     "build:lib": "ng build ng-inbo && npm run build-schematics",
     "build:demo": "ng build demo-app",
     "lint": "ng lint",
+    "format:check": "prettier --check .",
+    "format:write": "prettier --write .",
     "build-schematics": "cd projects/ng-inbo && npm run build",
     "release": "cd projects/ng-inbo && standard-version && cd ../.. && git push --follow-tags && npm run build:lib && cd dist/ng-inbo && npm publish",
     "release:minor": "cd projects/ng-inbo && standard-version --release-as minor && cd ../.. && git push --follow-tags && npm run build:lib && cd dist/ng-inbo && npm publish",
     "release:major": "cd projects/ng-inbo && standard-version --release-as major && cd ../.. && git push --follow-tags && npm run build:lib && cd dist/ng-inbo && npm publish",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "prepare": "husky"
   },
   "private": false,
   "dependencies": {
@@ -64,7 +67,12 @@
     "@angular/compiler-cli": "19.1.6",
     "@johanblumenberg/ts-mockito": "1.0.43",
     "@types/jasmine": "4.0.0",
+    "angular-eslint": "19.5.0",
     "core-js": "3.37.0",
+    "eslint": "^9.27.0",
+    "eslint-config-prettier": "10.1.5",
+    "eslint-plugin-prettier": "5.4.0",
+    "husky": "^9.1.7",
     "jasmine-core": "4.2.0",
     "karma": "6.4.3",
     "karma-chrome-launcher": "3.2.0",
@@ -72,7 +80,9 @@
     "karma-jasmine": "5.1.0",
     "karma-jasmine-html-reporter": "2.1.0",
     "ng-packagr": "19.1.2",
+    "prettier": "3.5.3",
     "standard-version": "^9.5.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "typescript-eslint": "8.32.1"
   }
 }

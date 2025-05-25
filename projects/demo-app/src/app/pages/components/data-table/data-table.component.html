@@ -1,93 +1,123 @@
 <div class="component-container">
   <h1>Data Table Component</h1>
   <div class="component-description">
-    <p>Effortlessly display and manage tabular data with the INBO Data Table component. Featuring built-in sorting, pagination, filtering, and customizable action buttons for a seamless user experience.</p>
+    <p>
+      Effortlessly display and manage tabular data with the INBO Data Table
+      component. Featuring built-in sorting, pagination, filtering, and
+      customizable action buttons for a seamless user experience.
+    </p>
   </div>
 
   <div class="example-container">
     <h2>Basic Usage: Instant Data Loading</h2>
-    <p>Demonstrates the simplest use case where data is loaded instantly into the table without showing a loading indicator.</p>
-    
+    <p>
+      Demonstrates the simplest use case where data is loaded instantly into the
+      table without showing a loading indicator.
+    </p>
+
     <ng-template #statusCellTemplate let-statusValue let-rowItem="item">
       @switch (statusValue) {
         @case ('active') {
-          <span style="color: green; font-weight: bold;"><mat-icon style="font-size: 1em; vertical-align: middle;">check_circle</mat-icon> ({{ statusValue }})</span>
+          <span style="color: green; font-weight: bold"
+            ><mat-icon style="font-size: 1em; vertical-align: middle"
+              >check_circle</mat-icon
+            >
+            ({{ statusValue }})</span
+          >
         }
         @case ('inactive') {
-          <span style="color: red;"><mat-icon style="font-size: 1em; vertical-align: middle;">cancel</mat-icon> ({{ statusValue }})</span>
+          <span style="color: red"
+            ><mat-icon style="font-size: 1em; vertical-align: middle"
+              >cancel</mat-icon
+            >
+            ({{ statusValue }})</span
+          >
         }
         @case ('pending') {
-          <span style="color: orange;"><mat-icon style="font-size: 1em; vertical-align: middle;">hourglass_empty</mat-icon> ({{ statusValue }})</span>
+          <span style="color: orange"
+            ><mat-icon style="font-size: 1em; vertical-align: middle"
+              >hourglass_empty</mat-icon
+            >
+            ({{ statusValue }})</span
+          >
         }
       }
     </ng-template>
 
     <inbo-data-table
-        [dataPage]="instantDataPage$ | async"
-        [dataRequestState]="instantDataRequestState$ | async"
-        [columnConfiguration]="instantColumnConfig()"
-        rowHeight="48px"
-        >
+      [dataPage]="instantDataPage$ | async"
+      [dataRequestState]="instantDataRequestState$ | async"
+      [columnConfiguration]="instantColumnConfig()"
+      rowHeight="48px">
     </inbo-data-table>
   </div>
 
   <div class="example-container">
     <h2>Pagination Demo (5 items per page, 5 pages)</h2>
-    <p>This example demonstrates the data table with pagination enabled. It loads 25 items, displaying 5 items per page.</p>
+    <p>
+      This example demonstrates the data table with pagination enabled. It loads
+      25 items, displaying 5 items per page.
+    </p>
     <inbo-data-table
-        [dataPage]="paginationDemoDataPage$ | async"
-        [dataRequestState]="paginationDemoDataRequestState$ | async"
-        [columnConfiguration]="paginationDemoColumnConfig"
-        (pageChange)="onPaginationDemoPageChange($event)"
-        rowHeight="48px"
-        >
+      [dataPage]="paginationDemoDataPage$ | async"
+      [dataRequestState]="paginationDemoDataRequestState$ | async"
+      [columnConfiguration]="paginationDemoColumnConfig"
+      (pageChange)="onPaginationDemoPageChange($event)"
+      rowHeight="48px">
     </inbo-data-table>
   </div>
 
   <div class="example-container">
     <h2>Local Filtering Showcase (No Loading Spinner)</h2>
-    <p>This example demonstrates local filtering. Data is loaded instantly, and filters operate on the client-side data for the current page. Sorting also operates on the full local dataset before pagination.</p>
+    <p>
+      This example demonstrates local filtering. Data is loaded instantly, and
+      filters operate on the client-side data for the current page. Sorting also
+      operates on the full local dataset before pagination.
+    </p>
     <inbo-data-table
-        [dataPage]="localFilterDataPage$ | async"
-        [dataRequestState]="localFilterDataRequestState$ | async"
-        [columnConfiguration]="localFilterColumnConfig"
-        [sort]="currentLocalFilterSort"
-        [clientSideProcessing]="true"
-        [clientPageSize]="5"
-        (sortChanged)="onLocalFilterSortChange($event)"
-        (filterChanged)="onLocalFilterFilterChange($event)"
-        rowHeight="48px"
-        >
+      [dataPage]="localFilterDataPage$ | async"
+      [dataRequestState]="localFilterDataRequestState$ | async"
+      [columnConfiguration]="localFilterColumnConfig"
+      [sort]="currentLocalFilterSort"
+      [clientSideProcessing]="true"
+      [clientPageSize]="5"
+      (sortChanged)="onLocalFilterSortChange($event)"
+      (filterChanged)="onLocalFilterFilterChange($event)"
+      rowHeight="48px">
     </inbo-data-table>
   </div>
 
   <div class="example-container">
     <h2>Advanced Features Showcase</h2>
-    <p>Explore advanced capabilities like server-side pagination, dynamic sorting, text filtering (Name column), autocomplete filtering (Description column), conditional row actions, and interaction controls.</p>
+    <p>
+      Explore advanced capabilities like server-side pagination, dynamic
+      sorting, text filtering (Name column), autocomplete filtering (Description
+      column), conditional row actions, and interaction controls.
+    </p>
 
     <div class="controls">
       <button mat-raised-button color="primary" (click)="toggleRequestState()">
-          Toggle Request State
+        Toggle Request State
       </button>
       <button mat-raised-button color="accent" (click)="toggleEmptyState()">
-          Toggle Empty State
+        Toggle Empty State
       </button>
       <button mat-raised-button color="warn" (click)="setErrorState()">
-          Set Error State
+        Set Error State
       </button>
     </div>
 
-    <inbo-data-table 
-        [dataPage]="dataPage$ | async" 
-        [dataRequestState]="dataRequestState$ | async" 
-        [columnConfiguration]="columnConfig"
-        [sort]="currentSort"
-        (pageChange)="onPageChange($event)"
-        (sortChanged)="onSortChange($event)"
-        (filterChanged)="onFilterChange($event)"
-        (editItem)="onEditItem($event)"
-        (deleteItem)="onDeleteItem($event)"
-        (clickItem)="onClickItem($event)">
+    <inbo-data-table
+      [dataPage]="dataPage$ | async"
+      [dataRequestState]="dataRequestState$ | async"
+      [columnConfiguration]="columnConfig"
+      [sort]="currentSort"
+      (pageChange)="onPageChange($event)"
+      (sortChanged)="onSortChange($event)"
+      (filterChanged)="onFilterChange($event)"
+      (editItem)="onEditItem($event)"
+      (deleteItem)="onDeleteItem($event)"
+      (clickItem)="onClickItem($event)">
     </inbo-data-table>
   </div>
 
@@ -107,10 +137,21 @@
     </pre>
 
     <h3>Enabling Sorting</h3>
-    <p>To make a column sortable, set the <code>sortablePropertyName</code> property within its configuration in the <code>columnConfiguration</code> object. This property should match the corresponding property name in your data items.</p>
+    <p>
+      To make a column sortable, set the
+      <code>sortablePropertyName</code> property within its configuration in the
+      <code>columnConfiguration</code> object. This property should match the
+      corresponding property name in your data items.
+    </p>
 
     <h3>Handling Sort Changes</h3>
-    <p>Listen to the <code>(sortChanged)</code> output event emitter. This event emits a <code>Sort</code> object (from <code>&#64;angular/material/sort</code>) containing the <code>active</code> (column ID) and <code>direction</code> ('asc' | 'desc' | '') properties. Use this information to update your data fetching logic.</p>
+    <p>
+      Listen to the <code>(sortChanged)</code> output event emitter. This event
+      emits a <code>Sort</code> object (from
+      <code>&#64;angular/material/sort</code>) containing the
+      <code>active</code> (column ID) and <code>direction</code> ('asc' | 'desc'
+      | '') properties. Use this information to update your data fetching logic.
+    </p>
     <pre>
 // Component Template
 &lt;inbo-data-table
@@ -130,7 +171,10 @@ onSortChange(sort: Sort): void {{ '{' }}
     </pre>
 
     <h3>Column Configuration</h3>
-    <p>Learn how to configure columns, including enabling sorting, filtering, custom value formatting, and applying specific styles.</p>
+    <p>
+      Learn how to configure columns, including enabling sorting, filtering,
+      custom value formatting, and applying specific styles.
+    </p>
     <pre>
 // Define your data item interface (e.g., DemoItem)
 interface DemoItem extends InboDatatableItem {{ '{' }}
@@ -168,4 +212,4 @@ columnConfig: InboDataTableColumnConfiguration&lt;DemoItem&gt; = {{ '{' }}
 {{ '}' }};
     </pre>
   </div>
-</div> 
+</div>

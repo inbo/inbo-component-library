@@ -1,12 +1,19 @@
 <div class="dialog-wrapper">
   <h2 mat-dialog-title>{{ data?.title }}</h2>
-  <button class="close-icon-button" mat-icon-button [mat-dialog-close]="false" *ngIf="!data.hideCloseIconButton">
+  <button
+    class="close-icon-button"
+    mat-icon-button
+    [mat-dialog-close]="false"
+    *ngIf="!data.hideCloseIconButton">
     <mat-icon>close</mat-icon>
   </button>
-  <mat-dialog-content [innerText]="data?.message">
-  </mat-dialog-content>
+  <mat-dialog-content [innerText]="data?.message"> </mat-dialog-content>
   <mat-dialog-actions class="action-buttons">
-    <button mat-button [mat-dialog-close]="false">{{ data?.cancelButtonText || 'Annuleren' }}</button>
-    <button mat-button [mat-dialog-close]="true">{{ data?.continueButtonText || 'Ok' }}</button>
+    <button mat-button [mat-dialog-close]="false">
+      {{ data?.cancelButtonText || 'Annuleren' }}
+    </button>
+    <button mat-button [mat-dialog-close]="true">
+      {{ data?.continueButtonText || 'Ok' }}
+    </button>
   </mat-dialog-actions>
 </div>

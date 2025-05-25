@@ -1,11 +1,11 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { InboMenuItem } from './menu-item.model';
-import {MatToolbar} from "@angular/material/toolbar";
-import {MatIcon} from "@angular/material/icon";
-import {RouterLink} from "@angular/router";
-import {MatMenu, MatMenuItem, MatMenuTrigger} from "@angular/material/menu";
-import {MatButton} from "@angular/material/button";
-import {NgStringPipesModule} from "ngx-pipes";
+import { MatToolbar } from '@angular/material/toolbar';
+import { MatIcon } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
+import { MatMenu, MatMenuItem, MatMenuTrigger } from '@angular/material/menu';
+import { MatButton } from '@angular/material/button';
+import { NgStringPipesModule } from 'ngx-pipes';
 
 @Component({
   selector: 'inbo-menu-bar',
@@ -20,8 +20,8 @@ import {NgStringPipesModule} from "ngx-pipes";
     MatButton,
     MatMenu,
     MatMenuItem,
-    NgStringPipesModule
-  ]
+    NgStringPipesModule,
+  ],
 })
 export class InboMenuBarComponent {
   @Input() menuItems: Array<InboMenuItem>;

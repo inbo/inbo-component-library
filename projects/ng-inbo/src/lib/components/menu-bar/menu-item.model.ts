@@ -4,4 +4,4 @@ export type InboMenuItem = {
 } & (
   | { url: Array<string>; submenuItems?: never }
   | { url?: never; submenuItems: Array<Omit<InboMenuItem, 'submenuItems'>> }
-  )
+);

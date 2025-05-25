@@ -33,11 +33,11 @@ export class InboKeyValueComponent {
 
   processedValue = computed(() => this.value() || this.defaultValue());
 
-  isArray(val: any): val is Array<any> {
+  isArray(val: unknown): val is Array<unknown> {
     return Array.isArray(val);
   }
 
-  asArray(val: any): Array<string> {
+  asArray(val: unknown): Array<string> {
     return val as Array<string>;
   }
 }

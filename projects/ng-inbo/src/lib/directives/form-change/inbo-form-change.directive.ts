@@ -32,7 +32,7 @@ export class InboFormChangeDirective<T> implements OnInit, OnDestroy {
         takeUntil(this.destroy),
         debounceTime(this.inboFormChangeDebounceTime)
       )
-      .subscribe((value) => this.inboFormChange.emit(value));
+      .subscribe(value => this.inboFormChange.emit(value));
   }
 
   ngOnDestroy(): void {

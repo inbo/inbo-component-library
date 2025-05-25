@@ -9,8 +9,7 @@ import { InboPositiveNumbersDirective } from '../inbo-positive-numbers.directive
   template: `<input
     type="text"
     inboPositiveNumbers
-    (ngModelChange)="changedValue = $event"
-  />`,
+    (ngModelChange)="changedValue = $event" />`,
 })
 class TestHostComponent {
   changedValue: string | undefined;

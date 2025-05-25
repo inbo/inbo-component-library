@@ -33,6 +33,6 @@ export class InboHeaderComponent {
   contactMenuOpen = signal(false);
 
   toggleContactMenu(): void {
-    this.contactMenuOpen.update((value) => !value);
+    this.contactMenuOpen.update(value => !value);
   }
 }

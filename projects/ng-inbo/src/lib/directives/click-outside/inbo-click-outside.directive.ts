@@ -2,11 +2,10 @@ import { DOCUMENT } from '@angular/common';
 import {
   Directive,
   ElementRef,
-  EventEmitter,
-  Inject,
+  inject,
   OnDestroy,
   OnInit,
-  Output,
+  output,
 } from '@angular/core';
 import { inRange } from 'lodash-es';
 import { fromEvent, skip, Subject, takeUntil, tap } from 'rxjs';
@@ -17,13 +16,10 @@ import { fromEvent, skip, Subject, takeUntil, tap } from 'rxjs';
 })
 export class InboClickOutsideDirective implements OnInit, OnDestroy {
   private unsubscribe = new Subject<void>();
+  private elementRef = inject(ElementRef<HTMLElement>);
+  private document = inject(DOCUMENT);
 
-  @Output() onClickOutside = new EventEmitter<void>();
-
-  constructor(
-    private elementRef: ElementRef<HTMLElement>,
-    @Inject(DOCUMENT) private document: Document
-  ) {}
+  clickOutside = output<void>();
 
   ngOnInit(): void {
     fromEvent<MouseEvent>(this.document, 'click')
@@ -45,7 +41,7 @@ export class InboClickOutsideDirective implements OnInit, OnDestroy {
               inRange(clickY, elementRect.y, elementRect.y + elementRect.height)
             )
           ) {
-            this.onClickOutside.emit();
+            this.clickOutside.emit();
           }
         })
       )
