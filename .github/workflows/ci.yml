@@ -24,4 +24,4 @@ jobs:
         run: npx ng lint
 
       - name: Test
-        run: npx ng test --watch=false --browsers=ChromeHeadlessCI
+        run: npx ng test ng-inbo --watch=false --browsers=ChromeHeadlessCI
