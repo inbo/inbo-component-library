@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { InboAutocompleteComponent, NgInboModule } from 'projects/ng-inbo/src/public-api';
+import { NgInboModule } from 'projects/ng-inbo/src/public-api';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
@@ -26,14 +26,15 @@ interface Product {
     FormsModule,
     ReactiveFormsModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
   ],
   templateUrl: 'autocomplete.component.html',
-  styleUrls: ['autocomplete.component.scss']
+  styleUrls: ['autocomplete.component.scss'],
 })
 export class AutocompleteComponent {
   selectedCountry: Country | null = null;
   selectedProduct: Product | null = null;
+  selectedCountryWithNgModel: Country | null = null;
 
   // Sample data for demonstration
   private countries: Country[] = [
@@ -44,7 +45,7 @@ export class AutocompleteComponent {
     { name: 'Spain', code: 'ES' },
     { name: 'Italy', code: 'IT' },
     { name: 'United Kingdom', code: 'UK' },
-    { name: 'Portugal', code: 'PT' }
+    { name: 'Portugal', code: 'PT' },
   ];
 
   // Sample product data with codes that follow the cc-cc-cc pattern
@@ -54,12 +55,12 @@ export class AutocompleteComponent {
     { code: 'PQ-45-R7', name: 'Deluxe Accessory' },
     { code: 'MN-34-K5', name: 'Economy Tool' },
     { code: 'CD-67-H8', name: 'Professional Kit' },
-    { code: 'LM-23-F6', name: 'Starter Pack' }
+    { code: 'LM-23-F6', name: 'Starter Pack' },
   ];
 
   searchCountries = (query: string) => {
-    const filteredCountries = this.countries.filter(
-      country => country.name.toLowerCase().includes(query.toLowerCase())
+    const filteredCountries = this.countries.filter((country) =>
+      country.name.toLowerCase().includes(query.toLowerCase())
     );
 
     return of(filteredCountries).pipe(delay(300));
@@ -68,12 +69,14 @@ export class AutocompleteComponent {
   searchProducts = (query: string) => {
     // Remove any non-alphanumeric characters for comparison
     const cleanQuery = query.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-    
-    const filteredProducts = this.products.filter(product => {
+
+    const filteredProducts = this.products.filter((product) => {
       // Remove separators from the product code for comparison
       const cleanCode = product.code.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-      return cleanCode.includes(cleanQuery) || 
-             product.name.toLowerCase().includes(query.toLowerCase());
+      return (
+        cleanCode.includes(cleanQuery) ||
+        product.name.toLowerCase().includes(query.toLowerCase())
+      );
     });
 
     return of(filteredProducts).pipe(delay(300));
