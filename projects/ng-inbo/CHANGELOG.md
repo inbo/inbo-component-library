@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.1](https://github.com/inbo/inbo-component-library/compare/v1.2.0...v1.2.1) (2025-06-16)
+
+
+### Bug Fixes
+
+* apply hotfix for client on version 1.2.0. Autocomplete was losing its value ([612fb2e](https://github.com/inbo/inbo-component-library/commit/612fb2ef63ad5e67aa6ad466e133c4576c7691e4))
+
 ## [1.2.0](https://github.com/inbo/inbo-component-library/compare/v1.1.2...v1.2.0) (2025-04-29)
 
 ### [1.1.2](https://github.com/inbo/inbo-component-library/compare/v1.1.1...v1.1.2) (2025-04-29)
