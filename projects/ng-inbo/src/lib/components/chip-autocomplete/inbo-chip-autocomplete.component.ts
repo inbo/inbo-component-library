@@ -53,23 +53,24 @@ import { NgTemplateOutlet } from '@angular/common';
   standalone: true,
 })
 export class InboChipAutocompleteComponent<
-  T extends Partial<Record<string, unknown>>,
+  T extends Partial<Record<string, unknown>>, // value
+  U extends Partial<Record<string, unknown>>, // option object
 > implements ControlValueAccessor
 {
-  readonly separatorKeysCodes: number[] = [ENTER, COMMA];
+  readonly separatorKeysCodes: Array<number> = [ENTER, COMMA];
 
   readonly placeholder = input<string>();
-  filteredValues = model<any[]>();
+  filteredValues = model<Array<U>>();
   input = model<string>();
 
-  private _value: T[] = [];
+  private _value: Array<T> = [];
 
   @ContentChild('selectedTemplate', { read: TemplateRef })
   selectedTemplate?: TemplateRef<any>;
   @ContentChild('optionTemplate', { read: TemplateRef })
   optionTemplate!: TemplateRef<any>;
 
-  get value(): T[] {
+  get value(): Array<T> {
     return this._value;
   }
 
@@ -87,24 +88,24 @@ export class InboChipAutocompleteComponent<
     this.onTouch(this._value);
   }
 
-  setList(value: T[]) {
+  setList(value: Array<T>) {
     this._value = value;
     this.onChange(this._value);
     this.onTouch(this._value);
   }
 
-  onChange: (value?: T[]) => void = () => undefined;
-  onTouch: (value?: T[]) => void = () => undefined;
+  onChange: (value?: Array<T>) => void = () => undefined;
+  onTouch: (value?: Array<T>) => void = () => undefined;
 
-  registerOnChange(onChangeFn: (val: T[]) => void): void {
+  registerOnChange(onChangeFn: (val: Array<T>) => void): void {
     this.onChange = onChangeFn;
   }
 
-  registerOnTouched(onTouchedFn: (val: T[]) => void): void {
+  registerOnTouched(onTouchedFn: (val: Array<T>) => void): void {
     this.onTouch = onTouchedFn;
   }
 
-  writeValue(obj: T[]): void {
+  writeValue(obj: Array<T>): void {
     this.setList(obj);
   }
 
@@ -118,7 +119,7 @@ export class InboChipAutocompleteComponent<
     const value = (event.value || '').trim();
     const firstFilteredCounter = this.filteredValues()[0];
     if (value && firstFilteredCounter) {
-      this.addValue(firstFilteredCounter.id);
+      this.addValue(firstFilteredCounter['id'] as T);
     }
     this.resetInput();
   }
