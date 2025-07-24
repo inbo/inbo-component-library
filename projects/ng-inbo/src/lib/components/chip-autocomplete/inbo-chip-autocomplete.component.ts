@@ -62,13 +62,14 @@ export class InboChipAutocompleteComponent<
   readonly placeholder = input<string>();
   filteredValues = model<Array<U>>();
   input = model<string>();
+  valueProperty = input<string>('id');
 
   private _value: Array<T> = [];
 
   @ContentChild('selectedTemplate', { read: TemplateRef })
-  selectedTemplate?: TemplateRef<any>;
+  selectedTemplate?: TemplateRef<{ $implicit: T }>;
   @ContentChild('optionTemplate', { read: TemplateRef })
-  optionTemplate!: TemplateRef<any>;
+  optionTemplate!: TemplateRef<{ $implicit: U }>;
 
   get value(): Array<T> {
     return this._value;
@@ -119,7 +120,7 @@ export class InboChipAutocompleteComponent<
     const value = (event.value || '').trim();
     const firstFilteredCounter = this.filteredValues()[0];
     if (value && firstFilteredCounter) {
-      this.addValue(firstFilteredCounter['id'] as T);
+      this.addValue(firstFilteredCounter[this.valueProperty()] as T);
     }
     this.resetInput();
   }
