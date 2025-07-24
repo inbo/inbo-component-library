@@ -53,8 +53,8 @@ import { NgTemplateOutlet } from '@angular/common';
   standalone: true,
 })
 export class InboChipAutocompleteComponent<
-  T extends Partial<Record<string, unknown>>, // value
-  U extends Partial<Record<string, unknown>>, // option object
+  U extends Partial<Record<keyof U, U[keyof U]>>, // option object
+  T extends keyof U = keyof U, // value
 > implements ControlValueAccessor
 {
   readonly separatorKeysCodes: Array<number> = [ENTER, COMMA];
@@ -62,7 +62,7 @@ export class InboChipAutocompleteComponent<
   readonly placeholder = input<string>();
   filteredValues = model<Array<U>>();
   input = model<string>();
-  valueProperty = input<string>('id');
+  valueProperty = input<T>('id' as T);
 
   private _value: Array<T> = [];
 
@@ -120,7 +120,8 @@ export class InboChipAutocompleteComponent<
     const value = (event.value || '').trim();
     const firstFilteredCounter = this.filteredValues()[0];
     if (value && firstFilteredCounter) {
-      this.addValue(firstFilteredCounter[this.valueProperty()] as T);
+      let value = firstFilteredCounter[this.valueProperty()] as unknown as T;
+      this.addValue(value);
     }
     this.resetInput();
   }
