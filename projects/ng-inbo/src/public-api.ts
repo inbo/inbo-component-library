@@ -21,6 +21,8 @@ export * from './lib/components/menu-bar/menu-item.model';
 export * from './lib/components/button-group/inbo-button-group.component';
 // Autocomplete
 export * from './lib/components/autocomplete/inbo-autocomplete.component';
+// Chip
+export * from './lib/components/chip-autocomplete/inbo-chip-autocomplete.component';
 // Dialogs
 export * from './lib/components/dialogs/simple-message-dialog/inbo-simple-message-dialog.component';
 export * from './lib/components/dialogs/simple-message-dialog/simple-message-dialog-data.model';

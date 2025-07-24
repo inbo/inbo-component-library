@@ -1,0 +1,33 @@
+<mat-form-field class="form-field">
+    <mat-chip-grid #chipGrid>
+        @for (selected of value; track $index) {
+            <mat-chip-row (removed)="remove(selected)">
+                <ng-container
+                        *ngTemplateOutlet="selectedTemplate; context: { $implicit: selected }">
+                </ng-container>
+                <button matChipRemove [attr.aria-label]="'remove ' + selected">
+                    <mat-icon>cancel</mat-icon>
+                </button>
+            </mat-chip-row>
+        }
+    </mat-chip-grid>
+    <input
+            name="addValue"
+            [placeholder]="placeholder()"
+            #addValue
+            [(ngModel)]="input"
+            [matChipInputFor]="chipGrid"
+            [matAutocomplete]="auto"
+            [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+            (matChipInputTokenEnd)="add($event)"
+    />
+    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onOptionSelected($event)">
+        @for (option of filteredValues(); track option) {
+            <mat-option [value]="option">
+                <ng-container
+                        *ngTemplateOutlet="optionTemplate; context: { $implicit: option }">
+                </ng-container>
+            </mat-option>
+        }
+    </mat-autocomplete>
+</mat-form-field>
