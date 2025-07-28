@@ -120,7 +120,7 @@ export class InboChipAutocompleteComponent<
     const value = (event.value || '').trim();
     const firstFilteredCounter = this.filteredValues()[0];
     if (value && firstFilteredCounter) {
-      let value = firstFilteredCounter[this.valueProperty()] as unknown as T;
+      const value = firstFilteredCounter[this.valueProperty()] as unknown as T;
       this.addValue(value);
     }
     this.resetInput();
