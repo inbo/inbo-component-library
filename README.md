@@ -5,7 +5,7 @@ The official Angular component library for INBO, providing a consistent design s
 ## Requirements
 
 - **Angular:** 20.x
-- **Node.js:** 18.x or higher
+- **Node.js:** 22.x
 - **Angular CLI:** 20.x
 
 ## Quick Start
@@ -48,6 +48,6 @@ Add the INBO theme to your `styles.scss`:
 
 | ng-inbo | Angular | Node.js |
 |---------|---------|---------|
-| 2.x     | 20.x    | 18+     |
-| 1.x     | 17.x    | 16+     |
+| 2.x     | 20.x    | 22.x    |
+| 1.x     | 17.x    | 18+     |
 

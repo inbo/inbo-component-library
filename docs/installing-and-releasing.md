@@ -3,7 +3,7 @@
 ## Requirements
 
 - **Angular:** 20.x
-- **Node.js:** 18.x or higher
+- **Node.js:** 22.x
 - **Angular CLI:** 20.x
 
 ## Installing
