@@ -81,22 +81,124 @@ The release process follows this safe workflow:
 4. **Push to GitHub** - Pushes the tag and commits to the remote repository
 5. **Publish to NPM** - Publishes the built package to GitHub packages
 
+### Complete Development & Release Workflow
+
+#### Step-by-Step Process
+
+1. **Make your changes** on a feature branch
+2. **Commit your changes**
+   ```bash
+   git add .
+   git commit -m "feat: add new component functionality"
+   ```
+
+3. **Create a Pull Request**
+   ```bash
+   git push origin your-feature-branch
+   # Then create PR via GitHub UI
+   ```
+
+4. **Review and merge** the PR to main branch
+
+5. **Switch to main and prepare for release**
+   ```bash
+   git checkout main
+   git pull origin main
+   ```
+
+6. **Preview the release** (optional but recommended)
+   ```bash
+   npm run prerelease:dry
+   ```
+
+7. **Execute the release**
+   ```bash
+   # Choose the appropriate release type (see guide below)
+   npm run release        # for patch
+   npm run release:minor  # for minor
+   npm run release:major  # for major
+   ```
+
+### When to Use Each Release Type
+
+#### Patch Release (`npm run release`)
+**Use for:** Bug fixes, typos, documentation updates, small improvements
+**Examples:**
+- Fixing a broken component method
+- Correcting CSS styling issues
+- Updating documentation
+- Performance improvements that don't change API
+
+**Version change:** `2.1.0` → `2.1.1`
+
+#### Minor Release (`npm run release:minor`)
+**Use for:** New features that don't break existing functionality
+**Examples:**
+- Adding new components
+- Adding new methods to existing components
+- New optional parameters
+- New utility functions
+
+**Version change:** `2.1.0` → `2.2.0`
+
+#### Major Release (`npm run release:major`)
+**Use for:** Breaking changes that require users to modify their code
+**Examples:**
+- Angular version upgrades (like 17 → 20)
+- Removing deprecated components/methods
+- Changing required parameters
+- Renaming public APIs
+
+**Version change:** `2.1.0` → `3.0.0`
+
 ### Best Practices
 
-1. **Always create a PR first** - Merge breaking changes to main before releasing
-2. **Use dry-run** - Run `npm run prerelease:dry` to preview changes
-3. **Test builds** - Run `npm run prerelease:check` to ensure everything builds
-4. **Release from main** - Always release from the main branch after merging
+1. **Always use PR workflow** - Never commit directly to main
+2. **Test before releasing** - Use `npm run prerelease:check` to validate builds
+3. **Use dry-run** - Preview changes with `npm run prerelease:dry`
+4. **Release from main only** - Always ensure you're on the latest main branch
+5. **One feature per PR** - Makes it easier to choose the right release type
+6. **Write clear commit messages** - Helps determine release type automatically
 
-**Example workflow for major changes:**
+### Troubleshooting Releases
+
+#### Build Fails During Release
 ```bash
-# 1. Create and merge PR to main
-# 2. Switch to main and pull latest
-git checkout main && git pull
+# If prerelease:check fails, fix the build issues first
+npm run prerelease:check
+# Fix any errors, then try release again
+npm run release
+```
 
-# 3. Preview the release
-npm run prerelease:dry
+#### Wrong Release Type Used
+```bash
+# If you tagged the wrong version, delete the local tag
+git tag -d v2.1.1
+# Then run the correct release command
+npm run release:minor
+```
 
-# 4. Execute the release
-npm run release:major
-``` 
+#### Release Interrupted
+```bash
+# Check what state you're in
+git status
+git tag
+
+# If tag was created but not pushed, you can continue manually
+git push --follow-tags
+# Then complete the publish step
+cd dist/ng-inbo && npm publish
+```
+
+#### Multiple Features Released Together
+When releasing multiple features together, use the **highest** release type needed:
+- If you have both fixes and new features → use `minor`
+- If you have fixes, features, and breaking changes → use `major`
+
+### Quick Reference
+
+| Change Type | Command | When to Use |
+|-------------|---------|-------------|
+| Bug fix, docs, small improvement | `npm run release` | No API changes |
+| New feature, new component | `npm run release:minor` | Backward compatible |
+| Breaking change, Angular upgrade | `npm run release:major` | Requires user changes | 
