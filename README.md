@@ -27,7 +27,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideNgInboCore(),
     // ... other providers
-  ]
+  ],
 };
 ```
 
@@ -47,7 +47,6 @@ Add the INBO theme to your `styles.scss`:
 ## Version Compatibility
 
 | ng-inbo | Angular | Node.js |
-|---------|---------|---------|
+| ------- | ------- | ------- |
 | 2.x     | 20.x    | 22.x    |
 | 1.x     | 17.x    | 18+     |
-

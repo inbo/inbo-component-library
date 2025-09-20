@@ -57,11 +57,13 @@ npm i -g install-local-dependencies
 ### Method 1: npm link workflow
 
 1. **Build the library:**
+
    ```bash
    npm run build:lib
    ```
 
 2. **Link the library:**
+
    ```bash
    cd dist/ng-inbo
    npm link
@@ -77,6 +79,7 @@ npm i -g install-local-dependencies
 ### Method 2: install-local-dependencies workflow
 
 1. **Build the library:**
+
    ```bash
    npm run build:lib
    ```

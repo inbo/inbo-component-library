@@ -1,4 +1,4 @@
-# Installing & Releasing  🚀
+# Installing & Releasing 🚀
 
 ## Requirements
 
@@ -14,21 +14,23 @@ Even though the repository is public, you still need to authenticate with GitHub
 in a project. To do this, do the following:
 
 1. Go to [GitHub token settings](https://github.com/settings/tokens)
-2. Create a new classic personal access token with the `write:packages` scope (this automatically includes 
+2. Create a new classic personal access token with the `write:packages` scope (this automatically includes
    `read:packages` as well). Optionally you can set it to expire after a certain amount of time.
 3. Copy the generated token to your clipboard.
 4. Create a global npm config file if it doesn't exist yet. (on Linux / MacOS it is `~/.npmrc`, for Windows it is `C:\Users\%username%\.npmrc`).
 5. Add to this file the following lines:
-````
+
+```
 //npm.pkg.github.com/:_authToken=<generated-token>
 @inbo:registry=https://npm.pkg.github.com/
-````
-The `@inbo` scope makes sure that NPM will try to fetch any npm package that starts with `@inbo/` from GitHub 
+```
+
+The `@inbo` scope makes sure that NPM will try to fetch any npm package that starts with `@inbo/` from GitHub
 packages registry, instead of the default NPM registry.
 
-Now you can install this package using the regular `npm install @inbo/ng-inbo`, but there is a better way. I added 
-an add schematic to this library, so you can install it using the angular-cli. Just run `ng add @inbo/ng-inbo`, 
-optionally you can add `--projectName <projectName>` to specify the specific project if the angular-cli workspace has 
+Now you can install this package using the regular `npm install @inbo/ng-inbo`, but there is a better way. I added
+an add schematic to this library, so you can install it using the angular-cli. Just run `ng add @inbo/ng-inbo`,
+optionally you can add `--projectName <projectName>` to specify the specific project if the angular-cli workspace has
 multiple projects in it.
 
 The schematic installs the npm package, but it also adds the correct paths to the angular.json file, so the assets
@@ -39,6 +41,7 @@ can be used. These assets include images and font-files (Flanders font).
 ### Authentication Issues
 
 If you get authentication errors:
+
 - Verify your GitHub token has `read:packages` permissions
 - Check that your `.npmrc` file is in the correct location
 - Ensure the token hasn't expired
@@ -51,13 +54,12 @@ If you get authentication errors:
 
 ### Using the inbo theme for Angular Material
 
-Included in this library, is a theme configuration for Angular Material, that includes the INBO colors (based on the 
-primary fuchsia color and generated using an online pallet generator). 
+Included in this library, is a theme configuration for Angular Material, that includes the INBO colors (based on the
+primary fuchsia color and generated using an online pallet generator).
 
-In the `styles.scss` file of your application project, you should import the theme using `@import 'inbo-theme';`. 
-You should only import this once in the entire application project. To use the different color and font variables, 
-you can import the variables in any scss file using `@import 'partials/variables'`. 
-
+In the `styles.scss` file of your application project, you should import the theme using `@import 'inbo-theme';`.
+You should only import this once in the entire application project. To use the different color and font variables,
+you can import the variables in any scss file using `@import 'partials/variables'`.
 
 ## Releasing
 
@@ -87,12 +89,14 @@ The release process follows this safe workflow:
 
 1. **Make your changes** on a feature branch
 2. **Commit your changes**
+
    ```bash
    git add .
    git commit -m "feat: add new component functionality"
    ```
 
 3. **Create a Pull Request**
+
    ```bash
    git push origin your-feature-branch
    # Then create PR via GitHub UI
@@ -101,12 +105,14 @@ The release process follows this safe workflow:
 4. **Review and merge** the PR to main branch
 
 5. **Switch to main and prepare for release**
+
    ```bash
    git checkout main
    git pull origin main
    ```
 
 6. **Preview the release** (optional but recommended)
+
    ```bash
    npm run prerelease:dry
    ```
@@ -122,8 +128,10 @@ The release process follows this safe workflow:
 ### When to Use Each Release Type
 
 #### Patch Release (`npm run release`)
+
 **Use for:** Bug fixes, typos, documentation updates, small improvements
 **Examples:**
+
 - Fixing a broken component method
 - Correcting CSS styling issues
 - Updating documentation
@@ -132,8 +140,10 @@ The release process follows this safe workflow:
 **Version change:** `2.1.0` → `2.1.1`
 
 #### Minor Release (`npm run release:minor`)
+
 **Use for:** New features that don't break existing functionality
 **Examples:**
+
 - Adding new components
 - Adding new methods to existing components
 - New optional parameters
@@ -142,8 +152,10 @@ The release process follows this safe workflow:
 **Version change:** `2.1.0` → `2.2.0`
 
 #### Major Release (`npm run release:major`)
+
 **Use for:** Breaking changes that require users to modify their code
 **Examples:**
+
 - Angular version upgrades (like 17 → 20)
 - Removing deprecated components/methods
 - Changing required parameters
@@ -163,6 +175,7 @@ The release process follows this safe workflow:
 ### Troubleshooting Releases
 
 #### Build Fails During Release
+
 ```bash
 # If prerelease:check fails, fix the build issues first
 npm run prerelease:check
@@ -171,6 +184,7 @@ npm run release
 ```
 
 #### Wrong Release Type Used
+
 ```bash
 # If you tagged the wrong version, delete the local tag
 git tag -d v2.1.1
@@ -179,6 +193,7 @@ npm run release:minor
 ```
 
 #### Release Interrupted
+
 ```bash
 # Check what state you're in
 git status
@@ -191,14 +206,16 @@ cd dist/ng-inbo && npm publish
 ```
 
 #### Multiple Features Released Together
+
 When releasing multiple features together, use the **highest** release type needed:
+
 - If you have both fixes and new features → use `minor`
 - If you have fixes, features, and breaking changes → use `major`
 
 ### Quick Reference
 
-| Change Type | Command | When to Use |
-|-------------|---------|-------------|
-| Bug fix, docs, small improvement | `npm run release` | No API changes |
-| New feature, new component | `npm run release:minor` | Backward compatible |
-| Breaking change, Angular upgrade | `npm run release:major` | Requires user changes | 
+| Change Type                      | Command                 | When to Use           |
+| -------------------------------- | ----------------------- | --------------------- |
+| Bug fix, docs, small improvement | `npm run release`       | No API changes        |
+| New feature, new component       | `npm run release:minor` | Backward compatible   |
+| Breaking change, Angular upgrade | `npm run release:major` | Requires user changes |
