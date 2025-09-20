@@ -68,7 +68,8 @@ The release process is automated using `standard-version` and includes build val
 ### Available Commands
 
 - `npm run prerelease:dry` - Preview what the next release would look like (dry-run)
-- `npm run prerelease:check` - Validate that the build works before releasing
+- `npm run prerelease:check` - Validate that the build works before releasing (required safety check)
+- `npm run sync-versions` - Sync root package.json version with library version
 - `npm run release` - Creates a patch release (x.x.1) for bug fixes and small changes
 - `npm run release:minor` - Creates a minor release (x.1.0) for new features that don't break existing functionality
 - `npm run release:major` - Creates a major release (1.0.0) for breaking changes
@@ -77,11 +78,13 @@ The release process is automated using `standard-version` and includes build val
 
 The release process follows this safe workflow:
 
-1. **Build validation** - Ensures the library builds successfully before creating any git tags
-2. **Version bump** - Updates package.json and generates changelog
-3. **Git commit & tag** - Creates release commit and git tag
-4. **Push to GitHub** - Pushes the tag and commits to the remote repository
-5. **Publish to NPM** - Publishes the built package to GitHub packages
+1. **Build validation** - Tests that the library builds successfully before making any changes
+2. **Version bump** - Updates library package.json and generates changelog
+3. **Sync versions** - Updates root package.json to match library version
+4. **Build with new version** - Rebuilds the library with the correct version number
+5. **Git commit & tag** - Amends the release commit with synced versions
+6. **Push to GitHub** - Pushes the tag and commits to the remote repository
+7. **Publish to NPM** - Publishes the built package to GitHub packages
 
 ### Complete Development & Release Workflow
 
@@ -174,7 +177,7 @@ The release process follows this safe workflow:
 
 ### Troubleshooting Releases
 
-#### Build Fails During Release
+#### Build Fails Before Version Bump (Safest Scenario)
 
 ```bash
 # If prerelease:check fails, fix the build issues first
@@ -183,26 +186,88 @@ npm run prerelease:check
 npm run release
 ```
 
+**What happened:** Build failed before any git changes. Nothing to clean up! ✅
+
+#### Build Fails After Version Bump (Needs Cleanup)
+
+```bash
+# Check current state
+git status
+git log --oneline -3
+git tag | tail -3
+
+# Scenario A: If commit was created but not pushed
+git reset --hard HEAD~1    # Undo release commit
+git tag -d v3.0.1         # Remove the tag
+# Fix the issue, then retry release
+
+# Scenario B: If already pushed to remote
+git revert HEAD           # Create revert commit
+git push origin main      # Push the revert
+git tag -d v3.0.1        # Remove local tag
+git push origin :refs/tags/v3.0.1  # Remove remote tag
+# Fix the issue, then retry release
+```
+
+#### Publish Fails (Package Built, Tag Exists)
+
+```bash
+# If npm publish fails but everything else worked
+cd dist/ng-inbo
+npm publish               # Retry publish
+
+# If publish keeps failing due to network/auth issues
+npm whoami               # Verify you're logged in
+npm config get registry  # Should show GitHub packages URL
+# Fix auth, then retry publish
+```
+
+#### Version Sync Issues
+
+```bash
+# If root and library versions get out of sync
+npm run sync-versions
+git add package.json
+git commit -m "sync: update root version to match library"
+```
+
 #### Wrong Release Type Used
 
 ```bash
-# If you tagged the wrong version, delete the local tag
-git tag -d v2.1.1
-# Then run the correct release command
-npm run release:minor
+# If you used wrong release type (e.g. minor instead of major)
+
+# If NOT yet pushed:
+git reset --hard HEAD~1
+git tag -d v3.1.0
+npm run release:major    # Use correct type
+
+# If already pushed:
+# Create a new release with correct type - don't try to "fix" the wrong one
+npm run release:major    # This will create v4.0.0 (correct major)
 ```
 
-#### Release Interrupted
+#### Release Completely Interrupted/Corrupted
 
 ```bash
-# Check what state you're in
-git status
-git tag
+# Nuclear option - reset everything to clean state
+git log --oneline -5     # Note the last good commit before release
+git reset --hard <commit-hash>  # Reset to before release attempt
+git tag -d v3.0.1       # Remove any created tags
+git push origin main --force  # Force push the reset (CAREFUL!)
+git push origin :refs/tags/v3.0.1  # Remove remote tag if it exists
 
-# If tag was created but not pushed, you can continue manually
-git push --follow-tags
-# Then complete the publish step
-cd dist/ng-inbo && npm publish
+# Start fresh
+npm run release:major
+```
+
+#### Emergency: Bad Release Already Published
+
+```bash
+# If a broken package was published to npm
+npm unpublish @inbo/ng-inbo@3.0.1  # Only works within 24hrs
+
+# If unpublish doesn't work, publish a hotfix
+npm run release          # Creates 3.0.2 with fixes
 ```
 
 #### Multiple Features Released Together
@@ -214,8 +279,31 @@ When releasing multiple features together, use the **highest** release type need
 
 ### Quick Reference
 
+#### Release Commands
+
 | Change Type                      | Command                 | When to Use           |
 | -------------------------------- | ----------------------- | --------------------- |
 | Bug fix, docs, small improvement | `npm run release`       | No API changes        |
 | New feature, new component       | `npm run release:minor` | Backward compatible   |
 | Breaking change, Angular upgrade | `npm run release:major` | Requires user changes |
+
+#### Emergency Recovery Commands
+
+| Problem                | Solution                                   |
+| ---------------------- | ------------------------------------------ |
+| Build fails early      | Fix issue, retry release                   |
+| Build fails after bump | `git reset --hard HEAD~1 && git tag -d v*` |
+| Wrong release type     | Reset and use correct command              |
+| Publish fails          | `cd dist/ng-inbo && npm publish`           |
+| Bad release published  | `npm unpublish` (24hr window) or hotfix    |
+| Complete disaster      | `git reset --hard <hash>` + force push     |
+
+#### Pre-flight Checks
+
+Always run these before releasing:
+
+```bash
+npm run prerelease:dry    # Preview changes
+npm run prerelease:check  # Test build
+git status               # Ensure clean working tree
+```
