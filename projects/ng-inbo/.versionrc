@@ -6,6 +6,11 @@
     "bump": false
   },
   "releaseCommitMessageFormat": "chore(release): {{currentTag}}",
+  "bumpFiles": [
+    "package.json",
+    "package-lock.json",
+    "../../package.json"
+  ],
   "types": [
     {"type": "feat", "section": "Features"},
     {"type": "fix", "section": "Bug Fixes"},
