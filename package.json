@@ -1,6 +1,6 @@
 {
   "name": "@inbo/ng-inbo",
-          "version": "0.0.55",
+          "version": "2.1.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/inbo/inbo-component-library.git"
@@ -29,9 +29,11 @@
     "format:check": "prettier --check .",
     "format:write": "prettier --write .",
     "build-schematics": "cd projects/ng-inbo && npm run build",
-    "release": "cd projects/ng-inbo && standard-version && cd ../.. && git push --follow-tags && npm run build:lib && cd dist/ng-inbo && npm publish",
-    "release:minor": "cd projects/ng-inbo && standard-version --release-as minor && cd ../.. && git push --follow-tags && npm run build:lib && cd dist/ng-inbo && npm publish",
-    "release:major": "cd projects/ng-inbo && standard-version --release-as major && cd ../.. && git push --follow-tags && npm run build:lib && cd dist/ng-inbo && npm publish",
+    "prerelease:check": "npm run build:lib",
+    "prerelease:dry": "cd projects/ng-inbo && standard-version --dry-run",
+    "release": "npm run prerelease:check && cd projects/ng-inbo && standard-version && cd ../.. && git push --follow-tags && cd dist/ng-inbo && npm publish",
+    "release:minor": "npm run prerelease:check && cd projects/ng-inbo && standard-version --release-as minor && cd ../.. && git push --follow-tags && cd dist/ng-inbo && npm publish",
+    "release:major": "npm run prerelease:check && cd projects/ng-inbo && standard-version --release-as major && cd ../.. && git push --follow-tags && cd dist/ng-inbo && npm publish",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "prepare": "husky"
