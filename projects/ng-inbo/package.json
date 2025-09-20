@@ -11,21 +11,20 @@
     "save": "devDependencies"
   },
   "peerDependencies": {
-    "@angular/cdk": "^19.1.4",
-    "@angular/common": "^19.1.6",
-    "@angular/core": "^19.1.6",
-    "@angular/material": "^19.1.4",
-    "date-fns": "^2.0.0",
-    "lodash-es": "^4.17.0",
-    "ngx-pipes": "^3.0.0"
+    "@angular/cdk": "20.2.4",
+    "@angular/common": "20.3.1",
+    "@angular/core": "20.3.1",
+    "@angular/material": "20.2.4",
+    "date-fns": "2.30.0",
+    "lodash-es": "4.17.21",
+    "ngx-pipes": "3.2.2"
   },
   "dependencies": {
-    "@types/proj4": "2.5.2",
-    "proj4": "^2.8.0",
-    "tslib": "^2.4.1"
+    "proj4": "2.19.10",
+    "tslib": "2.8.1"
   },
   "devDependencies": {
-    "@types/lodash-es": "4.17.6",
+    "@types/lodash-es": "4.17.12",
     "copyfiles": "file:../../node_modules/copyfiles",
     "typescript": "file:../../node_modules/typescript"
   }

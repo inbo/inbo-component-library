@@ -1,38 +1,134 @@
-# Library development
+# Library Development
 
-Due to this being a library and not usable as an individual application, you can only view / test the components by using them in a 'host' application.
-This may lead to may back and forth switching between the library and the application, during development.
-For ease of development, I recommend the following tool: [install-local-dependencies](https://www.npmjs.com/package/install-local-dependencies),
-to install and watch this library as a local dependency.
+## Overview
 
-You can install it globally by running:
+Development of this Angular library is done through the included demo application, which provides a live testing environment for all components.
 
-```shell
+## Primary Development Workflow (Recommended)
+
+### Using the Demo Application
+
+The demo app is the main development environment and includes examples of all library components:
+
+```bash
+# Start the demo application
+npm run serve:demo
+```
+
+The demo app runs on http://localhost:4201 and automatically rebuilds when you make changes to the library code.
+
+### Development Process
+
+1. **Make changes** to library components in `projects/ng-inbo/src/`
+2. **Test in demo app** - Changes are automatically reflected
+3. **Add examples** to demo app for new components
+4. **Build library** when ready: `npm run build:lib`
+
+## Alternative: External Host Application
+
+If you need to test in an external application, you can use these approaches:
+
+### Option 1: Using npm link
+
+```bash
+# Build and link the library
+npm run build:lib
+cd dist/ng-inbo
+npm link
+
+# In your external host application
+npm link @inbo/ng-inbo
+```
+
+### Option 2: Using install-local-dependencies
+
+For complex dependency scenarios, you can use [install-local-dependencies](https://www.npmjs.com/package/install-local-dependencies):
+
+Install it globally:
+
+```bash
 npm i -g install-local-dependencies
 ```
 
-**Note:** when using a Node.js version manager, make sure to install it in the Node.js version used by the 'host' application of the library.
+**Note:** When using a Node.js version manager, install it in the same Node.js version as your host application.
 
-## Usage
+## Usage for External Applications
 
-### Watch the library for changes
+### Method 1: npm link workflow
 
-Run `npm run watch` in the library's (this) workspace.
+1. **Build the library:**
 
-### Install into the host application
+   ```bash
+   npm run build:lib
+   ```
 
-In the host application's workspace,
+2. **Link the library:**
 
-1. Run `npm install <relative path>/dist/ng-inbo`.<br>
-   Where `<relative path>` points to the library's workspace, relative to the host application.
-2. Run `install-local-dependencies`
-3. Run `watch-local-dependencies`
-4. Start the host application
+   ```bash
+   cd dist/ng-inbo
+   npm link
+   ```
 
-## Details
+3. **Use in external application:**
+   ```bash
+   # In your external application workspace
+   npm link @inbo/ng-inbo
+   ng serve
+   ```
 
-When npm installs package from a local folder on your computer, it does not automatically install the dependencies
-of the dependencies. It only does that when installing from a package registry. This tool allows you to install the
-other dependencies as well, and it also has a watch function that checks if the dependencies of your library change,
-and installs those as well, although this is usually not necessary because you don't really add new dependencies all
-that often.
+### Method 2: install-local-dependencies workflow
+
+1. **Build the library:**
+
+   ```bash
+   npm run build:lib
+   ```
+
+2. **Install into external application:**
+   ```bash
+   # In external application workspace
+   npm install <relative-path>/dist/ng-inbo
+   install-local-dependencies
+   ng serve
+   ```
+
+## Testing
+
+### Demo Application (Primary Testing Method)
+
+The demo application is your main testing environment:
+
+```bash
+npm run serve:demo
+```
+
+- **URL:** http://localhost:4201
+- **Features:** Live examples of all components
+- **Auto-reload:** Changes to library code are automatically reflected
+- **Component showcase:** Interactive examples and documentation
+
+### Unit Tests
+
+Run the library's unit tests:
+
+```bash
+npm test
+```
+
+## Common Issues
+
+### Build Errors
+
+- **Angular version mismatch:** Ensure host app uses Angular 20.x
+- **Peer dependencies:** Install missing peer dependencies in host app
+- **Build cache:** Clear `dist/` and `node_modules/.cache` if builds are stale
+
+### Linking Issues
+
+- **Module not found:** Rebuild the library after changes
+- **Conflicting versions:** Use exact Angular versions in both library and host
+- **Cache problems:** Run `npm unlink` and re-link if needed
+
+## Notes
+
+When installing from a local folder, npm doesn't automatically install transitive dependencies. The `install-local-dependencies` tool solves this by installing the library's dependencies in the host application.
