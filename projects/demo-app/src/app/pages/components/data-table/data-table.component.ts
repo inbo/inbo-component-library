@@ -13,7 +13,10 @@ import { PageEvent } from '@angular/material/paginator';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Sort } from '@angular/material/sort';
-import { FilterType } from 'projects/ng-inbo/src/lib/components/data-table/column-configuration.model';
+import {
+  FilterMode,
+  FilterType,
+} from 'projects/ng-inbo/src/lib/components/data-table/column-configuration.model';
 import {
   ApiPage,
   InboDataTableColumnConfiguration,
@@ -38,7 +41,7 @@ interface DemoItem extends InboDatatableItem {
   randomDetail?: string;
 }
 
-type DemoPageable = ApiPage<any>['pageable'];
+type DemoPageable = ApiPage<DemoItem>['pageable'];
 
 @Component({
   selector: 'app-data-table',
@@ -55,9 +58,9 @@ type DemoPageable = ApiPage<any>['pageable'];
   styleUrls: ['./data-table.component.scss'],
 })
 export class DataTableComponent {
-  statusCellTemplateRef = viewChild<TemplateRef<any>>('statusCellTemplate');
+  statusCellTemplateRef = viewChild<TemplateRef<unknown>>('statusCellTemplate');
 
-  private data: DemoItem[] = [];
+  private data: Array<DemoItem> = [];
   private currentPageable: DemoPageable = {
     pageNumber: 0,
     pageSize: 5,
@@ -84,34 +87,33 @@ export class DataTableComponent {
     this.requestStateSubject.asObservable();
 
   columnConfig: InboDataTableColumnConfiguration<DemoItem> = {
-    id: { name: 'ID', sortablePropertyName: 'id' } as any,
+    id: { name: 'ID', sortablePropertyName: 'id' },
     name: {
       name: 'Name (Local Text Filter)',
       sortablePropertyName: 'name',
       filterable: true,
       filterType: FilterType.Text,
-      filterMode: 'local',
+      filterMode: FilterMode.Local,
       filterPlaceholder: 'Filter by name (local)',
-    } as any,
+    },
     description: {
       name: 'Description (Remote Autocomplete)',
       sortablePropertyName: 'description',
       filterable: true,
       filterType: FilterType.Autocomplete,
       filterSearchFunction: (query: string) => this.searchDescriptions(query),
-      filterDisplayPattern: (option: SimpleAutocompleteOption) =>
-        option?.display || '',
-      filterValueSelector: (option: SimpleAutocompleteOption) => option.value,
-    } as any,
+      filterDisplayPattern: (option: string) => option || '',
+      filterValueSelector: (option: string) => option,
+    },
     date: {
       name: 'Date',
       sortablePropertyName: 'date',
       getValue: (value: Date) => (value ? value.toLocaleDateString() : ''),
       style: { textAlign: 'right', width: '150px' },
-    } as any,
+    },
   };
 
-  private instantData: DemoItem[] = [];
+  private instantData: Array<DemoItem> = [];
   private instantCurrentPageable: DemoPageable = {
     pageNumber: 0,
     pageSize: 5,
@@ -137,10 +139,10 @@ export class DataTableComponent {
     computed(() => {
       const template = this.statusCellTemplateRef();
       const config: InboDataTableColumnConfiguration<DemoItem> = {
-        id: { name: 'ID' } as any,
-        name: { name: 'Name' } as any,
-        randomDetail: { name: '' } as any,
-        status: { name: 'Status' } as any,
+        id: { name: 'ID' },
+        name: { name: 'Name' },
+        randomDetail: { name: '' },
+        status: { name: 'Status' },
       };
 
       if (template) {
@@ -149,7 +151,7 @@ export class DataTableComponent {
       return config;
     });
 
-  private paginationDemoData: DemoItem[] = [];
+  private paginationDemoData: Array<DemoItem> = [];
   private paginationDemoPageable: DemoPageable = {
     pageNumber: 0,
     pageSize: 5,
@@ -170,13 +172,13 @@ export class DataTableComponent {
   paginationDemoDataRequestState$: Observable<RequestState> =
     this.paginationDemoRequestStateSubject.asObservable();
   paginationDemoColumnConfig: InboDataTableColumnConfiguration<DemoItem> = {
-    id: { name: 'ID' } as any,
-    name: { name: 'Name' } as any,
-    description: { name: 'Description' } as any,
+    id: { name: 'ID' },
+    name: { name: 'Name' },
+    description: { name: 'Description' },
   };
 
   // Properties for the new "Local Filtering Showcase" table
-  private localFilterAllData: DemoItem[] = [];
+  private localFilterAllData: Array<DemoItem> = [];
   private localFilterCurrentPageable: DemoPageable = {
     pageNumber: 0,
     pageSize: 5,
@@ -199,40 +201,39 @@ export class DataTableComponent {
     this.localFilterRequestStateSubject.asObservable();
 
   localFilterColumnConfig: InboDataTableColumnConfiguration<DemoItem> = {
-    id: { name: 'ID', sortablePropertyName: 'id' } as any, // Added sortablePropertyName
+    id: { name: 'ID', sortablePropertyName: 'id' },
     name: {
       name: 'Name (Local Filter)',
-      sortablePropertyName: 'name', // Added sortablePropertyName
+      sortablePropertyName: 'name',
       filterable: true,
       filterType: FilterType.Text,
-      filterMode: 'local',
+      filterMode: FilterMode.Local,
       filterPlaceholder: 'Filter name locally...',
-    } as any,
+    },
     description: {
       name: 'Description (Local Autocomplete Filter)',
-      sortablePropertyName: 'description', // Added sortablePropertyName
+      sortablePropertyName: 'description',
       filterable: true,
       filterType: FilterType.Autocomplete,
-      filterMode: 'local',
+      filterMode: FilterMode.Local,
       filterPlaceholder: 'Filter description locally...',
       filterSearchFunction: (query: string) =>
         this.searchLocalDescriptions(query),
-      filterDisplayPattern: (option: SimpleAutocompleteOption) =>
-        option?.display || '',
-      filterValueSelector: (option: SimpleAutocompleteOption) => option.value,
-    } as any,
-    randomDetail: { name: '' } as any, // New column with empty header for local filter table
+      filterDisplayPattern: (option: string) => option || '',
+      filterValueSelector: (option: string) => option,
+    },
+    randomDetail: { name: '' },
     isActive: {
       name: 'Active Status (Boolean Filter)',
       sortablePropertyName: 'isActive',
       filterable: true,
       filterType: FilterType.Boolean,
-      filterMode: 'local',
+      filterMode: FilterMode.Local,
       filterPlaceholder: 'Filter by active status',
       booleanFilterTrueLabel: 'Currently Active',
       booleanFilterFalseLabel: 'Currently Inactive',
       booleanFilterBothLabel: 'Any Status',
-    } as any,
+    },
   };
 
   constructor(private snackBar: MatSnackBar) {
@@ -315,7 +316,7 @@ export class DataTableComponent {
       .pipe(
         delay(500) // Simulate network delay
       )
-      .subscribe((page) => {
+      .subscribe(page => {
         if (page.content.length === 0) {
           this.paginationDemoRequestStateSubject.next(RequestState.EMPTY);
         } else {
@@ -331,7 +332,7 @@ export class DataTableComponent {
     let processedData = [...this.data];
 
     // Apply REMOTE filters from this.currentFilters
-    Object.keys(this.currentFilters).forEach((key) => {
+    Object.keys(this.currentFilters).forEach(key => {
       const filterValue = this.currentFilters[key]?.toLowerCase();
       const columnKey = key as keyof DemoItem;
       // Ensure columnConfig exists for the given key before trying to access its properties
@@ -343,7 +344,7 @@ export class DataTableComponent {
         config &&
         (config.filterMode === 'remote' || !config.filterMode)
       ) {
-        processedData = processedData.filter((item) => {
+        processedData = processedData.filter(item => {
           // Using a flexible way to get item value, similar to how it might be in a real scenario
           const itemValue = String(item[columnKey] ?? '').toLowerCase();
           return itemValue.includes(filterValue);
@@ -396,7 +397,7 @@ export class DataTableComponent {
       pageable: pageableForCurrentPage,
     })
       .pipe(delay(1000))
-      .subscribe((page) => {
+      .subscribe(page => {
         if (this.currentRequestState === RequestState.ERROR) {
           // Keep error state if manually set
           this.requestStateSubject.next(RequestState.ERROR);
@@ -445,7 +446,7 @@ export class DataTableComponent {
     this.snackBar.open(`Delete item: ${item.name}`, 'Close', {
       duration: 2000,
     });
-    this.data = this.data.filter((d) => d.id !== item.id);
+    this.data = this.data.filter(d => d.id !== item.id);
     this.currentPageable.totalElements = this.data.length;
     this.currentPageable.totalPages = Math.ceil(
       this.currentPageable.totalElements / this.currentPageable.pageSize
@@ -492,7 +493,7 @@ export class DataTableComponent {
       this.fetchData();
       this.dataRequestState$
         .pipe(
-          filter((s) => s !== RequestState.PENDING),
+          filter(s => s !== RequestState.PENDING),
           take(1)
         )
         .subscribe(() => {
@@ -543,17 +544,17 @@ export class DataTableComponent {
 
   private searchDescriptions(
     query: string
-  ): Observable<SimpleAutocompleteOption[]> {
+  ): Observable<Array<SimpleAutocompleteOption>> {
     const lowerQuery = query?.toLowerCase() || '';
     const uniqueDescriptions = [
-      ...new Set(this.data.map((item) => item.description)),
+      ...new Set(this.data.map(item => item.description)),
     ];
     const filteredDescriptions = uniqueDescriptions
-      .filter((desc) => desc.toLowerCase().includes(lowerQuery))
+      .filter(desc => desc.toLowerCase().includes(lowerQuery))
       .slice(0, 10);
 
-    const options: SimpleAutocompleteOption[] = filteredDescriptions.map(
-      (desc) => ({
+    const options: Array<SimpleAutocompleteOption> = filteredDescriptions.map(
+      desc => ({
         value: desc,
         display: desc,
       })
@@ -564,18 +565,18 @@ export class DataTableComponent {
 
   private searchLocalDescriptions(
     query: string
-  ): Observable<SimpleAutocompleteOption[]> {
+  ): Observable<Array<SimpleAutocompleteOption>> {
     const lowerQuery = query?.toLowerCase() || '';
     // Search against the full local dataset for the showcase table
     const uniqueDescriptions = [
-      ...new Set(this.localFilterAllData.map((item) => item.description)),
+      ...new Set(this.localFilterAllData.map(item => item.description)),
     ];
     const filteredDescriptions = uniqueDescriptions
-      .filter((desc) => desc.toLowerCase().includes(lowerQuery))
+      .filter(desc => desc.toLowerCase().includes(lowerQuery))
       .slice(0, 10); // Limit to 10 suggestions for performance
 
-    const options: SimpleAutocompleteOption[] = filteredDescriptions.map(
-      (desc) => ({
+    const options: Array<SimpleAutocompleteOption> = filteredDescriptions.map(
+      desc => ({
         value: desc, // The value to filter by will be the description string itself
         display: desc, // How it's displayed in the autocomplete dropdown
       })

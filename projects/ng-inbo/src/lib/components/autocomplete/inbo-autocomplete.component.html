@@ -1,40 +1,52 @@
 <mat-form-field appearance="fill" class="form-field">
-  <mat-label>{{label}}</mat-label>
-  <input type="text"
-         [errorStateMatcher]="errorStateMatcher"
-         [placeholder]="placeholder"
-         matInput
-         #inputField
-         [disabled]="disabled"
-         [(ngModel)]="value"
-         (blur)="validateFieldValue()"
-         (inboDebouncedInputChange)="inputChanged($event)"
-         [inboInputMask]="mask"
-         [matAutocomplete]="itemSearch">
+  <mat-label>{{ label() }}</mat-label>
+  <input
+    type="text"
+    [errorStateMatcher]="errorStateMatcher"
+    [placeholder]="placeholder()"
+    matInput
+    #inputField
+    [disabled]="disabled()"
+    [(ngModel)]="value"
+    (blur)="validateFieldValue()"
+    (inboDebouncedInputChange)="inputChanged(inputField.value)"
+    [inboInputMask]="mask()"
+    [matAutocomplete]="itemSearch" />
   <mat-icon matPrefix>search</mat-icon>
-  <button *ngIf="value && showClearIcon" mat-icon-button matSuffix aria-label="Clear" (click)="clearValue()">
-    <mat-icon>clear</mat-icon>
-  </button>
-  <mat-autocomplete autoActiveFirstOption
-                    (optionSelected)="optionSelected($event)"
-                    #itemSearch="matAutocomplete"
-                    [displayWith]="getDisplayValue">
-    <ng-container [ngSwitch]="requestState">
-      <mat-option disabled class="message-option" *ngSwitchCase="RequestState.PENDING">
-        <mat-spinner diameter="25"></mat-spinner>
-      </mat-option>
-      <mat-option disabled class="message-option" *ngSwitchCase="RequestState.EMPTY">
-        <span>Geen resultaten gevonden.</span>
-      </mat-option>
-      <mat-option disabled class="message-option" *ngSwitchCase="RequestState.ERROR">
-        <span>Er ging iets mis bij het ophalen van de resultaten.</span>
-      </mat-option>
-      <ng-container *ngSwitchCase="RequestState.SUCCESS">
-        <mat-option *ngFor="let item of items" [value]="item">
-          {{getDisplayValue(item)}}
+  @if (value && showClearIcon) {
+    <button mat-icon-button matSuffix aria-label="Clear" (click)="clearValue()">
+      <mat-icon>clear</mat-icon>
+    </button>
+  }
+  <mat-autocomplete
+    autoActiveFirstOption
+    (optionSelected)="onOptionSelected($event)"
+    #itemSearch="matAutocomplete"
+    [displayWith]="getDisplayValue">
+    @switch (requestState) {
+      @case (RequestState.PENDING) {
+        <mat-option disabled class="message-option">
+          <mat-spinner diameter="25"></mat-spinner>
         </mat-option>
-      </ng-container>
-    </ng-container>
+      }
+      @case (RequestState.EMPTY) {
+        <mat-option disabled class="message-option">
+          <span>Geen resultaten gevonden.</span>
+        </mat-option>
+      }
+      @case (RequestState.ERROR) {
+        <mat-option disabled class="message-option">
+          <span>Er ging iets mis bij het ophalen van de resultaten.</span>
+        </mat-option>
+      }
+      @case (RequestState.SUCCESS) {
+        @for (item of items; track item) {
+          <mat-option [value]="item">
+            {{ getDisplayValue(item) }}
+          </mat-option>
+        }
+      }
+    }
   </mat-autocomplete>
-  <mat-error>{{errorMessage}}</mat-error>
+  <mat-error>{{ errorMessage() }}</mat-error>
 </mat-form-field>

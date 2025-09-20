@@ -3,7 +3,12 @@
     <h2>Components</h2>
     <mat-nav-list>
       @for (item of menuItems; track item.path) {
-        <a mat-list-item [routerLink]="item.path" routerLinkActive="active-link">{{ item.label }}</a>
+        <a
+          mat-list-item
+          [routerLink]="item.path"
+          routerLinkActive="active-link"
+          >{{ item.label }}</a
+        >
       }
     </mat-nav-list>
   </div>

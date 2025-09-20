@@ -4,12 +4,10 @@
   "compilerOptions": {
     "outDir": "../../out-tsc/lib",
     "declaration": true,
-    "noUnusedLocals": false,  // Emit type declaration files
+    "noUnusedLocals": false, // Emit type declaration files
     "target": "es2015",
     "module": "esnext",
-    "moduleResolution": "node",
+    "moduleResolution": "node"
   },
-  "exclude": [
-    "src/**/*.ts"
-  ]
+  "exclude": ["src/**/*.ts"]
 }

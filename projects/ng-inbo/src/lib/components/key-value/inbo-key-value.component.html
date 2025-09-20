@@ -1,9 +1,9 @@
-<p class="mat-caption key">{{key}}</p>
+<p class="mat-caption key">{{ key() }}</p>
 
-<ng-container *ngIf="isArray(value); else singleValue">
-  <p class="mat-body value value--multiple" *ngFor="let valueItem of asArray(value)"> • {{valueItem | ucfirst}}</p>
-</ng-container>
-
-<ng-template #singleValue>
-  <p class="mat-body value">{{value | ucfirst}}</p>
-</ng-template>
+@if (isArray(processedValue())) {
+  @for (valueItem of asArray(processedValue()); track valueItem) {
+    <p class="mat-body value value--multiple">• {{ valueItem | ucfirst }}</p>
+  }
+} @else {
+  <p class="mat-body value">{{ processedValue() | ucfirst }}</p>
+}

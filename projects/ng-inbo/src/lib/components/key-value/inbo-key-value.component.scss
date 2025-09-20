@@ -1,17 +1,17 @@
 :host {
-  color: #373D3F;
+  color: #373d3f;
   display: flex;
   flex-direction: column;
   margin-bottom: 8px;
 }
 
 .key {
-  color: rgba(#373D3F, .7);
+  color: rgba(#373d3f, 0.7);
   margin: 0 0 8px;
 }
 
 .value {
-  margin:  4px 4px 8px;
+  margin: 4px 4px 8px;
 
   &--multiple {
     margin-bottom: 8px;

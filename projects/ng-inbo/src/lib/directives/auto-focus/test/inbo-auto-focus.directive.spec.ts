@@ -1,22 +1,19 @@
-import {InboAutofocusDirective} from '../inbo-autofocus.directive';
-import {fnmock, instance, verify} from '@johanblumenberg/ts-mockito';
+import { fnmock, instance, verify } from '@johanblumenberg/ts-mockito';
+import { InboAutofocusDirective } from '../inbo-autofocus.directive';
 
 describe('InboAutofocusDirective', () => {
-
-  let focusMethodMock: (...args: any[]) => void;
+  let focusMethodMock: (...args: Array<unknown>) => void;
 
   let directiveUnderTest: InboAutofocusDirective;
 
   beforeEach(() => {
     focusMethodMock = fnmock();
 
-    directiveUnderTest = new InboAutofocusDirective(
-      {
-        nativeElement: {
-          focus: instance(focusMethodMock),
-        },
+    directiveUnderTest = new InboAutofocusDirective({
+      nativeElement: {
+        focus: instance(focusMethodMock),
       },
-    );
+    });
   });
 
   describe('ngOnInit', () => {
@@ -26,5 +23,4 @@ describe('InboAutofocusDirective', () => {
       verify(focusMethodMock()).once();
     });
   });
-
 });

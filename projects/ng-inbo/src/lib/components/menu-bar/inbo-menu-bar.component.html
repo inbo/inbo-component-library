@@ -1,38 +1,46 @@
 <mat-toolbar class="header" color="primary">
   <div class="header-content">
     <div class="navigation">
-      <ng-container *ngFor="let menuItem of menuItems">
-
-        <a *ngIf="menuItem.externalLink; else internalLink" mat-button [href]="menuItem.url" target="_blank">
-          <span>{{menuItem.name}}</span>
-          <mat-icon class="button-icon">open_in_new</mat-icon>
-        </a>
-
-        <ng-template #internalLink>
-          <button *ngIf="!menuItem.submenuItems; else submenu" mat-button
-                  [routerLink]="menuItem.url">{{menuItem.name}}</button>
-
-          <ng-template #submenu>
-            <button mat-button [matMenuTriggerFor]="$any(submenu)">{{menuItem.name}}</button>
+      @for (menuItem of menuItems; track menuItem) {
+        @if (menuItem.externalLink) {
+          <a mat-button [href]="menuItem.url" target="_blank">
+            <span>{{ menuItem.name }}</span>
+            <mat-icon class="button-icon">open_in_new</mat-icon>
+          </a>
+        } @else {
+          @if (!menuItem.submenuItems) {
+            <button mat-button [routerLink]="menuItem.url">
+              {{ menuItem.name }}
+            </button>
+          } @else {
+            <button mat-button [matMenuTriggerFor]="$any(submenu)">
+              {{ menuItem.name }}
+            </button>
             <mat-menu #submenu="matMenu">
-              <button *ngFor="let submenuItem of menuItem.submenuItems"
-                      mat-menu-item
-                      [routerLink]="submenuItem.url">
-                <span>{{submenuItem.name}}</span>
-              </button>
+              @for (submenuItem of menuItem.submenuItems; track submenuItem) {
+                <button mat-menu-item [routerLink]="submenuItem.url">
+                  <span>{{ submenuItem.name }}</span>
+                </button>
+              }
             </mat-menu>
-          </ng-template>
-        </ng-template>
-      </ng-container>
+          }
+        }
+      }
     </div>
 
-    <button mat-button *ngIf="loggedInUserName; else loginButton" [matMenuTriggerFor]="userMenu">
-      <mat-icon>person</mat-icon>
-      {{loggedInUserName | ucwords}}
-    </button>
-    <ng-template #loginButton>
-      <button mat-flat-button class="login-button" (click)="loginButtonClick.emit()">Aanmelden</button>
-    </ng-template>
+    @if (loggedInUserName) {
+      <button mat-button [matMenuTriggerFor]="userMenu">
+        <mat-icon>person</mat-icon>
+        {{ loggedInUserName | ucwords }}
+      </button>
+    } @else {
+      <button
+        mat-flat-button
+        class="login-button"
+        (click)="loginButtonClick.emit()">
+        Aanmelden
+      </button>
+    }
 
     <mat-menu #userMenu="matMenu">
       <button mat-menu-item (click)="logoutButtonClick.emit()">
@@ -41,5 +49,4 @@
       </button>
     </mat-menu>
   </div>
-
 </mat-toolbar>

@@ -2,10 +2,7 @@
   "extends": "./tsconfig.lib.json",
   "compilerOptions": {
     "baseUrl": ".",
-    "lib": [
-      "es2018",
-      "dom"
-    ],
+    "lib": ["es2018", "dom"],
     "declaration": true,
     "module": "commonjs",
     "moduleResolution": "node",
@@ -16,16 +13,11 @@
     "sourceMap": true,
     "noUnusedLocals": false,
     "target": "es6",
-    "types": [
-      "jasmine",
-      "node"
-    ]
+    "types": ["jasmine", "node"]
   },
   "include": [
-    "src/**/*.ts",                     // All TypeScript files in the src directory
+    "src/**/*.ts", // All TypeScript files in the src directory
     "schematics/**/*.ts"
   ],
-  "exclude": [
-    "schematics/*/files/**/*"
-  ]
+  "exclude": ["schematics/*/files/**/*"]
 }

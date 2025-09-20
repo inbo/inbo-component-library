@@ -12,7 +12,5 @@
       }
     }
   },
-  "required": [
-    "projectName"
-  ]
+  "required": ["projectName"]
 }

@@ -1,13 +1,13 @@
-import { ApplicationConfig, importProvidersFrom } from '@angular/core';
-import { provideRouter } from '@angular/router';
-import { routes } from './app.routes';
+import { ApplicationConfig } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
-import { NgInboModule } from 'projects/ng-inbo/src/public-api';
+import { provideRouter } from '@angular/router';
+import { provideNgInboCore } from 'projects/ng-inbo/src/lib/ng-inbo.providers';
+import { routes } from './app.routes';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideRouter(routes),
     provideAnimations(),
-    importProvidersFrom(NgInboModule.forRoot({ apiUrl: 'http://localhost:4200/api' }))
-  ]
-}; 
+    provideNgInboCore({ apiUrl: 'http://localhost:4200/api' }),
+  ],
+};

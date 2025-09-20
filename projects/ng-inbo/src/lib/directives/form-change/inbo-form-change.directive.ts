@@ -1,14 +1,20 @@
-import {Directive, EventEmitter, Input, OnDestroy, OnInit, Output} from '@angular/core';
-import {NgForm} from '@angular/forms';
-import {debounceTime, Subject, takeUntil} from 'rxjs';
-import {isNil} from 'lodash-es';
+import {
+  Directive,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+} from '@angular/core';
+import { NgForm } from '@angular/forms';
+import { isNil } from 'lodash-es';
+import { debounceTime, Subject, takeUntil } from 'rxjs';
 
 @Directive({
-    selector: '[inboFormChange]',
-    standalone: false
+  selector: '[inboFormChange]',
+  standalone: true,
 })
 export class InboFormChangeDirective<T> implements OnInit, OnDestroy {
-
   private destroy = new Subject<void>();
 
   @Input() inboFormChangeDebounceTime = 300;
@@ -21,14 +27,12 @@ export class InboFormChangeDirective<T> implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.ngForm
-      .valueChanges
+    this.ngForm.valueChanges
       .pipe(
         takeUntil(this.destroy),
-        debounceTime(this.inboFormChangeDebounceTime),
-      ).subscribe(
-      value => this.inboFormChange.emit(value),
-    );
+        debounceTime(this.inboFormChangeDebounceTime)
+      )
+      .subscribe(value => this.inboFormChange.emit(value));
   }
 
   ngOnDestroy(): void {

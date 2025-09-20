@@ -1,12 +1,10 @@
-import {Component, Input} from '@angular/core';
+import { Component, input } from '@angular/core';
 
 @Component({
-    selector: 'inbo-vlaanderen-logo',
-    templateUrl: 'vlaanderen-logo.component.html',
-    standalone: false
+  selector: 'inbo-vlaanderen-logo',
+  templateUrl: 'vlaanderen-logo.component.html',
+  standalone: true,
 })
 export class VlaanderenLogoComponent {
-
-  @Input() height: string = '30px';
-
+  height = input<string>('30px');
 }

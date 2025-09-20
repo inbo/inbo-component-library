@@ -11,6 +11,11 @@ export enum FilterType {
   Boolean = 'boolean',
 }
 
+export enum FilterMode {
+  Local = 'local',
+  Remote = 'remote',
+}
+
 export interface InboDataTableColumn<T> {
   name: string;
   style?: Partial<CSSStyleDeclaration>;
@@ -20,7 +25,7 @@ export interface InboDataTableColumn<T> {
   filterable?: boolean;
   filterType?: FilterType;
   filterPlaceholder?: string;
-  filterMode?: 'local' | 'remote';
+  filterMode?: FilterMode;
   filterSearchFunction?: (query: string) => Observable<Array<unknown>>;
   filterDisplayPattern?: (option: T) => string;
   filterValueSelector?: (option: T) => unknown;

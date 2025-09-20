@@ -1,15 +1,12 @@
-import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NgInboModule } from 'projects/ng-inbo/src/public-api';
+import { Component } from '@angular/core';
+import { InboHeaderComponent } from 'projects/ng-inbo/src/public-api';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [
-    CommonModule,
-    NgInboModule
-  ],
+  imports: [CommonModule, InboHeaderComponent],
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss']
+  styleUrls: ['./header.component.scss'],
 })
 export class HeaderComponent {}

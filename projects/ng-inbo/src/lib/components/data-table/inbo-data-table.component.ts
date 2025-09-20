@@ -37,6 +37,7 @@ import { catchError, debounceTime } from 'rxjs/operators';
 import { ApiPage } from '../../services/api/api-page.model';
 import { RequestState } from '../../services/api/request-state.enum';
 import {
+  FilterMode,
   FilterType,
   InboDataTableColumn,
   InboDataTableColumnConfiguration,
@@ -102,16 +103,17 @@ export class InboDataTableComponent<T extends InboDatatableItem>
   @Output() sortChanged = new EventEmitter<Sort>();
   @Output() filterChanged = new EventEmitter<Record<string, string>>();
 
-  filterValues: WritableSignal<Record<string, any>> = signal({});
-  temporaryFilterValues: WritableSignal<Record<string, any>> = signal({});
+  filterValues: WritableSignal<Record<string, unknown>> = signal({});
+  temporaryFilterValues: WritableSignal<Record<string, unknown>> = signal({});
 
   private internalClientSort: WritableSignal<Sort | undefined> =
     signal(undefined);
   private currentPageIndexForLocalFiltering: WritableSignal<number> = signal(0);
 
   private debouncedApplyFilters = new Subject<string>();
-  autocompleteOptionStreams: WritableSignal<Record<string, Observable<any[]>>> =
-    signal({});
+  autocompleteOptionStreams: WritableSignal<
+    Record<string, Observable<Array<unknown>>>
+  > = signal({});
 
   readonly DEFAULT_CLIENT_PAGE_SIZE = 5;
 
@@ -128,9 +130,9 @@ export class InboDataTableComponent<T extends InboDatatableItem>
       : this.sort();
   });
 
-  private processedDataMasterList: Signal<T[]> = computed(() => {
+  private processedDataMasterList: Signal<Array<T>> = computed(() => {
     const pageContent = this.dataPage()?.content ?? [];
-    let dataToProcess: T[] = [...pageContent];
+    let dataToProcess: Array<T> = [...pageContent];
 
     if (this.clientSideProcessing()) {
       dataToProcess = this.applyLocalSort(
@@ -139,20 +141,18 @@ export class InboDataTableComponent<T extends InboDatatableItem>
       );
       dataToProcess = this.applyLocalFilters(
         dataToProcess,
-        this.filterValues(),
-        true
+        this.filterValues()
       );
     } else {
       dataToProcess = this.applyLocalFilters(
         dataToProcess,
-        this.filterValues(),
-        false
+        this.filterValues()
       );
     }
     return dataToProcess;
   });
 
-  dataForRender: Signal<T[]> = computed(() => {
+  dataForRender: Signal<Array<T>> = computed(() => {
     if (this.clientSideProcessing()) {
       const fullList = this.processedDataMasterList();
       const pageSize = this.effectivePageSizeForDisplay();
@@ -192,7 +192,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     if (!filters || !colConfig) {
       return false;
     }
-    return Object.keys(filters).some((key) => {
+    return Object.keys(filters).some(key => {
       const filterValue = filters[key];
       if (
         filterValue === undefined ||
@@ -202,11 +202,14 @@ export class InboDataTableComponent<T extends InboDatatableItem>
         return false;
       }
       const config = colConfig[key as keyof T];
-      return config?.filterMode === 'local';
+      return config?.filterMode === FilterMode.Local;
     });
   });
 
-  constructor(private renderer: Renderer2, private zone: NgZone) {
+  constructor(
+    private renderer: Renderer2,
+    private zone: NgZone
+  ) {
     effect(() => {
       if (this.clientSideProcessing()) {
         this.internalClientSort.set(this.sort());
@@ -225,13 +228,11 @@ export class InboDataTableComponent<T extends InboDatatableItem>
       }
     });
 
-    this.debouncedApplyFilters
-      .pipe(debounceTime(300))
-      .subscribe((columnKey) => {
-        this.zone.run(() => {
-          this.applyFilter(columnKey);
-        });
+    this.debouncedApplyFilters.pipe(debounceTime(300)).subscribe(columnKey => {
+      this.zone.run(() => {
+        this.applyFilter(columnKey);
       });
+    });
   }
 
   displayedColumns: Signal<Array<keyof T & string>> = computed(() => {
@@ -241,13 +242,13 @@ export class InboDataTableComponent<T extends InboDatatableItem>
 
   hasAnyFilterableColumn: Signal<boolean> = computed(() => {
     const config = this.columnConfiguration();
-    return !!config && Object.values(config).some((col) => col?.filterable);
+    return !!config && Object.values(config).some(col => col?.filterable);
   });
 
   allDisplayedColumns: Signal<Array<string>> = computed(() => {
     const configColumns = this.displayedColumns();
 
-    const actionColumns: string[] = [];
+    const actionColumns: Array<string> = [];
     if (this.editItem.observed) {
       actionColumns.push(this.EDIT_COLUMN);
     }
@@ -275,8 +276,12 @@ export class InboDataTableComponent<T extends InboDatatableItem>
 
   getFilterDisplayPattern(
     key: keyof Partial<T>
-  ): ((option: any) => string) | undefined {
-    return this.getColumnConfigurationForKey(key)?.filterDisplayPattern;
+  ): ((option: unknown) => string) | undefined {
+    const config = this.getColumnConfigurationForKey(key);
+    if (config?.filterDisplayPattern) {
+      return config.filterDisplayPattern as (option: unknown) => string;
+    }
+    return undefined;
   }
 
   getFilterSearchFunction(
@@ -307,7 +312,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     );
   }
 
-  getColumnConfigurationForKey<P>(
+  getColumnConfigurationForKey(
     key: keyof Partial<T>
   ): InboDataTableColumn<T[keyof T]> | undefined {
     return this.columnConfiguration()[key];
@@ -318,10 +323,10 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     if (searchFn) {
       const currentVal = this.temporaryFilterValues()[columnKey];
       const query = typeof currentVal === 'string' ? currentVal : '';
-      this.autocompleteOptionStreams.update((streams) => ({
+      this.autocompleteOptionStreams.update(streams => ({
         ...streams,
         [columnKey]: searchFn(query).pipe(
-          catchError((err) => {
+          catchError(err => {
             console.error(
               "Error fetching autocomplete options on focus for query '" +
                 query +
@@ -341,10 +346,10 @@ export class InboDataTableComponent<T extends InboDatatableItem>
 
     if (searchFn) {
       const query = typeof value === 'string' ? value : ''; // Ensure query is a string
-      this.autocompleteOptionStreams.update((streams) => ({
+      this.autocompleteOptionStreams.update(streams => ({
         ...streams,
         [columnKey]: searchFn(query).pipe(
-          catchError((err) => {
+          catchError(err => {
             console.error(
               "Error fetching autocomplete options for query '" + query + "':",
               err
@@ -354,7 +359,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
         ),
       }));
     } else {
-      this.autocompleteOptionStreams.update((streams) => {
+      this.autocompleteOptionStreams.update(streams => {
         const newStreams = { ...streams };
         delete newStreams[columnKey]; // Clears the stream for this column
         return newStreams;
@@ -362,7 +367,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     }
   }
 
-  getOptionDisplayText(columnKey: keyof Partial<T>, option: any): string {
+  getOptionDisplayText(columnKey: keyof Partial<T>, option: unknown): string {
     const displayFn = this.getFilterDisplayPattern(columnKey);
     if (displayFn) {
       return displayFn(option);
@@ -397,14 +402,14 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     this.clickItem.emit(dataItem);
   }
 
-  updateTemporaryFilter(columnKey: string, value: any): void {
-    this.temporaryFilterValues.update((current) => ({
+  updateTemporaryFilter(columnKey: string, value: unknown): void {
+    this.temporaryFilterValues.update(current => ({
       ...current,
       [columnKey]: value,
     }));
     const config = this.getColumnConfigurationForKey(columnKey as keyof T);
     if (
-      config?.filterMode === 'local' &&
+      config?.filterMode === FilterMode.Local &&
       (config?.filterType === FilterType.Text || !config?.filterType)
     ) {
       this.debouncedApplyFilters.next(columnKey);
@@ -421,7 +426,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     const currentActiveValue = this.filterValues()[columnKey];
 
     if (currentActiveValue !== temporaryValue) {
-      this.filterValues.update((current) => {
+      this.filterValues.update(current => {
         const newValues = { ...current };
         if (temporaryValue === undefined) {
           delete newValues[columnKey];
@@ -445,7 +450,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
 
     // Clear temporary filter value if it's not already cleared
     if (this.temporaryFilterValues()[columnKey] !== clearValue) {
-      this.temporaryFilterValues.update((current) => {
+      this.temporaryFilterValues.update(current => {
         const newValues = { ...current };
         if (clearValue === null) {
           // Specifically for boolean 'Both'
@@ -469,7 +474,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
         currentActiveFilter !== '');
 
     if (isActiveFilterConsideredSet) {
-      this.filterValues.update((current) => {
+      this.filterValues.update(current => {
         const newValues = { ...current };
         if (config?.filterType === FilterType.Boolean) {
           newValues[columnKey] = null; // Set to 'Both'
@@ -492,13 +497,12 @@ export class InboDataTableComponent<T extends InboDatatableItem>
   private emitFilterChanged(): void {
     const stringFilters: Record<string, string> = {};
     const currentFilters = this.filterValues();
-    let activeRemoteFilterPresent = false;
 
-    Object.keys(currentFilters).forEach((keyStr) => {
+    Object.keys(currentFilters).forEach(keyStr => {
       const value = currentFilters[keyStr];
       const key = keyStr as keyof Partial<T>;
       const config = this.getColumnConfigurationForKey(key);
-      const filterMode = config?.filterMode ?? 'remote';
+      const filterMode = config?.filterMode ?? FilterMode.Remote;
       const filterType = config?.filterType ?? FilterType.Text;
 
       const isActiveRemoteFilter =
@@ -507,8 +511,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
           : value !== undefined && value !== null && value !== '';
 
       if (isActiveRemoteFilter) {
-        if (filterMode === 'remote') {
-          activeRemoteFilterPresent = true;
+        if (filterMode === FilterMode.Remote) {
           const filterValueSelector = config?.filterValueSelector;
 
           if (filterType === FilterType.Boolean) {
@@ -522,12 +525,18 @@ export class InboDataTableComponent<T extends InboDatatableItem>
             filterType === FilterType.Autocomplete &&
             filterValueSelector
           ) {
-            stringFilters[keyStr] = String(filterValueSelector(value));
+            stringFilters[keyStr] = String(
+              filterValueSelector(value as T[keyof T])
+            );
           } else if (
             filterType === FilterType.Autocomplete &&
-            typeof value === 'object'
+            typeof value === 'object' &&
+            value !== null &&
+            'id' in value
           ) {
-            stringFilters[keyStr] = String((value as any)?.id ?? value);
+            stringFilters[keyStr] = String(
+              (value as { id: unknown })?.id ?? value
+            );
           } else {
             stringFilters[keyStr] = String(value);
           }
@@ -538,14 +547,14 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     this.filterChanged.emit(stringFilters);
   }
 
-  private applyLocalSort(data: T[], sort: Sort | undefined): T[] {
+  private applyLocalSort(data: Array<T>, sort: Sort | undefined): Array<T> {
     if (!sort || !sort.active || sort.direction === '') {
       return data;
     }
     const dataCopy = [...data];
     dataCopy.sort((a, b) => {
-      const valA = (a as any)[sort.active];
-      const valB = (b as any)[sort.active];
+      const valA = a[sort.active as keyof T];
+      const valB = b[sort.active as keyof T];
 
       let comparison = 0;
       if (valA === null || valA === undefined) comparison = -1;
@@ -561,10 +570,9 @@ export class InboDataTableComponent<T extends InboDatatableItem>
   }
 
   private applyLocalFilters(
-    data: T[],
-    activeFilters: Record<string, any>,
-    isClientSideContext: boolean
-  ): T[] {
+    data: Array<T>,
+    activeFilters: Record<string, unknown>
+  ): Array<T> {
     const filtersToApply = Object.entries(activeFilters).filter(
       ([keyStr, value]) => {
         if (value === undefined || value === null || value === '') return false;
@@ -573,7 +581,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
         // When in clientSideProcessing context, all 'local' filters apply to the full list.
         // When not, 'local' filters apply to the current page's data.
         // 'remote' filters are never handled by this function.
-        return (config?.filterMode ?? 'remote') === 'local';
+        return (config?.filterMode ?? FilterMode.Remote) === FilterMode.Local;
       }
     );
 
@@ -581,11 +589,11 @@ export class InboDataTableComponent<T extends InboDatatableItem>
       return data;
     }
 
-    const filtered = data.filter((item) => {
+    const filtered = data.filter(item => {
       return filtersToApply.every(([keyStr, value]) => {
         const key = keyStr as keyof T;
         const config = this.getColumnConfigurationForKey(key);
-        const itemValue = (item as any)[key];
+        const itemValue = item[key];
 
         if (config?.filterType === FilterType.Boolean) {
           if (value === null || value === undefined) {
@@ -609,16 +617,20 @@ export class InboDataTableComponent<T extends InboDatatableItem>
           cellValueForFiltering = '';
         }
 
-        let filterCriterion: any;
+        let filterCriterion: unknown;
         if (
           config?.filterType === FilterType.Autocomplete &&
           typeof value === 'object' &&
           value !== null
         ) {
           if (config.filterValueSelector) {
-            filterCriterion = config.filterValueSelector(value as any);
-          } else if (value.hasOwnProperty('value')) {
-            filterCriterion = (value as any).value;
+            filterCriterion = config.filterValueSelector(value as T[keyof T]);
+          } else if (
+            typeof value === 'object' &&
+            value !== null &&
+            'value' in value
+          ) {
+            filterCriterion = (value as { value: unknown }).value;
           } else {
             filterCriterion = value;
           }

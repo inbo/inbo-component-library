@@ -1,25 +1,28 @@
-import {ActivatedRoute, Router} from '@angular/router';
-import {isEmpty, isNil, omitBy} from 'lodash-es';
-import {Observable, tap} from 'rxjs';
-import {Directive, OnInit} from '@angular/core';
-import {ApiPage} from '../../services/api/api-page.model';
-import {RequestState} from '../../services/api/request-state.enum';
+import { ActivatedRoute, Router } from '@angular/router';
+import { isEmpty, isNil, omitBy } from 'lodash-es';
+import { Observable, tap } from 'rxjs';
+import { Directive, OnInit } from '@angular/core';
+import { ApiPage } from '../../services/api/api-page.model';
+import { RequestState } from '../../services/api/request-state.enum';
 
 // This annotation is needed for abstract base classes that use angular functionality (https://angular.io/guide/migration-undecorated-classes)
 @Directive()
 export abstract class FilterableDataListPage<D, F> implements OnInit {
-
   filter: F;
   currentDataPage: ApiPage<D>;
   dataRequestState = RequestState.DEFAULT;
 
-  protected abstract getDataFromBackend(pageIndex: number, filter?: F): Observable<ApiPage<D>>;
+  protected abstract getDataFromBackend(
+    pageIndex: number,
+    filter?: F
+  ): Observable<ApiPage<D>>;
 
   abstract createEmptyFilterObject(): F;
 
-  protected constructor(protected activatedRoute: ActivatedRoute,
-                        protected router: Router) {
-  }
+  protected constructor(
+    protected activatedRoute: ActivatedRoute,
+    protected router: Router
+  ) {}
 
   ngOnInit(): void {
     this.getFilterFromQueryParams();
@@ -35,13 +38,19 @@ export abstract class FilterableDataListPage<D, F> implements OnInit {
 
     this.getDataFromBackend(pageIndex, this.filter)
       .pipe(
-        tap(dataPage => this.currentDataPage = dataPage),
-        tap(dataPage => this.dataRequestState = dataPage.content.length > 0 ? RequestState.SUCCESS : RequestState.EMPTY),
-        tap(() => window.scrollTo({top: 0})),
-        tap(() => this.addFiltersToUrl()),
+        tap(dataPage => (this.currentDataPage = dataPage)),
+        tap(
+          dataPage =>
+            (this.dataRequestState =
+              dataPage.content.length > 0
+                ? RequestState.SUCCESS
+                : RequestState.EMPTY)
+        ),
+        tap(() => window.scrollTo({ top: 0 })),
+        tap(() => this.addFiltersToUrl())
       )
       .subscribe({
-        error: () => this.dataRequestState = RequestState.ERROR,
+        error: () => (this.dataRequestState = RequestState.ERROR),
       });
   }
 
@@ -61,13 +70,14 @@ export abstract class FilterableDataListPage<D, F> implements OnInit {
     if (isNil(this.filter)) {
       return null;
     }
-    Object.keys(this.filter)
-      .forEach(key => {
-          const activatedRouteSnapshot = this.activatedRoute.snapshot;
-          if (activatedRouteSnapshot.queryParamMap.has(key)) {
-            this.filter = {...this.filter, [key]: activatedRouteSnapshot.queryParamMap.get(key)};
-          }
-        },
-      );
+    Object.keys(this.filter).forEach(key => {
+      const activatedRouteSnapshot = this.activatedRoute.snapshot;
+      if (activatedRouteSnapshot.queryParamMap.has(key)) {
+        this.filter = {
+          ...this.filter,
+          [key]: activatedRouteSnapshot.queryParamMap.get(key),
+        };
+      }
+    });
   }
 }
