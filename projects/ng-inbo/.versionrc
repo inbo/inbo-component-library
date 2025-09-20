@@ -11,6 +11,8 @@
     "package-lock.json",
     "../../package.json"
   ],
+  "compareUrlFormat": "https://github.com/inbo/inbo-component-library/compare/{{previousTag}}...{{currentTag}}",
+  "releaseUrlFormat": "https://github.com/inbo/inbo-component-library/releases/tag/{{currentTag}}",
   "types": [
     {"type": "feat", "section": "Features"},
     {"type": "fix", "section": "Bug Fixes"},
