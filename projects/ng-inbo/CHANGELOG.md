@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [3.0.0](https://github.com/inbo/inbo-component-library/compare/v2.1.0...v3.0.0) (2025-09-20)
+
+
+### Bug Fixes
+
+* sync package versions to v2.1.0 and improve release process ([7221bf3](https://github.com/inbo/inbo-component-library/commit/7221bf3636cdb91a1ced29472cdfbea22d166e06))
+
 ## [2.1.0](https://github.com/inbo/inbo-component-library/compare/v2.0.0...v2.1.0) (2025-07-28)
 
 ## [2.0.0](https://github.com/inbo/inbo-component-library/compare/v1.3.6...v2.0.0) (2025-05-25)
