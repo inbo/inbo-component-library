@@ -2,7 +2,6 @@
   "name": "@inbo/ng-inbo",
   "version": "3.0.5",
   "schematics": "./schematics/collection.json",
-  "main": "../../dist/ng-inbo",
   "scripts": {
     "build": "tsc -p tsconfig.schematics.json",
     "postbuild": "copyfiles ./schematics/*/schema.json ./schematics/*/files/** ./schematics/collection.json ../../dist/ng-inbo/"
