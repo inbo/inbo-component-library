@@ -3,18 +3,20 @@ import { Component } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { NgInboModule } from 'ng-inbo';
+import { InboAutocompleteComponent } from 'projects/ng-inbo/src/public-api';
 import { of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
 interface Country {
   name: string;
   code: string;
+  [key: string]: unknown;
 }
 
 interface Product {
   code: string;
   name: string;
+  [key: string]: unknown;
 }
 
 @Component({
@@ -26,7 +28,7 @@ interface Product {
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,
-    NgInboModule,
+    InboAutocompleteComponent,
   ],
   templateUrl: 'autocomplete.component.html',
   styleUrls: ['autocomplete.component.scss'],

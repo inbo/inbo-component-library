@@ -16,7 +16,7 @@
       [searchFunction]="searchCountries"
       displayPattern="${name} (${code})"
       [showClearIcon]="true"
-      (onOptionSelected)="onCountrySelected($event)">
+      (optionSelected)="onCountrySelected($any($event))">
     </inbo-autocomplete>
 
     <div *ngIf="selectedCountry" class="selected-value">
@@ -42,7 +42,7 @@
       mask="cc-cc-cc"
       displayPattern="${code} - ${name}"
       [showClearIcon]="true"
-      (onOptionSelected)="onProductSelected($event)">
+      (optionSelected)="onProductSelected($any($event))">
     </inbo-autocomplete>
 
     <div *ngIf="selectedProduct" class="selected-value">

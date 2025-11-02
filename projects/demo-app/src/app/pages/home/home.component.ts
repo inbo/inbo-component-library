@@ -21,6 +21,7 @@ export class HomeComponent {
   menuItems = [
     { label: 'Header', path: 'header' },
     { label: 'Autocomplete', path: 'autocomplete' },
+    { label: 'Chip Autocomplete', path: 'chip-autocomplete' },
     { label: 'Data Table', path: 'data-table' },
   ];
 }
