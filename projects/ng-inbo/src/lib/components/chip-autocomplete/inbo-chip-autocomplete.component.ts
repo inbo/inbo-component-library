@@ -1,10 +1,11 @@
 import {
   Component,
+  computed,
   ContentChild,
   input,
   model,
+  signal,
   TemplateRef,
-  ViewEncapsulation,
 } from '@angular/core';
 import {
   ControlValueAccessor,
@@ -20,8 +21,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { InboDebouncedInputChangeDirective } from '../../directives/debounced-input-change/inbo-debounced-input-change.directive';
-import { InboInputMaskDirective } from '../../directives/input-mask/inbo-input-mask.directive';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { NgTemplateOutlet } from '@angular/common';
@@ -29,19 +28,17 @@ import { NgTemplateOutlet } from '@angular/common';
 @Component({
   selector: 'inbo-chip-autocomplete',
   templateUrl: 'inbo-chip-autocomplete.component.html',
-  encapsulation: ViewEncapsulation.None,
+  styleUrl: 'inbo-chip-autocomplete.component.scss',
   imports: [
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
     MatOptionModule,
     MatAutocompleteModule,
-    FormsModule,
-    InboInputMaskDirective,
-    InboDebouncedInputChangeDirective,
     MatProgressSpinnerModule,
     MatChipsModule,
     NgTemplateOutlet,
+    FormsModule,
   ],
   providers: [
     {
@@ -60,39 +57,44 @@ export class InboChipAutocompleteComponent<
   readonly separatorKeysCodes: Array<number> = [ENTER, COMMA];
 
   readonly placeholder = input<string>();
+  readonly label = input<string>();
+  readonly isLoading = input<boolean>(false);
+  readonly isDisabled = signal<boolean>(false);
+
   filteredValues = model<Array<U>>();
-  input = model<string>();
+  inputText = model<string>('');
   valueProperty = input<T>('id' as T);
 
-  private _value: Array<T> = [];
+  value = signal<Array<T>>([]);
+
+  hasValues = computed(() => this.value().length > 0);
+  firstFilteredValue = computed(() => this.filteredValues()?.[0]);
 
   @ContentChild('selectedTemplate', { read: TemplateRef })
   selectedTemplate?: TemplateRef<{ $implicit: T }>;
   @ContentChild('optionTemplate', { read: TemplateRef })
   optionTemplate!: TemplateRef<{ $implicit: U }>;
 
-  get value(): Array<T> {
-    return this._value;
-  }
-
   addValue(value: T) {
     if (value) {
-      this._value = [...this._value, value];
-      this.onChange(this._value);
-      this.onTouch(this._value);
+      const newValue = [...this.value(), value];
+      this.value.set(newValue);
+      this.onChange(newValue);
+      this.onTouch(newValue);
     }
   }
 
   removeValue(value: T) {
-    this._value = [...this._value.filter(value1 => value1 != value)];
-    this.onChange(this._value);
-    this.onTouch(this._value);
+    const newValue = this.value().filter(value1 => value1 !== value);
+    this.value.set(newValue);
+    this.onChange(newValue);
+    this.onTouch(newValue);
   }
 
   setList(value: Array<T>) {
-    this._value = value;
-    this.onChange(this._value);
-    this.onTouch(this._value);
+    this.value.set(value);
+    this.onChange(value);
+    this.onTouch(value);
   }
 
   onChange: (value?: Array<T>) => void = () => undefined;
@@ -110,6 +112,10 @@ export class InboChipAutocompleteComponent<
     this.setList(obj);
   }
 
+  setDisabledState(isDisabled: boolean): void {
+    this.isDisabled.set(isDisabled);
+  }
+
   onOptionSelected(event: MatAutocompleteSelectedEvent): void {
     this.addValue(event.option.value.id);
     this.resetInput();
@@ -118,10 +124,12 @@ export class InboChipAutocompleteComponent<
 
   add(event: MatChipInputEvent): void {
     const value = (event.value || '').trim();
-    const firstFilteredCounter = this.filteredValues()[0];
-    if (value && firstFilteredCounter) {
-      const value = firstFilteredCounter[this.valueProperty()] as unknown as T;
-      this.addValue(value);
+    const firstFilteredOption = this.firstFilteredValue();
+    if (value && firstFilteredOption) {
+      const extractedValue = firstFilteredOption[
+        this.valueProperty()
+      ] as unknown as T;
+      this.addValue(extractedValue);
     }
     this.resetInput();
   }
@@ -131,6 +139,18 @@ export class InboChipAutocompleteComponent<
   }
 
   private resetInput(): void {
-    this.input.set('');
+    this.inputText.set('');
+  }
+
+  getAriaLabel(value: T): string {
+    return `Remove ${String(value)}`;
+  }
+
+  getSelectedAriaLabel(value: T): string {
+    return `Selected: ${String(value)}`;
+  }
+
+  getValueAsString(value: T): string {
+    return String(value);
   }
 }

@@ -1,0 +1,127 @@
+<div class="component-container">
+  <h1>Chip Autocomplete Component</h1>
+  <div class="component-description">
+    <p>
+      The INBO Chip Autocomplete component combines a Material chips input with
+      autocomplete functionality. Users can select multiple items that are
+      displayed as removable chips.
+    </p>
+  </div>
+
+  <div class="example-container">
+    <h2>Example - Tags Selection</h2>
+
+    <inbo-chip-autocomplete
+      [placeholder]="'Add tags...'"
+      [(inputText)]="tagInput"
+      [(filteredValues)]="filteredTags"
+      valueProperty="id">
+      <ng-template #selectedTemplate let-tagId>
+        {{ getTagById(tagId)?.name }}
+      </ng-template>
+      <ng-template #optionTemplate let-tag>
+        <span class="option-content">
+          <span class="tag-color" [style.background-color]="tag.color"></span>
+          {{ tag.name }}
+        </span>
+      </ng-template>
+    </inbo-chip-autocomplete>
+
+    @if (selectedTagsData().length > 0) {
+      <div class="selected-value">
+        <p><strong>Selected tags:</strong></p>
+        <ul>
+          @for (tag of selectedTagsData(); track tag.id) {
+            <li>{{ tag.name }}</li>
+          }
+        </ul>
+      </div>
+    }
+  </div>
+
+  <div class="example-container">
+    <h2>Example - User Selection</h2>
+
+    <inbo-chip-autocomplete
+      [placeholder]="'Add users...'"
+      [(inputText)]="userInput"
+      [(filteredValues)]="filteredUsers"
+      valueProperty="id">
+      <ng-template #selectedTemplate let-userId>
+        {{ getUserById(userId)?.name }}
+      </ng-template>
+      <ng-template #optionTemplate let-user>
+        <div class="user-option">
+          <div class="user-name">{{ user.name }}</div>
+          <div class="user-email">{{ user.email }}</div>
+        </div>
+      </ng-template>
+    </inbo-chip-autocomplete>
+
+    @if (selectedUsersData().length > 0) {
+      <div class="selected-value">
+        <p><strong>Selected users:</strong></p>
+        <ul>
+          @for (user of selectedUsersData(); track user.id) {
+            <li>{{ user.name }} ({{ user.email }})</li>
+          }
+        </ul>
+      </div>
+    }
+  </div>
+
+  <div class="usage-container">
+    <h2>Usage</h2>
+    <pre>
+&lt;inbo-chip-autocomplete
+  [placeholder]="'Add items...'"
+  [(inputText)]="inputValue"
+  [(filteredValues)]="filteredItems"
+  valueProperty="id"&gt;
+  &lt;ng-template #selectedTemplate let-itemId&gt;
+    {{ '{Display selected item}' }}
+  &lt;/ng-template&gt;
+  &lt;ng-template #optionTemplate let-item&gt;
+    {{ '{Display option item}' }}
+  &lt;/ng-template&gt;
+&lt;/inbo-chip-autocomplete&gt;
+    </pre>
+
+    <h3>Inputs</h3>
+    <ul>
+      <li><code>placeholder</code> - Placeholder text for the input field</li>
+      <li>
+        <code>inputText</code> - Two-way binding for the input field text
+        (signal)
+      </li>
+      <li>
+        <code>filteredValues</code> - Two-way binding for the filtered options
+        array (computed signal)
+      </li>
+      <li>
+        <code>valueProperty</code> - Property name to use as the value (default:
+        'id')
+      </li>
+    </ul>
+
+    <h3>Templates</h3>
+    <ul>
+      <li>
+        <code>selectedTemplate</code> - Template for displaying selected chips
+        (receives the value property)
+      </li>
+      <li>
+        <code>optionTemplate</code> - Template for displaying autocomplete
+        options (receives the full option object)
+      </li>
+    </ul>
+
+    <h3>Best Practices</h3>
+    <ul>
+      <li>Use signals for reactive state management</li>
+      <li>Use computed signals for derived state (filtering)</li>
+      <li>Use the new &#64;if and &#64;for control flow syntax</li>
+      <li>Remove CommonModule import when using new control flow</li>
+    </ul>
+  </div>
+</div>

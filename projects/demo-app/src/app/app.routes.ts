@@ -27,6 +27,13 @@ export const routes: Routes = [
             c => c.DataTableComponent
           ),
       },
+      {
+        path: 'chip-autocomplete',
+        loadComponent: () =>
+          import(
+            './pages/components/chip-autocomplete/chip-autocomplete.component'
+          ).then(c => c.ChipAutocompleteComponent),
+      },
       { path: '', redirectTo: 'header', pathMatch: 'full' },
     ],
   },

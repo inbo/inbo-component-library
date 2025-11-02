@@ -1,0 +1,24 @@
+@import '../../../shared/styles/component-demo.scss';
+
+.option-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .tag-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+  }
+}
+
+.user-option {
+  .user-name {
+    font-weight: 500;
+  }
+
+  .user-email {
+    font-size: 0.875rem;
+    color: rgba(0, 0, 0, 0.6);
+  }
+}

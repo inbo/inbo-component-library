@@ -1,7 +1,19 @@
 :host {
   display: block;
+  width: 100%;
 }
 
-.form-field {
-  width: 100%;
+.inbo-chip-autocomplete {
+  &__form-field {
+    width: 100%;
+
+    mat-chip-grid {
+      display: none;
+
+      &.has-values {
+        display: block;
+        margin-bottom: 8px;
+      }
+    }
+  }
 }

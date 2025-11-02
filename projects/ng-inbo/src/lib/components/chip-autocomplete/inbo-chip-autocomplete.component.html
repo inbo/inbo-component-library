@@ -1,35 +1,58 @@
-<mat-form-field class="form-field">
-  <mat-chip-grid #chipGrid>
-    @for (selected of value; track $index) {
-      <mat-chip-row (removed)="remove(selected)">
-        <ng-container
-          *ngTemplateOutlet="
-            selectedTemplate;
-            context: { $implicit: selected }
-          ">
-        </ng-container>
-        <button matChipRemove>
+<mat-form-field class="inbo-chip-autocomplete__form-field">
+  @if (label()) {
+    <mat-label>{{ label() }}</mat-label>
+  }
+
+  <mat-chip-grid
+    #chipGrid
+    [class.has-values]="hasValues()"
+    [attr.aria-label]="label() || 'Selected items'"
+    [disabled]="isDisabled()">
+    @for (selected of value(); track $index) {
+      <mat-chip-row
+        (removed)="remove(selected)"
+        [attr.aria-label]="getSelectedAriaLabel(selected)">
+        @if (selectedTemplate) {
+          <ng-container
+            [ngTemplateOutlet]="selectedTemplate"
+            [ngTemplateOutletContext]="{ $implicit: selected }">
+          </ng-container>
+        } @else {
+          {{ getValueAsString(selected) }}
+        }
+        <button
+          matChipRemove
+          [attr.aria-label]="getAriaLabel(selected)"
+          [disabled]="isDisabled()">
           <mat-icon>cancel</mat-icon>
         </button>
       </mat-chip-row>
     }
   </mat-chip-grid>
+
+  @if (isLoading()) {
+    <mat-spinner matSuffix [diameter]="20"></mat-spinner>
+  }
+
   <input
-    name="addValue"
     [placeholder]="placeholder()"
-    #addValue
-    [(ngModel)]="input"
+    [attr.aria-label]="placeholder() || 'Add items'"
+    [disabled]="isDisabled()"
+    [ngModel]="inputText()"
+    (ngModelChange)="inputText.set($event)"
     [matChipInputFor]="chipGrid"
     [matAutocomplete]="auto"
     [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
     (matChipInputTokenEnd)="add($event)" />
+
   <mat-autocomplete
     #auto="matAutocomplete"
     (optionSelected)="onOptionSelected($event)">
     @for (option of filteredValues(); track option) {
       <mat-option [value]="option">
         <ng-container
-          *ngTemplateOutlet="optionTemplate; context: { $implicit: option }">
+          [ngTemplateOutlet]="optionTemplate"
+          [ngTemplateOutletContext]="{ $implicit: option }">
         </ng-container>
       </mat-option>
     }
