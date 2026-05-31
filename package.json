@@ -6,7 +6,9 @@
     "url": "https://github.com/inbo/inbo-component-library.git"
   },
   "overrides": {
-    "ip": "2.0.1"
+    "ip": "2.0.1",
+    "webpack-dev-server": "5.2.4",
+    "uuid": "11.1.1"
   },
   "standard-version": {
     "skip": {
@@ -41,21 +43,21 @@
   },
   "private": false,
   "dependencies": {
-    "@angular/animations": "20.3.1",
-    "@angular/cdk": "20.2.4",
-    "@angular/common": "20.3.1",
-    "@angular/compiler": "20.3.1",
-    "@angular/core": "20.3.1",
-    "@angular/forms": "20.3.1",
-    "@angular/material": "20.2.4",
-    "@angular/platform-browser": "20.3.1",
-    "@angular/platform-browser-dynamic": "20.3.1",
-    "@angular/router": "20.3.1",
+    "@angular/animations": "20.3.23",
+    "@angular/cdk": "20.2.14",
+    "@angular/common": "20.3.23",
+    "@angular/compiler": "20.3.23",
+    "@angular/core": "20.3.23",
+    "@angular/forms": "20.3.23",
+    "@angular/material": "20.2.14",
+    "@angular/platform-browser": "20.3.23",
+    "@angular/platform-browser-dynamic": "20.3.23",
+    "@angular/router": "20.3.23",
     "@inbo/ng-inbo": "file:dist/ng-inbo",
     "@types/lodash-es": "4.17.12",
     "copyfiles": "2.4.1",
     "date-fns": "2.30.0",
-    "lodash-es": "4.17.21",
+    "lodash-es": "4.18.1",
     "ngx-pipes": "3.2.2",
     "ol": "9.1.0",
     "proj4": "2.19.10",
@@ -64,9 +66,9 @@
     "zone.js": "0.15.0"
   },
   "devDependencies": {
-    "@angular-devkit/build-angular": "20.3.2",
-    "@angular/cli": "20.3.2",
-    "@angular/compiler-cli": "20.3.1",
+    "@angular-devkit/build-angular": "20.3.26",
+    "@angular/cli": "20.3.26",
+    "@angular/compiler-cli": "20.3.23",
     "@johanblumenberg/ts-mockito": "1.0.43",
     "@types/jasmine": "4.0.0",
     "angular-eslint": "19.5.0",
@@ -81,7 +83,7 @@
     "karma-coverage": "2.2.1",
     "karma-jasmine": "5.1.0",
     "karma-jasmine-html-reporter": "2.1.0",
-    "ng-packagr": "20.3.0",
+    "ng-packagr": "20.3.2",
     "prettier": "3.5.3",
     "standard-version": "9.5.0",
     "typescript": "5.8.3",
