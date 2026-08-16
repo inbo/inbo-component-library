@@ -9,7 +9,6 @@ commit guidelines.
 
 ### Bug Fixes
 
-* **release:** pin package registry ([b957afb](https://github.com/inbo/inbo-component-library/commit/b957afb6c889d3bdf6ed354891be25bc19a8ee0b))
 * **release:** pin package registry ([57b0177](https://github.com/inbo/inbo-component-library/commit/57b01778d438ac7d384f1a043efaee5bc1c3fcea))
 
 ## [3.0.9](https://github.com/inbo/inbo-component-library/compare/v3.0.8...v3.0.9) (2026-08-16)
