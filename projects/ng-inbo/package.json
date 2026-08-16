@@ -1,6 +1,11 @@
 {
   "name": "@inbo/ng-inbo",
   "version": "3.0.8",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/inbo/inbo-component-library.git",
+    "directory": "projects/ng-inbo"
+  },
   "schematics": "./schematics/collection.json",
   "scripts": {
     "build": "tsc -p tsconfig.schematics.json",

@@ -118,8 +118,9 @@ Check GitHub CLI:
 gh auth status
 ```
 
-GitHub Actions uses the existing `NPM_TOKEN` repository secret for package
-publication and dist-tag changes.
+GitHub Actions uses the short-lived repository `GITHUB_TOKEN` for package
+publication and dist-tag changes. The `@inbo/ng-inbo` package must grant
+`inbo/inbo-component-library` access under **Manage Actions access**.
 
 ## Release model
 
@@ -204,7 +205,7 @@ The GitHub Actions workflow:
 5. runs lint and headless tests;
 6. builds and packs the library once;
 7. calculates the tarball checksum;
-8. publishes with `NPM_TOKEN` under a temporary staging tag;
+8. publishes with `GITHUB_TOKEN` under a temporary staging tag;
 9. downloads the exact package from GitHub Packages;
 10. verifies the downloaded checksum;
 11. moves `next` to the verified version;
@@ -285,8 +286,9 @@ cannot be fast-forwarded.
 
 ### Package publication fails
 
-The repository `NPM_TOKEN` must be a personal access token (classic) with
-`write:packages`. Check that the token has not expired.
+Confirm that the workflow job grants `packages: write`. In the
+`@inbo/ng-inbo` package settings, confirm that
+`inbo/inbo-component-library` appears under **Manage Actions access**.
 
 Do not publish the package locally. If the workflow failed before publication,
 fix the secret or workflow problem and retry. If the version reached GitHub
@@ -306,8 +308,7 @@ The platform team can later add:
 - automatic Release Please execution after pushes to `main`;
 - a protected `release-promotion` Environment;
 - protected `v*` tags;
-- enforced artifact attestations;
-- repository `GITHUB_TOKEN` package writes.
+- enforced artifact attestations.
 
 This upgrade changes release preparation and approval. It does not change the
 candidate, consumer test, promotion, rejection, or rollback model.

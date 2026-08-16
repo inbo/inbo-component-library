@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 import {
@@ -59,4 +60,40 @@ test('rejects pull request titles that cannot drive semantic releases', () => {
   for (const title of titles) {
     assert.equal(isConventionalPrTitle(title), false, title);
   }
+});
+
+test('release workflows use the repository token for package writes', async () => {
+  const workflows = [
+    ['../.github/workflows/release.yml', 1],
+    ['../.github/workflows/manage-release.yml', 3],
+  ];
+
+  for (const [path, expectedPackageJobs] of workflows) {
+    const workflow = await readFile(new URL(path, import.meta.url), 'utf8');
+    const packageWritePermissions =
+      workflow.match(/^\s+packages: write$/gm)?.length ?? 0;
+    const repositoryTokens =
+      workflow.match(
+        /^\s+NODE_AUTH_TOKEN: \$\{\{ secrets\.GITHUB_TOKEN \}\}$/gm
+      )?.length ?? 0;
+
+    assert.equal(packageWritePermissions, expectedPackageJobs, path);
+    assert.equal(repositoryTokens, expectedPackageJobs, path);
+    assert.doesNotMatch(workflow, /secrets\.NPM_TOKEN/, path);
+  }
+});
+
+test('published package metadata links to the source repository', async () => {
+  const packageJson = JSON.parse(
+    await readFile(
+      new URL('../projects/ng-inbo/package.json', import.meta.url),
+      'utf8'
+    )
+  );
+
+  assert.deepEqual(packageJson.repository, {
+    type: 'git',
+    url: 'https://github.com/inbo/inbo-component-library.git',
+    directory: 'projects/ng-inbo',
+  });
 });
