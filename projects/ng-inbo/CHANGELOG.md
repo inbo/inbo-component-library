@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for
 commit guidelines.
 
+## [3.1.0](https://github.com/inbo/inbo-component-library/compare/v3.0.10...v3.1.0) (2026-08-16)
+
+
+### Features
+
+* **data-table:** support configurable column behavior ([75f173f](https://github.com/inbo/inbo-component-library/commit/75f173fd7c5789608447751975233c8a51f84994))
+
 ## [3.0.10](https://github.com/inbo/inbo-component-library/compare/v3.0.9...v3.0.10) (2026-08-16)
 
 
