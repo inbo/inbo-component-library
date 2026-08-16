@@ -1,0 +1,15 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    "projects/ng-inbo": {
+      "release-type": "node",
+      "package-name": "@inbo/ng-inbo",
+      "component": "ng-inbo",
+      "include-component-in-tag": false,
+      "include-v-in-tag": true,
+      "changelog-path": "CHANGELOG.md",
+      "draft": true,
+      "force-tag-creation": true
+    }
+  }
+}

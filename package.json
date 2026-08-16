@@ -1,6 +1,6 @@
 {
-  "name": "@inbo/ng-inbo",
-  "version": "3.0.7",
+  "name": "inbo-component-library-workspace",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/inbo/inbo-component-library.git"
@@ -11,16 +11,6 @@
     "ip": "2.0.1",
     "webpack-dev-server": "5.2.6",
     "uuid": "11.1.1"
-  },
-  "standard-version": {
-    "skip": {
-      "bump": true,
-      "commit": true,
-      "tag": true
-    }
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
   },
   "scripts": {
     "ng": "ng",
@@ -33,17 +23,19 @@
     "format:check": "prettier --check .",
     "format:write": "prettier --write .",
     "build-schematics": "cd projects/ng-inbo && npm run build",
-    "prerelease:check": "npm run build:lib && echo 'Build successful - ready for release'",
-    "prerelease:dry": "cd projects/ng-inbo && standard-version --dry-run",
-    "release": "npm run prerelease:check && cd projects/ng-inbo && standard-version && cd ../.. && npm run build:lib && git push --follow-tags && cd dist/ng-inbo && npm publish",
-    "release:minor": "npm run prerelease:check && cd projects/ng-inbo && standard-version --release-as minor && cd ../.. && npm run build:lib && git push --follow-tags && cd dist/ng-inbo && npm publish",
-    "release:major": "npm run prerelease:check && cd projects/ng-inbo && standard-version --release-as major && cd ../.. && npm run build:lib && git push --follow-tags && cd dist/ng-inbo && npm publish",
-    "sync-versions": "node -e \"const fs=require('fs'); const libPkg=JSON.parse(fs.readFileSync('projects/ng-inbo/package.json')); const rootPkg=JSON.parse(fs.readFileSync('package.json')); rootPkg.version=libPkg.version; fs.writeFileSync('package.json', JSON.stringify(rootPkg, null, 2));\"",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
+    "test:headless": "ng test ng-inbo --watch=false --browsers=ChromeHeadlessCI",
+    "test:release": "node --test scripts/*.test.mjs",
+    "check:peer-ranges": "node scripts/release-validation.mjs peer-ranges",
+    "check:pr-title": "node scripts/release-validation.mjs pr-title",
+    "release:prepare": "node scripts/release-commands.mjs prepare",
+    "release:candidate": "node scripts/release-commands.mjs candidate",
+    "release:promote": "node scripts/release-commands.mjs promote",
+    "release:reject": "node scripts/release-commands.mjs reject",
+    "release:rollback": "node scripts/release-commands.mjs rollback",
     "prepare": "husky"
   },
-  "private": false,
   "dependencies": {
     "@angular/animations": "20.3.25",
     "@angular/cdk": "20.2.14",
@@ -55,7 +47,6 @@
     "@angular/platform-browser": "20.3.25",
     "@angular/platform-browser-dynamic": "20.3.25",
     "@angular/router": "20.3.25",
-    "@inbo/ng-inbo": "file:dist/ng-inbo",
     "@types/lodash-es": "4.17.12",
     "copyfiles": "2.4.1",
     "date-fns": "2.30.0",
@@ -87,7 +78,7 @@
     "karma-jasmine-html-reporter": "2.1.0",
     "ng-packagr": "20.3.2",
     "prettier": "3.5.3",
-    "standard-version": "9.5.0",
+    "release-please": "17.11.1",
     "typescript": "5.8.3",
     "typescript-eslint": "8.32.1"
   }
