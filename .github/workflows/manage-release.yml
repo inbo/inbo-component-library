@@ -102,7 +102,7 @@ jobs:
     if: inputs.operation == 'reject'
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
       packages: write
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
