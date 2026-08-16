@@ -1,15 +1,15 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+All notable changes to this project will be documented in this file. See
+[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for
+commit guidelines.
 
 ## [3.0.8](https://github.com/inbo/inbo-component-library/compare/v3.0.7...v3.0.8) (2026-08-16)
 
 
 ### Bug Fixes
 
-* **deps:** resolve Angular security alerts ([8f7a0f6](https://github.com/inbo/inbo-component-library/commit/8f7a0f62c288634cfed35d1630621e03cabc1cce))
 * **deps:** resolve Angular security alerts ([17dbe9f](https://github.com/inbo/inbo-component-library/commit/17dbe9f981c49ad9127e4e6b523fe8883a67ce11))
-* **deps:** resolve Dependabot security alerts ([bfb8b5d](https://github.com/inbo/inbo-component-library/commit/bfb8b5d0ae9ba5a24fc8c1d4262130c18616ee84))
 * **deps:** resolve Dependabot security alerts ([ad95de7](https://github.com/inbo/inbo-component-library/commit/ad95de7bd9f13cde8adf99a905ea36c31cbf4a31))
 
 ### [3.0.7](https://github.com/inbo/inbo-component-library/compare/v3.0.6...v3.0.7) (2025-11-02)
