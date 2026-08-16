@@ -9,7 +9,6 @@ commit guidelines.
 
 ### Bug Fixes
 
-* **release:** use repository token for packages ([95df2d1](https://github.com/inbo/inbo-component-library/commit/95df2d149299c5f74d189250ace35637ac20474e))
 * **release:** use repository token for packages ([5c73929](https://github.com/inbo/inbo-component-library/commit/5c73929e0d7a277a3d0594833510dd83801508f4))
 
 ## [3.0.8](https://github.com/inbo/inbo-component-library/compare/v3.0.7...v3.0.8) (2026-08-16)
