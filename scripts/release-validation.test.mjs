@@ -62,6 +62,34 @@ test('rejects pull request titles that cannot drive semantic releases', () => {
   }
 });
 
+test('manage-release package jobs grant contents write for draft release visibility', async () => {
+  const workflow = await readFile(
+    new URL('../.github/workflows/manage-release.yml', import.meta.url),
+    'utf8'
+  );
+
+  for (const job of ['promote', 'reject', 'rollback']) {
+    const jobStart = workflow.indexOf(`  ${job}:`);
+    assert.notEqual(
+      jobStart,
+      -1,
+      `missing ${job} job in manage-release workflow`
+    );
+
+    const nextJobMatch = workflow.slice(jobStart + 1).match(/^  [\w-]+:/m);
+    const jobEnd = nextJobMatch
+      ? jobStart + 1 + nextJobMatch.index
+      : workflow.length;
+    const jobBlock = workflow.slice(jobStart, jobEnd);
+
+    assert.match(
+      jobBlock,
+      /^\s+contents: write$/m,
+      `${job} must grant contents: write so gh release view can read draft releases`
+    );
+  }
+});
+
 test('release workflows use the repository token for package writes', async () => {
   const workflows = [
     ['../.github/workflows/release.yml', 1],
