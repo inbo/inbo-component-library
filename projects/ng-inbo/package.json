@@ -6,6 +6,9 @@
     "url": "https://github.com/inbo/inbo-component-library.git",
     "directory": "projects/ng-inbo"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "schematics": "./schematics/collection.json",
   "scripts": {
     "build": "tsc -p tsconfig.schematics.json",

@@ -107,3 +107,17 @@ test('candidate publication uses an explicit local tarball path', async () => {
   assert.match(workflow, /tarball="\.\/\$\{tarballs\[0\]\}"/);
   assert.match(workflow, /npm publish "\$tarball" --tag "\$STAGING_TAG"/);
 });
+
+test('published package targets GitHub Packages', async () => {
+  const packageJson = JSON.parse(
+    await readFile(
+      new URL('../projects/ng-inbo/package.json', import.meta.url),
+      'utf8'
+    )
+  );
+
+  assert.equal(
+    packageJson.publishConfig?.registry,
+    'https://npm.pkg.github.com'
+  );
+});
