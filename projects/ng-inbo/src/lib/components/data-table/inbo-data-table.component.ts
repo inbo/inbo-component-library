@@ -49,6 +49,15 @@ export interface InboDatatableItem {
   isEditButtonDisabled?: boolean;
 }
 
+interface InboDataTableDisplayColumnViewModel<T extends InboDatatableItem> {
+  key: keyof T & string;
+  column: InboDataTableColumn<T[keyof T]>;
+  isConfigured: boolean;
+  styles: Partial<CSSStyleDeclaration>;
+  sortId: string | null;
+  stickyEnd: boolean;
+}
+
 @Component({
   selector: 'inbo-data-table',
   templateUrl: 'inbo-data-table.component.html',
@@ -236,8 +245,50 @@ export class InboDataTableComponent<T extends InboDatatableItem>
   }
 
   displayedColumns: Signal<Array<keyof T & string>> = computed(() => {
+    return this.displayColumnViewModels().map(column => column.key);
+  });
+
+  displayColumnViewModels: Signal<
+    Array<InboDataTableDisplayColumnViewModel<T>>
+  > = computed(() => {
     const config = this.columnConfiguration();
-    return config ? (Object.keys(config) as Array<keyof T & string>) : [];
+    if (!config) {
+      return [];
+    }
+
+    return (
+      Object.entries(config) as Array<
+        [keyof T & string, InboDataTableColumn<T[keyof T]> | undefined]
+      >
+    ).map(([key, column]) => {
+      const isConfigured = column !== undefined;
+      const safeColumn: InboDataTableColumn<T[keyof T]> = column ?? {
+        name: '',
+      };
+      const styles: Partial<CSSStyleDeclaration> = { ...safeColumn.style };
+      if (safeColumn.width !== undefined) {
+        styles.width = `${safeColumn.width}px`;
+      }
+      if (safeColumn.widthRems !== undefined) {
+        styles.width = `${safeColumn.widthRems}rem`;
+      }
+
+      let sortId: string | null = null;
+      if (safeColumn.sortablePropertyName) {
+        sortId = safeColumn.sortablePropertyName;
+      } else if (safeColumn.sortable) {
+        sortId = String(key);
+      }
+
+      return {
+        key,
+        column: safeColumn,
+        isConfigured,
+        styles,
+        sortId,
+        stickyEnd: safeColumn.stickyEnd ?? false,
+      };
+    });
   });
 
   hasAnyFilterableColumn: Signal<boolean> = computed(() => {
@@ -262,12 +313,10 @@ export class InboDataTableComponent<T extends InboDatatableItem>
   });
 
   getColumnStyles(key: keyof Partial<T>): Partial<CSSStyleDeclaration> {
-    const config = this.getColumnConfigurationForKey(key);
-    const styles: Partial<CSSStyleDeclaration> = { ...config?.style };
-    if (config?.width !== undefined) {
-      styles.width = `${config.width}px`;
-    }
-    return styles;
+    return (
+      this.displayColumnViewModels().find(column => column.key === key)
+        ?.styles ?? {}
+    );
   }
 
   getFilterType(key: keyof Partial<T>): FilterType | undefined {

@@ -201,10 +201,10 @@ export class DataTableComponent {
     this.localFilterRequestStateSubject.asObservable();
 
   localFilterColumnConfig: InboDataTableColumnConfiguration<DemoItem> = {
-    id: { name: 'ID', sortablePropertyName: 'id' },
+    id: { name: 'ID', sortable: true, widthRems: 6 },
     name: {
       name: 'Name (Local Filter)',
-      sortablePropertyName: 'name',
+      sortable: true,
       filterable: true,
       filterType: FilterType.Text,
       filterMode: FilterMode.Local,
@@ -225,7 +225,9 @@ export class DataTableComponent {
     randomDetail: { name: '' },
     isActive: {
       name: 'Active Status (Boolean Filter)',
-      sortablePropertyName: 'isActive',
+      sortable: true,
+      widthRems: 12,
+      stickyEnd: true,
       filterable: true,
       filterType: FilterType.Boolean,
       filterMode: FilterMode.Local,
