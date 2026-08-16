@@ -58,22 +58,22 @@ describe('InboDataTableComponent column options', () => {
       id: { name: 'ID', sortable: true, sortablePropertyName: 'customId' },
     });
 
-    expect(component.getSortablePropertyName('id')).toBe('customId');
+    expect(component.displayColumnViewModels()[0]?.sortId).toBe('customId');
   });
 
   it('uses the column key when sortable is true', () => {
     setColumns({ id: { name: 'ID', sortable: true } });
 
-    expect(component.getSortablePropertyName('id')).toBe('id');
+    expect(component.displayColumnViewModels()[0]?.sortId).toBe('id');
   });
 
   it('disables sorting when no sort option is configured', () => {
     setColumns({ id: { name: 'ID' } });
 
-    expect(component.getSortablePropertyName('id')).toBeNull();
+    expect(component.displayColumnViewModels()[0]?.sortId).toBeNull();
   });
 
-  it('applies rem width before pixel and style widths', () => {
+  it('keeps public getColumnStyles rem width precedence', () => {
     setColumns({
       id: {
         name: 'ID',
@@ -84,6 +84,52 @@ describe('InboDataTableComponent column options', () => {
     });
 
     expect(component.getColumnStyles('id').width).toBe('8rem');
+  });
+
+  it('sets stickyEnd on computed view models', () => {
+    setColumns({
+      name: { name: 'Name' },
+      id: { name: 'ID', stickyEnd: true },
+    });
+
+    expect(component.displayColumnViewModels()).toEqual([
+      jasmine.objectContaining({
+        key: 'name',
+        stickyEnd: false,
+      }),
+      jasmine.objectContaining({
+        key: 'id',
+        stickyEnd: true,
+      }),
+    ]);
+  });
+
+  it('normalizes undefined configured column entries into inert view models', () => {
+    const columns: InboDataTableColumnConfiguration<TestRow> = {
+      id: undefined,
+    };
+
+    expect(() => setColumns(columns)).not.toThrow();
+
+    expect(component.displayColumnViewModels()).toEqual([
+      jasmine.objectContaining({
+        key: 'id',
+        isConfigured: false,
+        styles: {},
+        sortId: null,
+        stickyEnd: false,
+        column: jasmine.objectContaining({
+          name: '',
+        }),
+      }),
+    ]);
+
+    const headerText = (
+      fixture.debugElement.query(By.css('th.mat-column-id .column-name'))
+        ?.nativeElement as HTMLElement
+    )?.textContent;
+    const withoutWhitespace = (headerText ?? '').replace(/\s/g, '');
+    expect(withoutWhitespace).toBe('');
   });
 
   it('binds the fallback column name to the sort header', () => {
