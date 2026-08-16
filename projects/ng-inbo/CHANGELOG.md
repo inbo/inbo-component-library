@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for
 commit guidelines.
 
+## [3.0.10](https://github.com/inbo/inbo-component-library/compare/v3.0.9...v3.0.10) (2026-08-16)
+
+
+### Bug Fixes
+
+* **release:** pin package registry ([57b0177](https://github.com/inbo/inbo-component-library/commit/57b01778d438ac7d384f1a043efaee5bc1c3fcea))
+
 ## [3.0.9](https://github.com/inbo/inbo-component-library/compare/v3.0.8...v3.0.9) (2026-08-16)
 
 
