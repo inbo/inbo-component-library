@@ -85,7 +85,7 @@ test('fast-forwards a clean main branch to the remote head', async () => {
 test('prepares a release PR with Release Please under the current user', async () => {
   const runner = createRunner(call => {
     const invocation = commandInvocation(call);
-    if (invocation.startsWith('npm exec -- release-please manifest-pr')) {
+    if (invocation.startsWith('npm exec -- release-please release-pr')) {
       return '';
     }
     return workspaceResponse(call);
@@ -97,7 +97,7 @@ test('prepares a release PR with Release Please under the current user', async (
   });
 
   const releasePleaseCall = runner.calls.find(
-    ({ command, args }) => command === 'npm' && args.includes('manifest-pr')
+    ({ command, args }) => command === 'npm' && args.includes('release-pr')
   );
   assert.ok(releasePleaseCall);
   assert.equal(
@@ -136,7 +136,7 @@ test('creates and verifies a draft candidate before dispatch', async () => {
   const runner = createRunner(call => {
     const invocation = commandInvocation(call);
 
-    if (invocation.startsWith('npm exec -- release-please manifest-release')) {
+    if (invocation.startsWith('npm exec -- release-please github-release')) {
       return '';
     }
     if (invocation.startsWith('gh release view v3.0.8')) {
@@ -167,6 +167,12 @@ test('creates and verifies a draft candidate before dispatch', async () => {
     }),
   });
 
+  const releasePleaseCall = runner.calls.find(
+    ({ command, args }) => command === 'npm' && args.includes('github-release')
+  );
+  assert.ok(releasePleaseCall);
+  assert.equal(releasePleaseCall.args.includes('--draft'), true);
+
   const dispatch = runner.calls.find(
     ({ command, args }) => command === 'gh' && args[0] === 'workflow'
   );
@@ -179,7 +185,7 @@ test('rejects a candidate whose tag points to another commit', async () => {
   const runner = createRunner(call => {
     const invocation = commandInvocation(call);
 
-    if (invocation.startsWith('npm exec -- release-please manifest-release')) {
+    if (invocation.startsWith('npm exec -- release-please github-release')) {
       return '';
     }
     if (invocation.startsWith('gh release view v3.0.8')) {

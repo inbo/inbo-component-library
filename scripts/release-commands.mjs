@@ -151,7 +151,7 @@ export async function prepareRelease({
 } = {}) {
   await assertReadyMain(run);
   await withTokenFile(run, tokenPath => {
-    return run('npm', releasePleaseArguments('manifest-pr', tokenPath), {
+    return run('npm', releasePleaseArguments('release-pr', tokenPath), {
       sensitive: true,
     });
   });
@@ -175,7 +175,7 @@ export async function createCandidate({
   await withTokenFile(run, tokenPath => {
     return run(
       'npm',
-      [...releasePleaseArguments('manifest-release', tokenPath), '--draft'],
+      [...releasePleaseArguments('github-release', tokenPath), '--draft'],
       { sensitive: true }
     );
   });
