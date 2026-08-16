@@ -1,0 +1,228 @@
+name: Manage release
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Release operation
+        required: true
+        type: choice
+        options:
+          - promote
+          - reject
+          - rollback
+      version:
+        description: Exact package version without a v prefix
+        required: true
+        type: string
+
+permissions: {}
+
+env:
+  GH_REPO: ${{ github.repository }}
+
+concurrency:
+  group: ng-inbo-release
+  cancel-in-progress: false
+
+jobs:
+  validate-input:
+    name: Validate input
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate exact version
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          node -e "
+            if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(process.env.RELEASE_VERSION)) {
+              console.error('Version must be an exact semantic version without a v prefix.');
+              process.exit(1);
+            }
+          "
+
+  promote:
+    name: Promote candidate
+    needs: validate-input
+    if: inputs.operation == 'promote'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      PACKAGE_NAME: '@inbo/ng-inbo'
+      RELEASE_VERSION: ${{ inputs.version }}
+    steps:
+      - name: Set up Node.js and GitHub Packages
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22.12'
+          registry-url: https://npm.pkg.github.com
+          scope: '@inbo'
+
+      - name: Verify candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          published_version="$(npm view "$PACKAGE_NAME@$RELEASE_VERSION" version)"
+          current_next="$(npm view "$PACKAGE_NAME" dist-tags.next)"
+          test "$published_version" = "$RELEASE_VERSION"
+          test "$current_next" = "$RELEASE_VERSION"
+          gh release view "v$RELEASE_VERSION" --json isDraft,tagName >/dev/null
+
+      - name: Finalize GitHub Release
+        shell: bash
+        run: |
+          set -euo pipefail
+          is_draft="$(gh release view "v$RELEASE_VERSION" --json isDraft --jq '.isDraft')"
+          if [[ "$is_draft" = "true" ]]; then
+            gh release edit "v$RELEASE_VERSION" --draft=false --latest
+          else
+            gh release edit "v$RELEASE_VERSION" --latest
+          fi
+
+      - name: Move latest to candidate
+        run: npm dist-tag add "$PACKAGE_NAME@$RELEASE_VERSION" latest
+
+      - name: Verify promotion
+        shell: bash
+        run: |
+          set -euo pipefail
+          current_latest="$(npm view "$PACKAGE_NAME" dist-tags.latest)"
+          is_draft="$(gh release view "v$RELEASE_VERSION" --json isDraft --jq '.isDraft')"
+          test "$current_latest" = "$RELEASE_VERSION"
+          test "$is_draft" = "false"
+          echo "Promoted $PACKAGE_NAME@$RELEASE_VERSION to latest." >> "$GITHUB_STEP_SUMMARY"
+
+  reject:
+    name: Reject candidate
+    needs: validate-input
+    if: inputs.operation == 'reject'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      PACKAGE_NAME: '@inbo/ng-inbo'
+      RELEASE_VERSION: ${{ inputs.version }}
+    steps:
+      - name: Set up Node.js and GitHub Packages
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22.12'
+          registry-url: https://npm.pkg.github.com
+          scope: '@inbo'
+
+      - name: Remove candidate tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          published_version="$(npm view "$PACKAGE_NAME@$RELEASE_VERSION" version)"
+          test "$published_version" = "$RELEASE_VERSION"
+
+          is_draft="$(gh release view "v$RELEASE_VERSION" --json isDraft --jq '.isDraft')"
+          test "$is_draft" = "true"
+
+          tags="$(npm view "$PACKAGE_NAME" dist-tags --json)"
+          current_latest="$(node -p "JSON.parse(process.argv[1]).latest ?? ''" "$tags")"
+          current_next="$(node -p "JSON.parse(process.argv[1]).next ?? ''" "$tags")"
+          if [[ "$current_latest" = "$RELEASE_VERSION" ]]; then
+            echo "::error::$RELEASE_VERSION is already latest; finish promotion or roll back before rejecting it."
+            exit 1
+          fi
+
+          if [[ -z "$current_next" || "$current_next" = "$current_latest" ]]; then
+            echo "No active next candidate; continuing with staging-tag cleanup."
+          elif [[ "$current_next" = "$RELEASE_VERSION" ]]; then
+            npm dist-tag rm "$PACKAGE_NAME" next
+          else
+            echo "::error::Candidate $current_next is active; refusing to reject $RELEASE_VERSION."
+            exit 1
+          fi
+
+          while read -r staging_tag; do
+            if [[ -n "$staging_tag" ]]; then
+              npm dist-tag rm "$PACKAGE_NAME" "$staging_tag"
+            fi
+          done < <(node -e "
+            const tags = JSON.parse(process.argv[1]);
+            const version = process.argv[2];
+            for (const [tag, value] of Object.entries(tags)) {
+              if (tag.startsWith('candidate-') && value === version) console.log(tag);
+            }
+          " "$tags" "$RELEASE_VERSION")
+
+      - name: Verify rejection
+        shell: bash
+        run: |
+          set -euo pipefail
+          tags="$(npm view "$PACKAGE_NAME" dist-tags --json)"
+          current_latest="$(node -p "JSON.parse(process.argv[1]).latest ?? ''" "$tags")"
+          current_next="$(node -p "JSON.parse(process.argv[1]).next ?? ''" "$tags")"
+          staging_count="$(node -p "Object.entries(JSON.parse(process.argv[1])).filter(([tag, value]) => tag.startsWith('candidate-') && value === process.argv[2]).length" "$tags" "$RELEASE_VERSION")"
+          test -z "$current_next" || test "$current_next" = "$current_latest"
+          test "$staging_count" = "0"
+          echo "Rejected $PACKAGE_NAME@$RELEASE_VERSION; the immutable package and draft release remain." >> "$GITHUB_STEP_SUMMARY"
+
+  rollback:
+    name: Roll back latest
+    needs: validate-input
+    if: inputs.operation == 'rollback'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      PACKAGE_NAME: '@inbo/ng-inbo'
+      RELEASE_VERSION: ${{ inputs.version }}
+    steps:
+      - name: Set up Node.js and GitHub Packages
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22.12'
+          registry-url: https://npm.pkg.github.com
+          scope: '@inbo'
+
+      - name: Verify rollback target
+        shell: bash
+        run: |
+          set -euo pipefail
+          published_version="$(npm view "$PACKAGE_NAME@$RELEASE_VERSION" version)"
+          tags="$(npm view "$PACKAGE_NAME" dist-tags --json)"
+          current_latest="$(node -p "JSON.parse(process.argv[1]).latest ?? ''" "$tags")"
+          current_next="$(node -p "JSON.parse(process.argv[1]).next ?? ''" "$tags")"
+
+          test "$published_version" = "$RELEASE_VERSION"
+          if [[ -n "$current_next" && "$current_next" != "$current_latest" ]]; then
+            echo "::error::Candidate $current_next is active; promote or reject it before rolling back."
+            exit 1
+          fi
+
+          is_draft="$(gh release view "v$RELEASE_VERSION" --json isDraft --jq '.isDraft')"
+          test "$is_draft" = "false"
+
+      - name: Move latest to rollback target
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh release edit "v$RELEASE_VERSION" --latest
+          npm dist-tag add "$PACKAGE_NAME@$RELEASE_VERSION" latest
+          tags="$(npm view "$PACKAGE_NAME" dist-tags --json)"
+          current_next="$(node -p "JSON.parse(process.argv[1]).next ?? ''" "$tags")"
+          if [[ -n "$current_next" ]]; then
+            npm dist-tag rm "$PACKAGE_NAME" next
+          fi
+
+      - name: Verify rollback
+        shell: bash
+        run: |
+          set -euo pipefail
+          tags="$(npm view "$PACKAGE_NAME" dist-tags --json)"
+          current_latest="$(node -p "JSON.parse(process.argv[1]).latest ?? ''" "$tags")"
+          current_next="$(node -p "JSON.parse(process.argv[1]).next ?? ''" "$tags")"
+          test "$current_latest" = "$RELEASE_VERSION"
+          test -z "$current_next"
+          echo "Rolled $PACKAGE_NAME latest back to $RELEASE_VERSION." >> "$GITHUB_STEP_SUMMARY"

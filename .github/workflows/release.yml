@@ -1,0 +1,205 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Exact candidate version without a v prefix
+        required: true
+        type: string
+
+permissions: {}
+
+concurrency:
+  group: ng-inbo-release
+  cancel-in-progress: false
+
+jobs:
+  build-candidate:
+    name: Build candidate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      PACKAGE_NAME: '@inbo/ng-inbo'
+      RELEASE_SHA: ${{ github.sha }}
+      RELEASE_TAG: v${{ inputs.version }}
+      RELEASE_VERSION: ${{ inputs.version }}
+    steps:
+      - name: Checkout the release commit
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.RELEASE_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Verify release metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          manifest_version="$(node -p "require('./projects/ng-inbo/package.json').version")"
+          release_manifest_version="$(node -p "require('./.release-please-manifest.json')['projects/ng-inbo']")"
+          tag_sha="$(git rev-list -n 1 "$RELEASE_TAG")"
+          node -e "
+            if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(process.env.RELEASE_VERSION)) {
+              process.exit(1);
+            }
+          "
+          test "$GITHUB_REF" = "refs/tags/$RELEASE_TAG"
+          test "$RELEASE_SHA" = "$GITHUB_SHA"
+          test "$RELEASE_SHA" = "$tag_sha"
+          test "$RELEASE_VERSION" = "$manifest_version"
+          test "$RELEASE_VERSION" = "$release_manifest_version"
+          test "$RELEASE_TAG" = "v$RELEASE_VERSION"
+          git fetch origin main
+          git merge-base --is-ancestor "$RELEASE_SHA" origin/main
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22.12'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test release tooling
+        run: npm run test:release
+
+      - name: Validate peer dependency ranges
+        run: npm run check:peer-ranges
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm run test:headless
+
+      - name: Build
+        run: npm run build:lib
+
+      - name: Pack candidate
+        id: pack
+        shell: bash
+        run: |
+          set -euo pipefail
+          built_version="$(node -p "require('./dist/ng-inbo/package.json').version")"
+          test "$RELEASE_VERSION" = "$built_version"
+
+          mkdir -p package
+          pack_json="$(npm pack ./dist/ng-inbo --pack-destination ./package --json)"
+          tarball="$(node -p "JSON.parse(process.argv[1])[0].filename" "$pack_json")"
+          packed_name="$(node -p "JSON.parse(process.argv[1])[0].name" "$pack_json")"
+          packed_version="$(node -p "JSON.parse(process.argv[1])[0].version" "$pack_json")"
+          test "$packed_name" = "$PACKAGE_NAME"
+          test "$packed_version" = "$RELEASE_VERSION"
+          sha256sum "./package/$tarball" > "./package/$tarball.sha256"
+          echo "tarball=$tarball" >> "$GITHUB_OUTPUT"
+
+      - name: Upload candidate
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ng-inbo-${{ env.RELEASE_VERSION }}
+          path: package/*
+          if-no-files-found: error
+          retention-days: 90
+
+  publish-candidate:
+    name: Publish candidate
+    needs: build-candidate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      PACKAGE_NAME: '@inbo/ng-inbo'
+      RELEASE_VERSION: ${{ inputs.version }}
+      STAGING_TAG: candidate-${{ github.run_id }}-${{ github.run_attempt }}
+    steps:
+      - name: Download candidate
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: ng-inbo-${{ env.RELEASE_VERSION }}
+          path: package
+
+      - name: Verify candidate checksum
+        run: sha256sum --check package/*.sha256
+
+      - name: Set up Node.js and GitHub Packages
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '22.12'
+          registry-url: https://npm.pkg.github.com
+          scope: '@inbo'
+
+      - name: Ensure no other candidate is active
+        shell: bash
+        run: |
+          set -euo pipefail
+          tags="$(npm view "$PACKAGE_NAME" dist-tags --json)"
+          latest="$(node -p "JSON.parse(process.argv[1]).latest ?? ''" "$tags")"
+          next="$(node -p "JSON.parse(process.argv[1]).next ?? ''" "$tags")"
+
+          while read -r staging_tag staging_version; do
+            if [[ "$staging_version" = "$latest" ]]; then
+              npm dist-tag rm "$PACKAGE_NAME" "$staging_tag"
+            elif [[ "$staging_version" != "$RELEASE_VERSION" ]]; then
+              echo "::error::Staging candidate $staging_version is still active under $staging_tag."
+              exit 1
+            fi
+          done < <(node -e "
+            const tags = JSON.parse(process.argv[1]);
+            for (const [tag, version] of Object.entries(tags)) {
+              if (tag.startsWith('candidate-')) console.log(tag, version);
+            }
+          " "$tags")
+
+          if [[ -n "$next" && "$next" != "$latest" && "$next" != "$RELEASE_VERSION" ]]; then
+            echo "::error::Candidate $next is still active; promote or reject it before publishing $RELEASE_VERSION."
+            exit 1
+          fi
+
+      - name: Publish candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          tarballs=(package/*.tgz)
+          test "${#tarballs[@]}" -eq 1
+          tarball="${tarballs[0]}"
+
+          if npm view "$PACKAGE_NAME@$RELEASE_VERSION" version >/dev/null 2>&1; then
+            echo "Version $RELEASE_VERSION already exists; verifying the immutable package."
+          else
+            npm publish "$tarball" --tag "$STAGING_TAG"
+          fi
+
+      - name: Verify published candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p downloaded
+          downloaded_tarball="$(npm pack "$PACKAGE_NAME@$RELEASE_VERSION" --pack-destination downloaded --silent)"
+          expected="$(sha256sum package/*.tgz | cut -d ' ' -f 1)"
+          actual="$(sha256sum "downloaded/$downloaded_tarball" | cut -d ' ' -f 1)"
+          test "$expected" = "$actual"
+
+          npm dist-tag add "$PACKAGE_NAME@$RELEASE_VERSION" next
+          tags="$(npm view "$PACKAGE_NAME" dist-tags --json)"
+          staging_tags="$(node -e "
+            const tags = JSON.parse(process.argv[1]);
+            const version = process.argv[2];
+            console.log(
+              Object.entries(tags)
+                .filter(([tag, value]) => tag.startsWith('candidate-') && value === version)
+                .map(([tag]) => tag)
+                .join('\n'),
+            );
+          " "$tags" "$RELEASE_VERSION")"
+          while IFS= read -r staging_tag; do
+            if [[ -n "$staging_tag" ]]; then
+              npm dist-tag rm "$PACKAGE_NAME" "$staging_tag"
+            fi
+          done <<< "$staging_tags"
+
+          published_next="$(npm view "$PACKAGE_NAME" dist-tags.next)"
+          test "$published_next" = "$RELEASE_VERSION"

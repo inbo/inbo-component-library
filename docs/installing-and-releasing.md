@@ -1,309 +1,313 @@
-# Installing & Releasing 🚀
+# Installing and releasing
 
 ## Requirements
 
-- **Angular:** 20.x
-- **Node.js:** 22.x
-- **Angular CLI:** 20.x
+- Angular 20.x
+- Node.js 22.x
+- Angular CLI 20.x
 
-## Installing
+## Installing the library
 
-This library is hosted by GitHub packages which acts like an NPM registry. So it is installable from GitHub.
+`@inbo/ng-inbo` is published to GitHub Packages. GitHub requires authentication
+to install npm packages from GitHub Packages, even when the repository and
+package are public.
 
-Even though the repository is public, you still need to authenticate with GitHub to be able to install the package
-in a project. To do this, do the following:
+To configure authentication:
 
-1. Go to [GitHub token settings](https://github.com/settings/tokens)
-2. Create a new classic personal access token with the `write:packages` scope (this automatically includes
-   `read:packages` as well). Optionally you can set it to expire after a certain amount of time.
-3. Copy the generated token to your clipboard.
-4. Create a global npm config file if it doesn't exist yet. (on Linux / MacOS it is `~/.npmrc`, for Windows it is `C:\Users\%username%\.npmrc`).
-5. Add to this file the following lines:
+1. Open [GitHub token settings](https://github.com/settings/tokens).
+2. Create a personal access token (classic) with the `read:packages` scope.
+3. Copy the token.
+4. Create your user npm configuration file if it does not exist:
+   - macOS and Linux: `~/.npmrc`
+   - Windows: `%USERPROFILE%\.npmrc`
+5. Add:
 
-```
-//npm.pkg.github.com/:_authToken=<generated-token>
+```ini
+//npm.pkg.github.com/:_authToken=<github-token>
 @inbo:registry=https://npm.pkg.github.com/
 ```
 
-The `@inbo` scope makes sure that NPM will try to fetch any npm package that starts with `@inbo/` from GitHub
-packages registry, instead of the default NPM registry.
+Do not commit a token to the repository. The `@inbo` scope sends only
+`@inbo/*` packages to GitHub Packages. Other packages continue to use the
+default npm registry.
 
-Now you can install this package using the regular `npm install @inbo/ng-inbo`, but there is a better way. I added
-an add schematic to this library, so you can install it using the angular-cli. Just run `ng add @inbo/ng-inbo`,
-optionally you can add `--projectName <projectName>` to specify the specific project if the angular-cli workspace has
-multiple projects in it.
-
-The schematic installs the npm package, but it also adds the correct paths to the angular.json file, so the assets
-can be used. These assets include images and font-files (Flanders font).
-
-## Troubleshooting
-
-### Authentication Issues
-
-If you get authentication errors:
-
-- Verify your GitHub token has `read:packages` permissions
-- Check that your `.npmrc` file is in the correct location
-- Ensure the token hasn't expired
-
-### Installation Problems
-
-- **"Package not found"** - Check your `.npmrc` configuration and GitHub token
-- **Version conflicts** - Ensure you're using Angular 20.x with this library version
-- **Peer dependency warnings** - Install the required peer dependencies manually
-
-### Using the inbo theme for Angular Material
-
-Included in this library, is a theme configuration for Angular Material, that includes the INBO colors (based on the
-primary fuchsia color and generated using an online pallet generator).
-
-In the `styles.scss` file of your application project, you should import the theme using `@import 'inbo-theme';`.
-You should only import this once in the entire application project. To use the different color and font variables,
-you can import the variables in any scss file using `@import 'partials/variables'`.
-
-## Releasing
-
-The release process is automated using `standard-version` and includes build validation to prevent failed releases.
-
-### Available Commands
-
-- `npm run prerelease:dry` - Preview what the next release would look like (dry-run)
-- `npm run prerelease:check` - Validate that the build works before releasing (required safety check)
-- `npm run sync-versions` - Sync root package.json version with library version
-- `npm run release` - Creates a patch release (x.x.1) for bug fixes and small changes
-- `npm run release:minor` - Creates a minor release (x.1.0) for new features that don't break existing functionality
-- `npm run release:major` - Creates a major release (1.0.0) for breaking changes
-
-### Release Workflow
-
-The release process follows this safe workflow:
-
-1. **Build validation** - Tests that the library builds successfully before making any changes
-2. **Version bump** - Updates library package.json and generates changelog
-3. **Sync versions** - Updates root package.json to match library version
-4. **Build with new version** - Rebuilds the library with the correct version number
-5. **Git commit & tag** - Amends the release commit with synced versions
-6. **Push to GitHub** - Pushes the tag and commits to the remote repository
-7. **Publish to NPM** - Publishes the built package to GitHub packages
-
-### Complete Development & Release Workflow
-
-#### Step-by-Step Process
-
-1. **Make your changes** on a feature branch
-2. **Commit your changes**
-
-   ```bash
-   git add .
-   git commit -m "feat: add new component functionality"
-   ```
-
-3. **Create a Pull Request**
-
-   ```bash
-   git push origin your-feature-branch
-   # Then create PR via GitHub UI
-   ```
-
-4. **Review and merge** the PR to main branch
-
-5. **Switch to main and prepare for release**
-
-   ```bash
-   git checkout main
-   git pull origin main
-   ```
-
-6. **Preview the release** (optional but recommended)
-
-   ```bash
-   npm run prerelease:dry
-   ```
-
-7. **Execute the release**
-   ```bash
-   # Choose the appropriate release type (see guide below)
-   npm run release        # for patch
-   npm run release:minor  # for minor
-   npm run release:major  # for major
-   ```
-
-### When to Use Each Release Type
-
-#### Patch Release (`npm run release`)
-
-**Use for:** Bug fixes, typos, documentation updates, small improvements
-**Examples:**
-
-- Fixing a broken component method
-- Correcting CSS styling issues
-- Updating documentation
-- Performance improvements that don't change API
-
-**Version change:** `2.1.0` → `2.1.1`
-
-#### Minor Release (`npm run release:minor`)
-
-**Use for:** New features that don't break existing functionality
-**Examples:**
-
-- Adding new components
-- Adding new methods to existing components
-- New optional parameters
-- New utility functions
-
-**Version change:** `2.1.0` → `2.2.0`
-
-#### Major Release (`npm run release:major`)
-
-**Use for:** Breaking changes that require users to modify their code
-**Examples:**
-
-- Angular version upgrades (like 17 → 20)
-- Removing deprecated components/methods
-- Changing required parameters
-- Renaming public APIs
-
-**Version change:** `2.1.0` → `3.0.0`
-
-### Best Practices
-
-1. **Always use PR workflow** - Never commit directly to main
-2. **Test before releasing** - Use `npm run prerelease:check` to validate builds
-3. **Use dry-run** - Preview changes with `npm run prerelease:dry`
-4. **Release from main only** - Always ensure you're on the latest main branch
-5. **One feature per PR** - Makes it easier to choose the right release type
-6. **Write clear commit messages** - Helps determine release type automatically
-
-### Troubleshooting Releases
-
-#### Build Fails Before Version Bump (Safest Scenario)
+Install the library directly:
 
 ```bash
-# If prerelease:check fails, fix the build issues first
-npm run prerelease:check
-# Fix any errors, then try release again
-npm run release
+npm install @inbo/ng-inbo
 ```
 
-**What happened:** Build failed before any git changes. Nothing to clean up! ✅
-
-#### Build Fails After Version Bump (Needs Cleanup)
+The preferred Angular installation uses the setup schematic:
 
 ```bash
-# Check current state
-git status
-git log --oneline -3
-git tag | tail -3
-
-# Scenario A: If commit was created but not pushed
-git reset --hard HEAD~1    # Undo release commit
-git tag -d v3.0.1         # Remove the tag
-# Fix the issue, then retry release
-
-# Scenario B: If already pushed to remote
-git revert HEAD           # Create revert commit
-git push origin main      # Push the revert
-git tag -d v3.0.1        # Remove local tag
-git push origin :refs/tags/v3.0.1  # Remove remote tag
-# Fix the issue, then retry release
+ng add @inbo/ng-inbo
 ```
 
-#### Publish Fails (Package Built, Tag Exists)
+The current schematic expects `--projectName <project-name>`. Use the project
+name from the workspace's `angular.json`.
+
+The schematic installs the package and adds the library assets to
+`angular.json`. These assets include images and the Flanders fonts.
+
+## Using the INBO theme
+
+Import the theme once in the application's global `styles.scss`:
+
+```scss
+@import '@inbo/ng-inbo/styles/inbo-theme';
+```
+
+Import the variables from any SCSS file that needs them:
+
+```scss
+@import '@inbo/ng-inbo/styles/inbo-theme/partials/variables';
+```
+
+## Installation troubleshooting
+
+### Authentication issues
+
+If npm reports an authentication error:
+
+- confirm that the token is a personal access token (classic);
+- confirm that it has the `read:packages` scope;
+- confirm that the token has not expired;
+- confirm that the token is in the correct user `.npmrc` file;
+- confirm that the registry is `https://npm.pkg.github.com/`.
+
+### Package installation issues
+
+- **Package not found:** check the token and both `.npmrc` lines.
+- **Version conflict:** use the Angular version listed in the requirements.
+- **Peer dependency warning:** compare the application dependencies with the
+  peer dependency ranges in `projects/ng-inbo/package.json`.
+- **Missing images or fonts:** run `ng add @inbo/ng-inbo` and check the
+  application's asset configuration in `angular.json`.
+
+## Local development
+
+The root package is a private tooling workspace. The publishable package is
+defined by `projects/ng-inbo/package.json` and is built into `dist/ng-inbo`.
 
 ```bash
-# If npm publish fails but everything else worked
-cd dist/ng-inbo
-npm publish               # Retry publish
-
-# If publish keeps failing due to network/auth issues
-npm whoami               # Verify you're logged in
-npm config get registry  # Should show GitHub packages URL
-# Fix auth, then retry publish
+npm ci
+npm run lint
+npm run test:headless
+npm run build:lib
+npm run serve:demo
 ```
 
-#### Version Sync Issues
+The demo application imports the library source directly. Local development
+does not install the library from `dist`.
+
+## Temporary release prerequisites
+
+The temporary release process does not need a GitHub App. It uses the
+maintainer's GitHub CLI identity to run Release Please.
+
+Before starting:
+
+1. Install and authenticate GitHub CLI.
+2. Confirm that your account can write to `inbo/inbo-component-library`.
+3. Use the local `main` branch.
+4. Keep the working tree clean.
+
+Check GitHub CLI:
 
 ```bash
-# If root and library versions get out of sync
-npm run sync-versions
-git add package.json
-git commit -m "sync: update root version to match library"
+gh auth status
 ```
 
-#### Wrong Release Type Used
+GitHub Actions uses the existing `NPM_TOKEN` repository secret for package
+publication and dist-tag changes.
+
+## Release model
+
+Release Please remains the version and changelog authority. The maintainer runs
+it locally until the platform team installs the release GitHub App.
+
+Do not change the version manually. Do not run `npm publish` locally. Do not
+delete or overwrite a published package version.
+
+### 1. Prepare the release PR
+
+Run:
 
 ```bash
-# If you used wrong release type (e.g. minor instead of major)
-
-# If NOT yet pushed:
-git reset --hard HEAD~1
-git tag -d v3.1.0
-npm run release:major    # Use correct type
-
-# If already pushed:
-# Create a new release with correct type - don't try to "fix" the wrong one
-npm run release:major    # This will create v4.0.0 (correct major)
+npm run release:prepare
 ```
 
-#### Release Completely Interrupted/Corrupted
+The command:
+
+1. checks GitHub CLI authentication;
+2. checks the repository, branch, and working tree;
+3. fetches and safely fast-forwards `main`;
+4. runs Release Please with your GitHub identity;
+5. opens or updates the release PR.
+
+Release Please updates:
+
+- `projects/ng-inbo/package.json`;
+- `.release-please-manifest.json`;
+- `projects/ng-inbo/CHANGELOG.md`.
+
+Normal pull request CI runs because the PR is created with your identity.
+Review the calculated version and changelog. Merge the PR when it is correct.
+
+Conventional Commit PR titles determine the version:
+
+```text
+fix: handle an empty API response
+feat(table): add row selection
+feat!: remove the legacy table API
+```
+
+Release Please selects the highest required version change:
+
+- `fix:` creates a patch release, for example `3.0.7` to `3.0.8`. Use it for
+  backward-compatible bug fixes.
+- `feat:` creates a minor release, for example `3.0.7` to `3.1.0`. Use it for
+  backward-compatible features, components, methods, or optional inputs.
+- `!` in the PR title creates a major release, for example `3.0.7` to `4.0.0`.
+  Use it when consumers must change their code, such as after removing or
+  renaming a public API or dropping support for an Angular version.
+
+Release Please also recognizes a `BREAKING CHANGE:` footer in a merged commit
+body. Prefer `!` in the PR title so the breaking change is visible and checked
+before the PR is merged.
+
+When a release contains several change types, the highest type wins. A
+breaking change produces a major release even when the release also contains
+features and fixes.
+
+### 2. Create and publish the candidate
+
+After the release PR is merged, return to the local `main` branch and run:
 
 ```bash
-# Nuclear option - reset everything to clean state
-git log --oneline -5     # Note the last good commit before release
-git reset --hard <commit-hash>  # Reset to before release attempt
-git tag -d v3.0.1       # Remove any created tags
-git push origin main --force  # Force push the reset (CAREFUL!)
-git push origin :refs/tags/v3.0.1  # Remove remote tag if it exists
-
-# Start fresh
-npm run release:major
+npm run release:candidate
 ```
 
-#### Emergency: Bad Release Already Published
+The command safely fast-forwards `main`, then:
+
+1. creates the draft GitHub Release with Release Please;
+2. creates and verifies the matching `vX.Y.Z` tag;
+3. verifies that the release, tag, and `main` use the same commit;
+4. dispatches the candidate workflow from the immutable tag.
+
+The GitHub Actions workflow:
+
+1. verifies both version manifests, the tag, and the commit;
+2. verifies that the tagged commit belongs to `main`;
+3. installs dependencies;
+4. validates release metadata;
+5. runs lint and headless tests;
+6. builds and packs the library once;
+7. calculates the tarball checksum;
+8. publishes with `NPM_TOKEN` under a temporary staging tag;
+9. downloads the exact package from GitHub Packages;
+10. verifies the downloaded checksum;
+11. moves `next` to the verified version;
+12. removes temporary staging tags.
+
+Only one candidate may be active. An unverified package never receives `next`.
+
+### 3. Test the exact candidate
+
+Flora and waterbirds install the exact version:
 
 ```bash
-# If a broken package was published to npm
-npm unpublish @inbo/ng-inbo@3.0.1  # Only works within 24hrs
-
-# If unpublish doesn't work, publish a hotfix
-npm run release          # Creates 3.0.2 with fixes
+npm install @inbo/ng-inbo@X.Y.Z
 ```
 
-#### Multiple Features Released Together
+Consumers must not approve the moving `@next` alias. Each approval must name
+the exact version that was tested.
 
-When releasing multiple features together, use the **highest** release type needed:
+### 4. Promote the approved candidate
 
-- If you have both fixes and new features → use `minor`
-- If you have fixes, features, and breaking changes → use `major`
-
-### Quick Reference
-
-#### Release Commands
-
-| Change Type                      | Command                 | When to Use           |
-| -------------------------------- | ----------------------- | --------------------- |
-| Bug fix, docs, small improvement | `npm run release`       | No API changes        |
-| New feature, new component       | `npm run release:minor` | Backward compatible   |
-| Breaking change, Angular upgrade | `npm run release:major` | Requires user changes |
-
-#### Emergency Recovery Commands
-
-| Problem                | Solution                                   |
-| ---------------------- | ------------------------------------------ |
-| Build fails early      | Fix issue, retry release                   |
-| Build fails after bump | `git reset --hard HEAD~1 && git tag -d v*` |
-| Wrong release type     | Reset and use correct command              |
-| Publish fails          | `cd dist/ng-inbo && npm publish`           |
-| Bad release published  | `npm unpublish` (24hr window) or hotfix    |
-| Complete disaster      | `git reset --hard <hash>` + force push     |
-
-#### Pre-flight Checks
-
-Always run these before releasing:
+After both consumers approve the same version, run:
 
 ```bash
-npm run prerelease:dry    # Preview changes
-npm run prerelease:check  # Test build
-git status               # Ensure clean working tree
+npm run release:promote -- X.Y.Z
 ```
+
+The command dispatches the management workflow. The workflow verifies `next`,
+finalizes the draft GitHub Release, and moves `latest` to the same immutable
+package.
+
+Repository write access and deliberate command execution are the temporary
+approval boundary. The platform team will later replace this boundary with a
+protected GitHub Environment.
+
+## Rejecting a candidate
+
+If consumer validation finds a defect, run:
+
+```bash
+npm run release:reject -- X.Y.Z
+```
+
+The workflow removes `next`. It keeps the immutable package and draft release.
+Fix the defect through a normal PR. Release Please will create a new version.
+
+## Rolling back `latest`
+
+To restore a known-good release, run:
+
+```bash
+npm run release:rollback -- X.Y.Z
+```
+
+The workflow verifies the target, marks its GitHub Release as latest, moves the
+package `latest` tag, and clears `next`.
+
+## Failure handling
+
+- Retry a failure that happened before package publication.
+- Keep any version that reached GitHub Packages.
+- Reject a failed candidate.
+- Fix forward with a new version.
+- Never delete tags, releases, or packages to hide a failed attempt.
+
+## Release troubleshooting
+
+### A local release command stops
+
+Run `gh auth status` and `git status`. Release commands require:
+
+- an authenticated GitHub CLI session;
+- the `inbo/inbo-component-library` repository;
+- the local `main` branch;
+- a clean working tree.
+
+The command safely fast-forwards a clean local `main`. It stops if the branch
+cannot be fast-forwarded.
+
+### Package publication fails
+
+The repository `NPM_TOKEN` must be a personal access token (classic) with
+`write:packages`. Check that the token has not expired.
+
+Do not publish the package locally. If the workflow failed before publication,
+fix the secret or workflow problem and retry. If the version reached GitHub
+Packages, keep that immutable version and follow the candidate rejection or
+promotion process.
+
+### Another candidate is active
+
+Only one version can use `next`. Finish testing the active candidate, then
+promote or reject it before creating another candidate.
+
+## Permanent platform setup
+
+The platform team can later add:
+
+- a least-privilege release GitHub App;
+- automatic Release Please execution after pushes to `main`;
+- a protected `release-promotion` Environment;
+- protected `v*` tags;
+- enforced artifact attestations;
+- repository `GITHUB_TOKEN` package writes.
+
+This upgrade changes release preparation and approval. It does not change the
+candidate, consumer test, promotion, rejection, or rollback model.

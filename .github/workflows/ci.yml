@@ -3,24 +3,50 @@ name: Angular CI
 on:
   pull_request:
     branches: [main]
+    types: [opened, reopened, synchronize, edited]
+
+permissions: {}
 
 jobs:
   build_and_test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Set up Node.js
-        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '22.12'
+          cache: npm
+
       - name: Install dependencies
         run: npm ci
 
+      - name: Test release tooling
+        run: npm run test:release
+
+      - name: Validate pull request title
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: npm run check:pr-title
+
+      - name: Validate peer dependency ranges
+        run: npm run check:peer-ranges
+
+      - name: Check formatting
+        run: npm run format:check
+
       - name: Lint
-        run: npx ng lint
+        run: npm run lint
 
       - name: Test
-        run: npx ng test ng-inbo --watch=false --browsers=ChromeHeadlessCI
+        run: npm run test:headless
+
+      - name: Build
+        run: npm run build:lib
