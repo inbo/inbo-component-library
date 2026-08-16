@@ -97,3 +97,13 @@ test('published package metadata links to the source repository', async () => {
     directory: 'projects/ng-inbo',
   });
 });
+
+test('candidate publication uses an explicit local tarball path', async () => {
+  const workflow = await readFile(
+    new URL('../.github/workflows/release.yml', import.meta.url),
+    'utf8'
+  );
+
+  assert.match(workflow, /tarball="\.\/\$\{tarballs\[0\]\}"/);
+  assert.match(workflow, /npm publish "\$tarball" --tag "\$STAGING_TAG"/);
+});
