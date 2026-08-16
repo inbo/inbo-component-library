@@ -267,7 +267,22 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     if (config?.width !== undefined) {
       styles.width = `${config.width}px`;
     }
+    if (config?.widthRems !== undefined) {
+      styles.width = `${config.widthRems}rem`;
+    }
     return styles;
+  }
+
+  getSortablePropertyName(key: keyof Partial<T>): string | null {
+    const config = this.getColumnConfigurationForKey(key);
+    if (config?.sortablePropertyName) {
+      return config.sortablePropertyName;
+    }
+    return config?.sortable ? String(key) : null;
+  }
+
+  isStickyEnd(key: keyof Partial<T>): boolean {
+    return this.getColumnConfigurationForKey(key)?.stickyEnd ?? false;
   }
 
   getFilterType(key: keyof Partial<T>): FilterType | undefined {

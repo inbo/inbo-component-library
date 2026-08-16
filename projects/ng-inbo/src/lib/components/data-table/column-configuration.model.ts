@@ -20,6 +20,9 @@ export interface InboDataTableColumn<T> {
   name: string;
   style?: Partial<CSSStyleDeclaration>;
   width?: number;
+  widthRems?: number;
+  sortable?: boolean;
+  stickyEnd?: boolean;
   getValue?: (propertyValue: T) => string;
   sortablePropertyName?: string;
   filterable?: boolean;

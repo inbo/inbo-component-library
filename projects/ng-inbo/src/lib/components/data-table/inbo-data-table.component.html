@@ -29,7 +29,9 @@
           [matSortDirection]="activeSortConfigurationForTable()?.direction"
           (matSortChange)="dispatchSortChangeEvent($event)">
           @for (displayedColumn of displayedColumns(); track displayedColumn) {
-            <ng-container [matColumnDef]="displayedColumn">
+            <ng-container
+              [matColumnDef]="displayedColumn"
+              [stickyEnd]="isStickyEnd(displayedColumn)">
               <th
                 mat-header-cell
                 *matHeaderCellDef
@@ -39,14 +41,10 @@
                   <span
                     class="column-name"
                     [class.no-filter-border]="!hasAnyFilterableColumn()"
-                    mat-sort-header="{{
-                      getColumnConfigurationForKey(displayedColumn)
-                        ?.sortablePropertyName || null
-                    }}"
-                    [disabled]="
-                      !getColumnConfigurationForKey(displayedColumn)
-                        ?.sortablePropertyName
-                    ">
+                    [mat-sort-header]="
+                      getSortablePropertyName(displayedColumn) ?? ''
+                    "
+                    [disabled]="!getSortablePropertyName(displayedColumn)">
                     {{
                       getColumnConfigurationForKey(displayedColumn)?.name === ''
                         ? '\u200B'
