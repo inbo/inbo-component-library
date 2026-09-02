@@ -1,13 +1,19 @@
-import { Directive, ElementRef, HostListener, output } from '@angular/core';
+import {
+  Directive,
+  ElementRef,
+  HostListener,
+  output,
+  inject,
+} from '@angular/core';
 
 @Directive({
   selector: '[inboPositiveNumbers]',
   standalone: true,
 })
 export class InboPositiveNumbersDirective {
-  readonly ngModelChange = output<string | undefined>();
+  private elementRef = inject<ElementRef<HTMLInputElement>>(ElementRef);
 
-  constructor(private elementRef: ElementRef<HTMLInputElement>) {}
+  readonly ngModelChange = output<string | undefined>();
 
   @HostListener('input')
   handleInputEvent(): void {

@@ -1,3 +1,5 @@
+import { ElementRef } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { fnmock, instance, verify } from '@johanblumenberg/ts-mockito';
 import { InboAutofocusDirective } from '../inbo-autofocus.directive';
 
@@ -9,11 +11,18 @@ describe('InboAutofocusDirective', () => {
   beforeEach(() => {
     focusMethodMock = fnmock();
 
-    directiveUnderTest = new InboAutofocusDirective({
-      nativeElement: {
-        focus: instance(focusMethodMock),
-      },
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: ElementRef,
+          useValue: { nativeElement: { focus: instance(focusMethodMock) } },
+        },
+      ],
     });
+
+    directiveUnderTest = TestBed.runInInjectionContext(
+      () => new InboAutofocusDirective()
+    );
   });
 
   describe('ngOnInit', () => {

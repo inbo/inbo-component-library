@@ -19,10 +19,12 @@ export abstract class FilterableDataListPage<D, F> implements OnInit {
 
   abstract createEmptyFilterObject(): F;
 
+  /* eslint-disable @angular-eslint/prefer-inject -- consumers extend this class and call super() with these arguments; switching to inject() would be a breaking API change */
   protected constructor(
     protected activatedRoute: ActivatedRoute,
     protected router: Router
   ) {}
+  /* eslint-enable @angular-eslint/prefer-inject */
 
   ngOnInit(): void {
     this.getFilterFromQueryParams();

@@ -5,6 +5,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  inject,
 } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { isNil } from 'lodash-es';
@@ -15,12 +16,16 @@ import { debounceTime, Subject, takeUntil } from 'rxjs';
   standalone: true,
 })
 export class InboDebouncedInputChangeDirective<T> implements OnInit, OnDestroy {
+  private ngModel = inject(NgModel);
+
   private destroy = new Subject<void>();
 
   @Input() inboFormChangeDebounceTime = 300;
   @Output() inboDebouncedInputChange = new EventEmitter<T>();
 
-  constructor(private ngModel: NgModel) {
+  constructor() {
+    const ngModel = this.ngModel;
+
     if (isNil(ngModel)) {
       throw new Error('This directive can only be used on an input element');
     }

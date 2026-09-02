@@ -19,13 +19,15 @@
       (optionSelected)="onCountrySelected($any($event))">
     </inbo-autocomplete>
 
-    <div *ngIf="selectedCountry" class="selected-value">
-      <p>
-        Selected country: {{ selectedCountry.name }} ({{
-          selectedCountry.code
-        }})
-      </p>
-    </div>
+    @if (selectedCountry) {
+      <div class="selected-value">
+        <p>
+          Selected country: {{ selectedCountry.name }} ({{
+            selectedCountry.code
+          }})
+        </p>
+      </div>
+    }
   </div>
 
   <div class="example-container">
@@ -45,38 +47,40 @@
       (optionSelected)="onProductSelected($any($event))">
     </inbo-autocomplete>
 
-    <div *ngIf="selectedProduct" class="selected-value">
-      <p>
-        Selected product: {{ selectedProduct.code }} -
-        {{ selectedProduct.name }}
-      </p>
-    </div>
+    @if (selectedProduct) {
+      <div class="selected-value">
+        <p>
+          Selected product: {{ selectedProduct.code }} -
+          {{ selectedProduct.name }}
+        </p>
+      </div>
+    }
   </div>
 
   <div class="usage-container">
     <h2>Usage</h2>
     <pre>
-&lt;inbo-autocomplete
-  label="Label"
-  placeholder="Placeholder"
-  [searchFunction]="searchFunction"
-  displayPattern="{{ '{property1}' }} ({{ '{property2}' }})"
-  [showClearIcon]="true"
-  (onOptionSelected)="onItemSelected($event)"&gt;
-&lt;/inbo-autocomplete&gt;
+      &lt;inbo-autocomplete
+      label="Label"
+      placeholder="Placeholder"
+      [searchFunction]="searchFunction"
+      displayPattern="{{ '{property1}' }} ({{ '{property2}' }})"
+      [showClearIcon]="true"
+      (onOptionSelected)="onItemSelected($event)"&gt;
+      &lt;/inbo-autocomplete&gt;
     </pre>
 
     <h3>With Input Mask</h3>
     <pre>
-&lt;inbo-autocomplete
-  label="Label"
-  placeholder="Placeholder"
-  [searchFunction]="searchFunction"
-  mask="cc-cc-cc"  
-  displayPattern="{{ '{property1}' }} ({{ '{property2}' }})"
-  [showClearIcon]="true"
-  (onOptionSelected)="onItemSelected($event)"&gt;
-&lt;/inbo-autocomplete&gt;
+      &lt;inbo-autocomplete
+      label="Label"
+      placeholder="Placeholder"
+      [searchFunction]="searchFunction"
+      mask="cc-cc-cc"
+      displayPattern="{{ '{property1}' }} ({{ '{property2}' }})"
+      [showClearIcon]="true"
+      (onOptionSelected)="onItemSelected($event)"&gt;
+      &lt;/inbo-autocomplete&gt;
     </pre>
   </div>
 </div>

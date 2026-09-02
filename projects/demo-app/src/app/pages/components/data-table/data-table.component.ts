@@ -5,6 +5,7 @@ import {
   TemplateRef,
   computed,
   viewChild,
+  inject,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -58,6 +59,8 @@ type DemoPageable = ApiPage<DemoItem>['pageable'];
   styleUrls: ['./data-table.component.scss'],
 })
 export class DataTableComponent {
+  private snackBar = inject(MatSnackBar);
+
   statusCellTemplateRef = viewChild<TemplateRef<unknown>>('statusCellTemplate');
 
   private data: Array<DemoItem> = [];
@@ -238,7 +241,7 @@ export class DataTableComponent {
     },
   };
 
-  constructor(private snackBar: MatSnackBar) {
+  constructor() {
     this.generateData();
     this.fetchData();
     this.initializeInstantData();

@@ -5,6 +5,7 @@ import {
   OnDestroy,
   OnInit,
   Output,
+  inject,
 } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { isNil } from 'lodash-es';
@@ -15,12 +16,16 @@ import { debounceTime, Subject, takeUntil } from 'rxjs';
   standalone: true,
 })
 export class InboFormChangeDirective<T> implements OnInit, OnDestroy {
+  private ngForm = inject(NgForm);
+
   private destroy = new Subject<void>();
 
   @Input() inboFormChangeDebounceTime = 300;
   @Output() inboFormChange = new EventEmitter<T>();
 
-  constructor(private ngForm: NgForm) {
+  constructor() {
+    const ngForm = this.ngForm;
+
     if (isNil(ngForm)) {
       throw new Error('This directive can only be used on a form');
     }
