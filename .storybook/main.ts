@@ -5,7 +5,11 @@ const config: StorybookConfig = {
   addons: ['@storybook/addon-docs', '@storybook/addon-a11y'],
   framework: {
     name: '@storybook/angular-vite',
-    options: {},
+    options: {
+      // The builtin run only fires when documentation.json is absent, so edits
+      // to doc comments would never show up. The docs:json script owns it.
+      compodoc: false,
+    },
   },
   // Mirrors the demo-app asset mapping so the Flanders @font-face urls resolve.
   staticDirs: [{ from: '../projects/ng-inbo/assets', to: '/assets' }],
