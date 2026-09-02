@@ -8,6 +8,8 @@ export * from './lib/components/header/inbo-header.component';
 // Datatable
 export * from './lib/components/data-table/column-configuration.model';
 export * from './lib/components/data-table/inbo-data-table.component';
+export * from './lib/components/data-table/inbo-table-actions.directive';
+export * from './lib/components/data-table/inbo-table-cell.directive';
 // Key value
 export * from './lib/components/key-value/inbo-key-value.component';
 // Loading spinner
