@@ -38,6 +38,9 @@ testem.log
 /typings
 /docs/plans/
 
+# Storybook
+/storybook-static
+
 # System files
 .DS_Store
 Thumbs.db
