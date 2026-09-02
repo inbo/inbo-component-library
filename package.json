@@ -16,6 +16,9 @@
     "ng": "ng",
     "start": "ng serve",
     "serve:demo": "ng serve demo-app --port 4201",
+    "docs:json": "compodoc -p .storybook/tsconfig.json -e json -d . --disablePrivate --disableProtected --disableInternal --disableLifeCycleHooks",
+    "storybook": "npm run docs:json && storybook dev -p 6006",
+    "build-storybook": "npm run docs:json && storybook build",
     "build": "npm run build:lib",
     "build:lib": "ng build ng-inbo && npm run build-schematics",
     "build:demo": "ng build demo-app",
@@ -56,13 +59,18 @@
     "proj4": "2.19.10",
     "rxjs": "7.8.1",
     "tslib": "2.4.1",
-    "zone.js": "0.15.0"
+    "zone.js": "0.16.2"
   },
   "devDependencies": {
+    "@analogjs/vite-plugin-angular": "2.7.1",
     "@angular-devkit/build-angular": "21.2.22",
     "@angular/cli": "21.2.22",
     "@angular/compiler-cli": "21.2.22",
+    "@compodoc/compodoc": "2.0.0",
     "@johanblumenberg/ts-mockito": "1.0.43",
+    "@storybook/addon-a11y": "10.5.10",
+    "@storybook/addon-docs": "10.5.10",
+    "@storybook/angular-vite": "10.5.10",
     "@types/jasmine": "4.0.0",
     "angular-eslint": "21.2.0",
     "core-js": "3.37.0",
@@ -79,7 +87,9 @@
     "ng-packagr": "21.2.7",
     "prettier": "3.5.3",
     "release-please": "17.11.1",
+    "storybook": "10.5.10",
     "typescript": "5.9.3",
-    "typescript-eslint": "8.54.0"
+    "typescript-eslint": "8.54.0",
+    "vite": "8.2.2"
   }
 }

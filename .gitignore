@@ -38,6 +38,10 @@ testem.log
 /typings
 /docs/plans/
 
+# Storybook
+/storybook-static
+/documentation.json
+
 # System files
 .DS_Store
 Thumbs.db

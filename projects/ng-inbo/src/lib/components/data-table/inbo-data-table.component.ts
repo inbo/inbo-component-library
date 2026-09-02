@@ -59,6 +59,19 @@ interface InboDataTableDisplayColumnViewModel<T extends InboDatatableItem> {
   stickyEnd: boolean;
 }
 
+/**
+ * Paged table with per-column sorting and filtering, built on Angular Material.
+ *
+ * Columns come from `columnConfiguration` rather than template markup, so a
+ * consumer describes the table as data. It works in two modes: by default it
+ * renders whatever page it is handed and reports user intent through
+ * `pageChange`, `sortChanged` and `filterChanged` for the parent to act on,
+ * while `clientSideProcessing` makes it sort, filter and paginate the supplied
+ * rows itself.
+ *
+ * The row action columns are opt-in: each appears only when its output is
+ * subscribed to.
+ */
 @Component({
   selector: 'inbo-data-table',
   templateUrl: 'inbo-data-table.component.html',
@@ -89,59 +102,113 @@ export class InboDataTableComponent<T extends InboDatatableItem>
   private renderer = inject(Renderer2);
   private zone = inject(NgZone);
 
-  @ViewChild(MatTable, { static: false }) tableRef: MatTable<T>;
+  @ViewChild(MatTable, { static: false }) protected tableRef: MatTable<T>;
   @ViewChild(MatTable, { static: false, read: ElementRef })
-  tableElementRef: ElementRef<HTMLTableElement>;
+  protected tableElementRef: ElementRef<HTMLTableElement>;
   @ViewChild(MatPaginator, { static: false, read: ElementRef })
-  paginatorElementRef: ElementRef<HTMLElement>;
+  protected paginatorElementRef: ElementRef<HTMLElement>;
 
-  readonly RequestState = RequestState;
-  readonly DETAIL_COLUMN = 'detailColumn';
-  readonly EDIT_COLUMN = 'editColumn';
-  readonly DELETE_COLUMN = 'deleteColumn';
+  protected readonly RequestState = RequestState;
+  protected readonly DETAIL_COLUMN = 'detailColumn';
+  protected readonly EDIT_COLUMN = 'editColumn';
+  protected readonly DELETE_COLUMN = 'deleteColumn';
 
+  /**
+   * The page of rows to render, along with the paging metadata the paginator
+   * needs. In server-side mode the `pageable` totals drive the paginator; in
+   * client-side mode only `content` is used.
+   */
   dataPage: InputSignal<ApiPage<T>> = input.required<ApiPage<T>>();
+  /**
+   * Drives what the table shows instead of rows: a spinner while `PENDING`, a
+   * placeholder for `EMPTY`, and a message for `ERROR`.
+   */
   dataRequestState: InputSignal<RequestState> = input.required<RequestState>();
+  /**
+   * Maps properties of `T` to the columns to render. Only the properties
+   * present here become columns, in the order they are declared, and each
+   * entry controls that column's header, sorting, filtering and cell rendering.
+   */
   columnConfiguration: InputSignal<InboDataTableColumnConfiguration<T>> =
     input.required<InboDataTableColumnConfiguration<T>>();
+  /** CSS height applied to every body row. */
   rowHeight: InputSignal<string> = input('48px');
+  /**
+   * The sort to apply. In server-side mode this is the active sort and the
+   * parent is expected to keep it in sync with `sortChanged`; in client-side
+   * mode it only seeds the initial sort, which the table then owns.
+   */
   sort: InputSignal<Sort | undefined> = input<Sort | undefined>(undefined);
+  /**
+   * Sort, filter and paginate within the component over `dataPage.content`
+   * rather than delegating to the parent. When enabled, `pageChange` and
+   * `sortChanged` no longer emit because the table handles both itself.
+   */
   clientSideProcessing: InputSignal<boolean> = input(false);
+  /** Rows per page while `clientSideProcessing` is enabled. Defaults to 5. */
   clientPageSize: InputSignal<number | undefined> = input(undefined);
 
+  /**
+   * The user moved to another page or changed the page size. Not emitted while
+   * `clientSideProcessing` is enabled.
+   */
   @Output() pageChange = new EventEmitter<PageEvent>();
+  /**
+   * The user pressed the edit action on a row. Subscribing to this is what
+   * makes the edit column appear.
+   */
   @Output() editItem = new EventEmitter<T>();
+  /**
+   * The user pressed the delete action on a row. Subscribing to this is what
+   * makes the delete column appear.
+   */
   @Output() deleteItem = new EventEmitter<T>();
+  /**
+   * The user pressed the detail action on a row. Subscribing to this is what
+   * makes the detail column appear.
+   */
   @Output() clickItem = new EventEmitter<T>();
+  /**
+   * The user changed the sort column or direction. Not emitted while
+   * `clientSideProcessing` is enabled.
+   */
   @Output() sortChanged = new EventEmitter<Sort>();
+  /**
+   * The active filter values, keyed by column, for columns configured with
+   * `FilterMode.Remote` only. Values are stringified so they can be passed
+   * straight to a query. Columns using `FilterMode.Local` are applied in the
+   * component and never reported here.
+   */
   @Output() filterChanged = new EventEmitter<Record<string, string>>();
 
-  filterValues: WritableSignal<Record<string, unknown>> = signal({});
-  temporaryFilterValues: WritableSignal<Record<string, unknown>> = signal({});
+  protected filterValues: WritableSignal<Record<string, unknown>> = signal({});
+  protected temporaryFilterValues: WritableSignal<Record<string, unknown>> =
+    signal({});
 
   private internalClientSort: WritableSignal<Sort | undefined> =
     signal(undefined);
   private currentPageIndexForLocalFiltering: WritableSignal<number> = signal(0);
 
   private debouncedApplyFilters = new Subject<string>();
-  autocompleteOptionStreams: WritableSignal<
+  protected autocompleteOptionStreams: WritableSignal<
     Record<string, Observable<Array<unknown>>>
   > = signal({});
 
-  readonly DEFAULT_CLIENT_PAGE_SIZE = 5;
+  protected readonly DEFAULT_CLIENT_PAGE_SIZE = 5;
 
-  effectivePageSizeForDisplay: Signal<number> = computed(() => {
+  protected effectivePageSizeForDisplay: Signal<number> = computed(() => {
     if (this.clientSideProcessing()) {
       return this.clientPageSize() ?? this.DEFAULT_CLIENT_PAGE_SIZE;
     }
     return this.dataPage()?.pageable.pageSize ?? this.DEFAULT_CLIENT_PAGE_SIZE;
   });
 
-  activeSortConfigurationForTable: Signal<Sort | undefined> = computed(() => {
-    return this.clientSideProcessing()
-      ? this.internalClientSort()
-      : this.sort();
-  });
+  protected activeSortConfigurationForTable: Signal<Sort | undefined> =
+    computed(() => {
+      return this.clientSideProcessing()
+        ? this.internalClientSort()
+        : this.sort();
+    });
 
   private processedDataMasterList: Signal<Array<T>> = computed(() => {
     const pageContent = this.dataPage()?.content ?? [];
@@ -165,7 +232,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     return dataToProcess;
   });
 
-  dataForRender: Signal<Array<T>> = computed(() => {
+  protected dataForRender: Signal<Array<T>> = computed(() => {
     if (this.clientSideProcessing()) {
       const fullList = this.processedDataMasterList();
       const pageSize = this.effectivePageSizeForDisplay();
@@ -177,7 +244,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     }
   });
 
-  paginatorLength: Signal<number> = computed(() => {
+  protected paginatorLength: Signal<number> = computed(() => {
     if (this.clientSideProcessing()) {
       return this.processedDataMasterList().length;
     } else {
@@ -188,7 +255,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     }
   });
 
-  paginatorPageIndex: Signal<number> = computed(() => {
+  protected paginatorPageIndex: Signal<number> = computed(() => {
     if (this.clientSideProcessing()) {
       return this.currentPageIndexForLocalFiltering();
     } else {
@@ -199,7 +266,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     }
   });
 
-  isAnyLocalFilterActive: Signal<boolean> = computed(() => {
+  protected isAnyLocalFilterActive: Signal<boolean> = computed(() => {
     const filters = this.filterValues();
     const colConfig = this.columnConfiguration();
     if (!filters || !colConfig) {
@@ -245,11 +312,11 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     });
   }
 
-  displayedColumns: Signal<Array<keyof T & string>> = computed(() => {
+  protected displayedColumns: Signal<Array<keyof T & string>> = computed(() => {
     return this.displayColumnViewModels().map(column => column.key);
   });
 
-  displayColumnViewModels: Signal<
+  protected displayColumnViewModels: Signal<
     Array<InboDataTableDisplayColumnViewModel<T>>
   > = computed(() => {
     const config = this.columnConfiguration();
@@ -292,12 +359,12 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     });
   });
 
-  hasAnyFilterableColumn: Signal<boolean> = computed(() => {
+  protected hasAnyFilterableColumn: Signal<boolean> = computed(() => {
     const config = this.columnConfiguration();
     return !!config && Object.values(config).some(col => col?.filterable);
   });
 
-  allDisplayedColumns: Signal<Array<string>> = computed(() => {
+  protected allDisplayedColumns: Signal<Array<string>> = computed(() => {
     const configColumns = this.displayedColumns();
 
     const actionColumns: Array<string> = [];
@@ -313,18 +380,20 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     return [...configColumns, ...actionColumns];
   });
 
-  getColumnStyles(key: keyof Partial<T>): Partial<CSSStyleDeclaration> {
+  protected getColumnStyles(
+    key: keyof Partial<T>
+  ): Partial<CSSStyleDeclaration> {
     return (
       this.displayColumnViewModels().find(column => column.key === key)
         ?.styles ?? {}
     );
   }
 
-  getFilterType(key: keyof Partial<T>): FilterType | undefined {
+  protected getFilterType(key: keyof Partial<T>): FilterType | undefined {
     return this.getColumnConfigurationForKey(key)?.filterType;
   }
 
-  getFilterDisplayPattern(
+  protected getFilterDisplayPattern(
     key: keyof Partial<T>
   ): ((option: unknown) => string) | undefined {
     const config = this.getColumnConfigurationForKey(key);
@@ -334,41 +403,41 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     return undefined;
   }
 
-  getFilterSearchFunction(
+  protected getFilterSearchFunction(
     key: keyof Partial<T>
   ): ((query: string) => Observable<Array<unknown>>) | undefined {
     return this.getColumnConfigurationForKey(key)?.filterSearchFunction;
   }
 
-  getFilterPlaceholder(key: keyof Partial<T>): string | undefined {
+  protected getFilterPlaceholder(key: keyof Partial<T>): string | undefined {
     return this.getColumnConfigurationForKey(key)?.filterPlaceholder;
   }
 
-  getBooleanFilterTrueLabel(key: keyof Partial<T>): string {
+  protected getBooleanFilterTrueLabel(key: keyof Partial<T>): string {
     return (
       this.getColumnConfigurationForKey(key)?.booleanFilterTrueLabel ?? 'Yes'
     );
   }
 
-  getBooleanFilterFalseLabel(key: keyof Partial<T>): string {
+  protected getBooleanFilterFalseLabel(key: keyof Partial<T>): string {
     return (
       this.getColumnConfigurationForKey(key)?.booleanFilterFalseLabel ?? 'No'
     );
   }
 
-  getBooleanFilterBothLabel(key: keyof Partial<T>): string {
+  protected getBooleanFilterBothLabel(key: keyof Partial<T>): string {
     return (
       this.getColumnConfigurationForKey(key)?.booleanFilterBothLabel ?? 'Both'
     );
   }
 
-  getColumnConfigurationForKey(
+  protected getColumnConfigurationForKey(
     key: keyof Partial<T>
   ): InboDataTableColumn<T[keyof T]> | undefined {
     return this.columnConfiguration()[key];
   }
 
-  onAutocompleteFocus(columnKey: string): void {
+  protected onAutocompleteFocus(columnKey: string): void {
     const searchFn = this.getFilterSearchFunction(columnKey as keyof T);
     if (searchFn) {
       const currentVal = this.temporaryFilterValues()[columnKey];
@@ -390,7 +459,10 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     }
   }
 
-  onAutocompleteInputTextChanged(columnKey: string, event: Event): void {
+  protected onAutocompleteInputTextChanged(
+    columnKey: string,
+    event: Event
+  ): void {
     const value = (event.target as HTMLInputElement)?.value;
     const searchFn = this.getFilterSearchFunction(columnKey as keyof T);
 
@@ -417,7 +489,10 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     }
   }
 
-  getOptionDisplayText(columnKey: keyof Partial<T>, option: unknown): string {
+  protected getOptionDisplayText(
+    columnKey: keyof Partial<T>,
+    option: unknown
+  ): string {
     const displayFn = this.getFilterDisplayPattern(columnKey);
     if (displayFn) {
       return displayFn(option);
@@ -425,7 +500,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     return option ? String(option) : '';
   }
 
-  onEditItemClick(event: MouseEvent, dataItem: T): void {
+  protected onEditItemClick(event: MouseEvent, dataItem: T): void {
     if (dataItem.isEditButtonDisabled) {
       event.stopImmediatePropagation();
       event.preventDefault();
@@ -434,7 +509,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     this.editItem.emit(dataItem);
   }
 
-  onDeleteItemClick(event: MouseEvent, dataItem: T): void {
+  protected onDeleteItemClick(event: MouseEvent, dataItem: T): void {
     if (dataItem.isDeleteButtonDisabled) {
       event.stopImmediatePropagation();
       event.preventDefault();
@@ -443,7 +518,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     this.deleteItem.emit(dataItem);
   }
 
-  onViewItemClick(event: MouseEvent, dataItem: T): void {
+  protected onViewItemClick(event: MouseEvent, dataItem: T): void {
     if (dataItem.isViewButtonDisabled) {
       event.stopImmediatePropagation();
       event.preventDefault();
@@ -452,7 +527,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     this.clickItem.emit(dataItem);
   }
 
-  updateTemporaryFilter(columnKey: string, value: unknown): void {
+  protected updateTemporaryFilter(columnKey: string, value: unknown): void {
     this.temporaryFilterValues.update(current => ({
       ...current,
       [columnKey]: value,
@@ -466,7 +541,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     }
   }
 
-  applyFilter(columnKey: string): void {
+  protected applyFilter(columnKey: string): void {
     let temporaryValue = this.temporaryFilterValues()[columnKey];
 
     if (temporaryValue === '' || temporaryValue === null) {
@@ -492,7 +567,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     }
   }
 
-  clearFilter(columnKey: string): void {
+  protected clearFilter(columnKey: string): void {
     const config = this.getColumnConfigurationForKey(columnKey as keyof T);
     const clearValue: null | undefined =
       config?.filterType === FilterType.Boolean ? null : undefined;
@@ -728,7 +803,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     }
   }
 
-  handlePageEvent(event: PageEvent): void {
+  protected handlePageEvent(event: PageEvent): void {
     if (this.clientSideProcessing()) {
       this.currentPageIndexForLocalFiltering.set(event.pageIndex);
     } else {
@@ -736,7 +811,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     }
   }
 
-  dispatchSortChangeEvent(sortEvent: Sort): void {
+  protected dispatchSortChangeEvent(sortEvent: Sort): void {
     if (this.clientSideProcessing()) {
       this.internalClientSort.set(sortEvent);
       this.currentPageIndexForLocalFiltering.set(0);

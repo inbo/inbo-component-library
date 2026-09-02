@@ -53,27 +53,38 @@ describe('InboDataTableComponent column options', () => {
     fixture.detectChanges();
   }
 
+  // Both members serve the component's own template, so they are protected.
+  // These tests assert on them deliberately rather than through the rendered
+  // DOM, which is why they reach past the modifier.
+  function columnViewModels() {
+    return component['displayColumnViewModels']();
+  }
+
+  function columnStyles(key: keyof TestRow) {
+    return component['getColumnStyles'](key);
+  }
+
   it('uses sortablePropertyName before sortable column name', () => {
     setColumns({
       id: { name: 'ID', sortable: true, sortablePropertyName: 'customId' },
     });
 
-    expect(component.displayColumnViewModels()[0]?.sortId).toBe('customId');
+    expect(columnViewModels()[0]?.sortId).toBe('customId');
   });
 
   it('uses the column key when sortable is true', () => {
     setColumns({ id: { name: 'ID', sortable: true } });
 
-    expect(component.displayColumnViewModels()[0]?.sortId).toBe('id');
+    expect(columnViewModels()[0]?.sortId).toBe('id');
   });
 
   it('disables sorting when no sort option is configured', () => {
     setColumns({ id: { name: 'ID' } });
 
-    expect(component.displayColumnViewModels()[0]?.sortId).toBeNull();
+    expect(columnViewModels()[0]?.sortId).toBeNull();
   });
 
-  it('keeps public getColumnStyles rem width precedence', () => {
+  it('keeps getColumnStyles rem width precedence', () => {
     setColumns({
       id: {
         name: 'ID',
@@ -83,7 +94,7 @@ describe('InboDataTableComponent column options', () => {
       },
     });
 
-    expect(component.getColumnStyles('id').width).toBe('8rem');
+    expect(columnStyles('id').width).toBe('8rem');
   });
 
   it('sets stickyEnd on computed view models', () => {
@@ -92,7 +103,7 @@ describe('InboDataTableComponent column options', () => {
       id: { name: 'ID', stickyEnd: true },
     });
 
-    expect(component.displayColumnViewModels()).toEqual([
+    expect(columnViewModels()).toEqual([
       jasmine.objectContaining({
         key: 'name',
         stickyEnd: false,
@@ -111,7 +122,7 @@ describe('InboDataTableComponent column options', () => {
 
     expect(() => setColumns(columns)).not.toThrow();
 
-    expect(component.displayColumnViewModels()).toEqual([
+    expect(columnViewModels()).toEqual([
       jasmine.objectContaining({
         key: 'id',
         isConfigured: false,

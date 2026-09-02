@@ -4,6 +4,9 @@
   "compilerOptions": {
     "outDir": "../../out-tsc/lib",
     "declaration": true,
+    // Keep the published build hermetic: without this, every @types/* package in
+    // node_modules is pulled in, so a devDependency like @types/mdx can break it.
+    "types": [],
     "noUnusedLocals": false,
     "target": "es2015",
     "module": "esnext",
