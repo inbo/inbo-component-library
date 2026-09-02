@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for
 commit guidelines.
 
+## [4.0.0](https://github.com/inbo/inbo-component-library/compare/v3.1.0...v4.0.0) (2026-09-02)
+
+
+### ⚠ BREAKING CHANGES
+
+* Angular 20 is no longer supported. Consumers must be on Angular 21.
+
+### Features
+
+* **data-table:** add slots and density for VIS-style overviews ([3a00f1f](https://github.com/inbo/inbo-component-library/commit/3a00f1fe160c122284b903fd8a52f8ad1c1b9752))
+* **data-table:** add slots and density for VIS-style overviews ([130efe1](https://github.com/inbo/inbo-component-library/commit/130efe14e31cd73449ae001d10a514f74636034a))
+* upgrade to Angular 21 ([cc552ab](https://github.com/inbo/inbo-component-library/commit/cc552ab7810f16ab247cea1b79dfbb1641f0efc3))
+
+
+### Bug Fixes
+
+* **data-table:** name the row action buttons for screen readers ([dd82e13](https://github.com/inbo/inbo-component-library/commit/dd82e139ff964ff027802b89c642c19ad9695f63))
+
 ## [3.1.0](https://github.com/inbo/inbo-component-library/compare/v3.0.10...v3.1.0) (2026-08-16)
 
 
