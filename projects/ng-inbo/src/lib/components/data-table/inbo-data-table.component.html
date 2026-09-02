@@ -312,7 +312,8 @@
                   class="action-button"
                   [disabled]="dataItem.isEditButtonDisabled"
                   (click)="onEditItemClick($event, dataItem)"
-                  [class.disabled-button]="dataItem.isEditButtonDisabled">
+                  [class.disabled-button]="dataItem.isEditButtonDisabled"
+                  aria-label="Aanpassen">
                   <mat-icon class="material-icons-sharp" title="Aanpassen"
                     >edit_square</mat-icon
                   >
@@ -329,7 +330,8 @@
                   class="action-button"
                   [disabled]="dataItem.isDeleteButtonDisabled"
                   (click)="onDeleteItemClick($event, dataItem)"
-                  [class.disabled-button]="dataItem.isDeleteButtonDisabled">
+                  [class.disabled-button]="dataItem.isDeleteButtonDisabled"
+                  aria-label="Verwijderen">
                   <mat-icon class="material-icons-sharp" title="Verwijderen"
                     >delete</mat-icon
                   >
@@ -346,7 +348,8 @@
                   class="action-button"
                   [disabled]="dataItem.isViewButtonDisabled"
                   (click)="onViewItemClick($event, dataItem)"
-                  [class.disabled-button]="dataItem.isViewButtonDisabled">
+                  [class.disabled-button]="dataItem.isViewButtonDisabled"
+                  aria-label="Bekijk details">
                   <mat-icon class="material-icons-sharp" title="Bekijk details"
                     >visibility</mat-icon
                   >
