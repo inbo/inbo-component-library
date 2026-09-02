@@ -15,9 +15,6 @@
     "target": "es6",
     "types": ["jasmine", "node"]
   },
-  "include": [
-    "src/**/*.ts", // All TypeScript files in the src directory
-    "schematics/**/*.ts"
-  ],
+  "include": ["schematics/**/*.ts"],
   "exclude": ["schematics/*/files/**/*"]
 }

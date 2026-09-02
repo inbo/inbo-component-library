@@ -16,6 +16,7 @@ import {
   Signal,
   ViewChild,
   WritableSignal,
+  inject,
 } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -85,6 +86,9 @@ interface InboDataTableDisplayColumnViewModel<T extends InboDatatableItem> {
 export class InboDataTableComponent<T extends InboDatatableItem>
   implements AfterViewChecked
 {
+  private renderer = inject(Renderer2);
+  private zone = inject(NgZone);
+
   @ViewChild(MatTable, { static: false }) tableRef: MatTable<T>;
   @ViewChild(MatTable, { static: false, read: ElementRef })
   tableElementRef: ElementRef<HTMLTableElement>;
@@ -215,10 +219,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     });
   });
 
-  constructor(
-    private renderer: Renderer2,
-    private zone: NgZone
-  ) {
+  constructor() {
     effect(() => {
       if (this.clientSideProcessing()) {
         this.internalClientSort.set(this.sort());

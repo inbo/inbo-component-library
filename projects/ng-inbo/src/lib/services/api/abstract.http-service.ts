@@ -8,10 +8,12 @@ import { HttpRequestOptions } from './http-request-options.model';
   providedIn: 'root',
 })
 export abstract class AbstractHttpService {
+  /* eslint-disable @angular-eslint/prefer-inject -- consumers extend this class and call super() with these arguments; switching to inject() would be a breaking API change */
   constructor(
     @Inject(API_URL) private apiUrl: string,
     protected http: HttpClient
   ) {}
+  /* eslint-enable @angular-eslint/prefer-inject */
 
   protected abstract basePath: string;
 

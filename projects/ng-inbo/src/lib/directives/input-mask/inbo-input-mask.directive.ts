@@ -4,6 +4,7 @@ import {
   HostListener,
   Input,
   OnInit,
+  inject,
 } from '@angular/core';
 import { NgControl } from '@angular/forms';
 
@@ -12,14 +13,12 @@ import { NgControl } from '@angular/forms';
   standalone: true,
 })
 export class InboInputMaskDirective implements OnInit {
+  private elementRef = inject<ElementRef<HTMLInputElement>>(ElementRef);
+  private ngControl = inject(NgControl);
+
   @Input() inboInputMask: string;
 
   private previousValue = '';
-
-  constructor(
-    private elementRef: ElementRef<HTMLInputElement>,
-    private ngControl: NgControl
-  ) {}
 
   ngOnInit(): void {
     if (this.ngControl.value) {

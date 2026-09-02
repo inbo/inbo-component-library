@@ -4,6 +4,7 @@ import {
   input,
   output,
   ViewEncapsulation,
+  inject,
 } from '@angular/core';
 import {
   ControlValueAccessor,
@@ -57,6 +58,8 @@ export class InboAutocompleteComponent<
   T extends Partial<Record<string, unknown>>,
 > implements ControlValueAccessor
 {
+  changeDetectorRef = inject(ChangeDetectorRef);
+
   readonly RequestState = RequestState;
 
   readonly optionSelected = output<T>();
@@ -83,8 +86,6 @@ export class InboAutocompleteComponent<
   errorStateMatcher = new CustomErrorStateMatcher(() =>
     this.showErrorMessage()
   );
-
-  constructor(public changeDetectorRef: ChangeDetectorRef) {}
 
   private _value: T;
 

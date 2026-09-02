@@ -32,7 +32,7 @@ describe('InboInputMaskDirective', () => {
   });
 
   it('should create an instance', () => {
-    const directive = new InboInputMaskDirective(inputEl, null!);
+    const directive = inputEl.injector.get(InboInputMaskDirective);
     expect(directive).toBeTruthy();
   });
 
