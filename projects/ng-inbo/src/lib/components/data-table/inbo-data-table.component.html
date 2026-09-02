@@ -1,3 +1,8 @@
+<div
+  class="table-filter-toolbar"
+  [class.compact-toolbar]="density() === 'compact'">
+  <ng-content select="[inboTableFilter]" />
+</div>
 @switch (dataRequestState()) {
   @case (RequestState.PENDING) {
     <div class="info-message-container">
@@ -39,7 +44,13 @@
                 mat-header-cell
                 *matHeaderCellDef
                 [ngStyle]="displayedColumn.styles"
-                class="data-table-header-cell">
+                class="data-table-header-cell"
+                [class.compact-header]="
+                  density() === 'compact' && !hasAnyFilterableColumn()
+                "
+                [class.compact-filters]="
+                  density() === 'compact' && hasAnyFilterableColumn()
+                ">
                 <div class="header-content">
                   <span
                     class="column-name"
@@ -283,7 +294,11 @@
                 mat-cell
                 *matCellDef="let dataItem"
                 [ngStyle]="displayedColumn.styles">
-                @if (displayedColumn.column.cellTemplate) {
+                @if (displayedColumn.projectedCellTemplate; as cellTpl) {
+                  <ng-container
+                    [ngTemplateOutlet]="cellTpl"
+                    [ngTemplateOutletContext]="{ $implicit: dataItem }" />
+                } @else if (displayedColumn.column.cellTemplate) {
                   <ng-container
                     [ngTemplateOutlet]="displayedColumn.column.cellTemplate"
                     [ngTemplateOutletContext]="{
@@ -357,6 +372,19 @@
               </td>
             </ng-container>
           }
+          @if (actionsTemplate(); as actionsTpl) {
+            <ng-container [matColumnDef]="ACTIONS_COLUMN" stickyEnd>
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td
+                mat-cell
+                *matCellDef="let dataItem"
+                (click)="$event.stopPropagation()">
+                <ng-container
+                  [ngTemplateOutlet]="actionsTpl"
+                  [ngTemplateOutletContext]="{ $implicit: dataItem }" />
+              </td>
+            </ng-container>
+          }
 
           <thead>
             <tr mat-header-row *matHeaderRowDef="allDisplayedColumns()"></tr>
@@ -366,7 +394,7 @@
               mat-row
               *matRowDef="let row; columns: allDisplayedColumns()"
               [style.height]="rowHeight()"
-              (click)="clickItem.emit(row)"></tr>
+              (click)="onRowClick(row)"></tr>
           </tbody>
 
           <!-- Row shown when there is no data. -->
@@ -384,7 +412,8 @@
         </table>
 
         <mat-paginator
-          [hidePageSize]="true"
+          [hidePageSize]="hidePageSize()"
+          [pageSizeOptions]="pageSizeOptions()"
           [pageIndex]="paginatorPageIndex()"
           [pageSize]="effectivePageSizeForDisplay()"
           [showFirstLastButtons]="true"

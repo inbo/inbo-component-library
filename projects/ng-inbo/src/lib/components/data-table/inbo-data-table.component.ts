@@ -17,6 +17,11 @@ import {
   ViewChild,
   WritableSignal,
   inject,
+  model,
+  linkedSignal,
+  contentChild,
+  contentChildren,
+  TemplateRef,
 } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -43,12 +48,16 @@ import {
   InboDataTableColumn,
   InboDataTableColumnConfiguration,
 } from './column-configuration.model';
+import { InboTableActionsDirective } from './inbo-table-actions.directive';
+import { InboTableCellDirective } from './inbo-table-cell.directive';
 
 export interface InboDatatableItem {
   isViewButtonDisabled?: boolean;
   isDeleteButtonDisabled?: boolean;
   isEditButtonDisabled?: boolean;
 }
+
+export type InboDataTableDensity = 'comfortable' | 'compact';
 
 interface InboDataTableDisplayColumnViewModel<T extends InboDatatableItem> {
   key: keyof T & string;
@@ -57,6 +66,7 @@ interface InboDataTableDisplayColumnViewModel<T extends InboDatatableItem> {
   styles: Partial<CSSStyleDeclaration>;
   sortId: string | null;
   stickyEnd: boolean;
+  projectedCellTemplate?: TemplateRef<{ $implicit: T }>;
 }
 
 /**
@@ -70,7 +80,25 @@ interface InboDataTableDisplayColumnViewModel<T extends InboDatatableItem> {
  * rows itself.
  *
  * The row action columns are opt-in: each appears only when its output is
- * subscribed to.
+ * subscribed to. Row clicks emit `clickItem` unless `rowClickable` is false.
+ * Bind `[(filterValues)]` to restore header filters from a URL. The page-size
+ * selector stays hidden unless `hidePageSize` is false.
+ *
+ * Project a filter bar with `[inboTableFilter]` — the Flora / VIS pattern of
+ * controls above the grid, not in column headers. Column `filterable` stays
+ * available for Waterbirds-style header filters.
+ *
+ * Project a per-row actions column with `<ng-template inboTableActions let-row>`.
+ * Import `InboTableActionsDirective` next to the table (standalone has no
+ * `exports`). The library renders a sticky-end column; the app owns the menu
+ * (VIS kebab, links, role checks). The edit / delete / eye columns stay
+ * opt-in via their outputs for Flora and Waterbirds.
+ *
+ * Project a named cell with `<ng-template inboTableCell="name" let-row>` —
+ * VIS in-grid links, pills, and composite cells. Import
+ * `InboTableCellDirective` next to the table. `columnConfiguration.cellTemplate`
+ * stays for Waterbirds. Set `density="compact"` for VIS-tight chrome;
+ * Flora and Waterbirds keep `'comfortable'`.
  */
 @Component({
   selector: 'inbo-data-table',
@@ -78,6 +106,9 @@ interface InboDataTableDisplayColumnViewModel<T extends InboDatatableItem> {
   styleUrls: ['inbo-data-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
+  host: {
+    '[class.inbo-table-density-compact]': 'density() === "compact"',
+  },
   imports: [
     MatProgressSpinnerModule,
     MatPaginatorModule,
@@ -94,6 +125,8 @@ interface InboDataTableDisplayColumnViewModel<T extends InboDatatableItem> {
     MatAutocompleteModule,
     NgTemplateOutlet,
     AsyncPipe,
+    InboTableActionsDirective,
+    InboTableCellDirective,
   ],
 })
 export class InboDataTableComponent<T extends InboDatatableItem>
@@ -112,6 +145,12 @@ export class InboDataTableComponent<T extends InboDatatableItem>
   protected readonly DETAIL_COLUMN = 'detailColumn';
   protected readonly EDIT_COLUMN = 'editColumn';
   protected readonly DELETE_COLUMN = 'deleteColumn';
+  protected readonly ACTIONS_COLUMN = 'actionsColumn';
+
+  protected readonly actionsTemplate = contentChild(InboTableActionsDirective, {
+    read: TemplateRef,
+  });
+  protected readonly projectedCells = contentChildren(InboTableCellDirective);
 
   /**
    * The page of rows to render, along with the paging metadata the paginator
@@ -147,6 +186,35 @@ export class InboDataTableComponent<T extends InboDatatableItem>
   clientSideProcessing: InputSignal<boolean> = input(false);
   /** Rows per page while `clientSideProcessing` is enabled. Defaults to 5. */
   clientPageSize: InputSignal<number | undefined> = input(undefined);
+  /**
+   * The active filter values, keyed by column. Bind two-way (`[(filterValues)]`)
+   * so a parent can restore filters from a URL and keep them in sync as the
+   * user edits. Parent writes update the header inputs without emitting
+   * `filterChanged`; user apply/clear still emit that output for remote
+   * filters, unchanged.
+   */
+  filterValues = model<Record<string, unknown>>({});
+  /**
+   * When true (the default), the paginator hides its page-size selector so
+   * Flora and Waterbirds keep their current layout. VIS sets this to false
+   * and passes `pageSizeOptions`.
+   */
+  hidePageSize = input(true);
+  /** Options shown in the paginator's page-size selector. */
+  pageSizeOptions = input<Array<number>>([5, 10, 20, 50, 100]);
+  /**
+   * When true (the default), clicking a row emits `clickItem`. VIS sets this
+   * to false so cells can hold real links without the row click stealing them.
+   * The eye button still appears when `clickItem` is subscribed.
+   */
+  rowClickable = input(true);
+  /**
+   * Spacing of the grid chrome. `'comfortable'` is the current Flora /
+   * Waterbirds density. VIS sets `'compact'` for a tighter header, filter
+   * row, filter toolbar, paginator and action columns. `rowHeight` stays a
+   * separate knob.
+   */
+  density = input<InboDataTableDensity>('comfortable');
 
   /**
    * The user moved to another page or changed the page size. Not emitted while
@@ -181,13 +249,17 @@ export class InboDataTableComponent<T extends InboDatatableItem>
    */
   @Output() filterChanged = new EventEmitter<Record<string, string>>();
 
-  protected filterValues: WritableSignal<Record<string, unknown>> = signal({});
-  protected temporaryFilterValues: WritableSignal<Record<string, unknown>> =
-    signal({});
+  protected temporaryFilterValues = linkedSignal<Record<string, unknown>>(
+    () => ({
+      ...this.filterValues(),
+    })
+  );
 
   private internalClientSort: WritableSignal<Sort | undefined> =
     signal(undefined);
   private currentPageIndexForLocalFiltering: WritableSignal<number> = signal(0);
+  private clientPageSizeOverride: WritableSignal<number | undefined> =
+    signal(undefined);
 
   private debouncedApplyFilters = new Subject<string>();
   protected autocompleteOptionStreams: WritableSignal<
@@ -198,7 +270,11 @@ export class InboDataTableComponent<T extends InboDatatableItem>
 
   protected effectivePageSizeForDisplay: Signal<number> = computed(() => {
     if (this.clientSideProcessing()) {
-      return this.clientPageSize() ?? this.DEFAULT_CLIENT_PAGE_SIZE;
+      return (
+        this.clientPageSizeOverride() ??
+        this.clientPageSize() ??
+        this.DEFAULT_CLIENT_PAGE_SIZE
+      );
     }
     return this.dataPage()?.pageable.pageSize ?? this.DEFAULT_CLIENT_PAGE_SIZE;
   });
@@ -298,6 +374,12 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     });
 
     effect(() => {
+      this.clientSideProcessing();
+      this.clientPageSize();
+      this.clientPageSizeOverride.set(undefined);
+    });
+
+    effect(() => {
       // Effect to reset local pagination if data source changes during client-side processing
       this.dataPage(); // Depend on dataPage
       if (this.clientSideProcessing()) {
@@ -323,6 +405,10 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     if (!config) {
       return [];
     }
+
+    const projectedByKey = new Map(
+      this.projectedCells().map(cell => [cell.columnKey(), cell.template])
+    );
 
     return (
       Object.entries(config) as Array<
@@ -355,6 +441,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
         styles,
         sortId,
         stickyEnd: safeColumn.stickyEnd ?? false,
+        projectedCellTemplate: projectedByKey.get(key),
       };
     });
   });
@@ -376,6 +463,9 @@ export class InboDataTableComponent<T extends InboDatatableItem>
     }
     if (this.deleteItem.observed) {
       actionColumns.push(this.DELETE_COLUMN);
+    }
+    if (this.actionsTemplate()) {
+      actionColumns.push(this.ACTIONS_COLUMN);
     }
     return [...configColumns, ...actionColumns];
   });
@@ -525,6 +615,12 @@ export class InboDataTableComponent<T extends InboDatatableItem>
       return;
     }
     this.clickItem.emit(dataItem);
+  }
+
+  protected onRowClick(dataItem: T): void {
+    if (this.rowClickable()) {
+      this.clickItem.emit(dataItem);
+    }
   }
 
   protected updateTemporaryFilter(columnKey: string, value: unknown): void {
@@ -806,6 +902,7 @@ export class InboDataTableComponent<T extends InboDatatableItem>
   protected handlePageEvent(event: PageEvent): void {
     if (this.clientSideProcessing()) {
       this.currentPageIndexForLocalFiltering.set(event.pageIndex);
+      this.clientPageSizeOverride.set(event.pageSize);
     } else {
       this.pageChange.emit(event);
     }

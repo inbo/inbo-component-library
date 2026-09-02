@@ -2,6 +2,52 @@
   position: relative;
 }
 
+:host.inbo-table-density-compact {
+  --mat-table-header-container-height: 40px;
+  --mat-table-footer-container-height: 36px;
+  --mat-table-row-item-container-height: 40px;
+  --mat-paginator-container-size: 40px;
+  --mat-icon-button-state-layer-size: 32px;
+  --mat-icon-button-touch-target-size: 32px;
+  --mdc-icon-button-state-layer-size: 32px;
+  --mat-form-field-container-height: 40px;
+  --mat-form-field-container-vertical-padding: 8px;
+  --mat-form-field-filled-with-label-container-padding-top: 16px;
+  --mat-form-field-filled-with-label-container-padding-bottom: 8px;
+
+  .mat-column-editColumn,
+  .mat-column-deleteColumn,
+  .mat-column-detailColumn,
+  .mat-column-actionsColumn {
+    width: 40px;
+    max-width: 40px;
+    padding: 0 4px;
+  }
+
+  .mat-mdc-icon-button.mat-mdc-button-base {
+    --mat-icon-button-state-layer-size: 32px;
+    --mdc-icon-button-state-layer-size: 32px;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+  }
+}
+
+.table-filter-toolbar:not(:has(*)) {
+  display: none;
+}
+
+.table-filter-toolbar:has(*) {
+  padding: 16px 24px 0;
+  margin-bottom: 8px;
+  background: #f9fafb;
+
+  &.compact-toolbar {
+    padding: 8px 16px 0;
+    margin-bottom: 4px;
+  }
+}
+
 .info-message-container {
   display: flex;
   flex-direction: column;
@@ -22,7 +68,8 @@
 
 .mat-column-editColumn,
 .mat-column-deleteColumn,
-.mat-column-detailColumn {
+.mat-column-detailColumn,
+.mat-column-actionsColumn {
   padding: 8px;
   width: 64px;
   max-width: 64px;
@@ -116,6 +163,39 @@
         padding-bottom: 0;
         margin-bottom: 8px;
       }
+    }
+  }
+
+  &.compact-header {
+    .header-content {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    .column-name.no-filter-border {
+      margin-bottom: 0;
+    }
+  }
+
+  &.compact-filters {
+    --mat-form-field-filled-label-display: none;
+
+    .header-content {
+      padding-top: 4px;
+      padding-bottom: 0;
+    }
+
+    .column-name {
+      padding-bottom: 2px;
+      margin-bottom: 0;
+    }
+
+    .filter-control-wrapper {
+      padding: 2px 0 4px;
+    }
+
+    .filter-input-field {
+      margin: 0 4px;
     }
   }
 }

@@ -120,6 +120,11 @@ const meta: Meta<InboDataTableComponent<Observation>> = {
       options: Object.values(RequestState),
     },
     rowHeight: { control: 'text' },
+    hidePageSize: { control: 'boolean' },
+    rowClickable: { control: 'boolean' },
+    density: { control: 'select', options: ['comfortable', 'compact'] },
+    pageSizeOptions: { control: 'object' },
+    filterValues: { control: 'object' },
     dataPage: { control: false },
     columnConfiguration: { control: false },
     pageChange: { action: 'pageChange' },
@@ -140,6 +145,65 @@ export const Default: Story = {};
 export const Sorted: Story = {
   args: {
     sort: { active: 'species', direction: 'asc' },
+  },
+};
+
+export const RestoredFilters: Story = {
+  args: {
+    filterValues: { species: 'Baars' },
+  },
+};
+
+export const PageSizeSelector: Story = {
+  args: {
+    hidePageSize: false,
+    pageSizeOptions: [20, 50, 100],
+    clientPageSize: 20,
+  },
+};
+
+export const RowClickDisabled: Story = {
+  args: {
+    rowClickable: false,
+  },
+};
+
+export const Compact: Story = {
+  args: {
+    density: 'compact',
+    rowHeight: '40px',
+    hidePageSize: false,
+    pageSizeOptions: [20, 50, 100],
+    columnConfiguration: {
+      species: {
+        name: 'Soort',
+        sortable: true,
+        sortablePropertyName: 'species',
+      },
+      location: {
+        name: 'Locatie',
+        sortable: true,
+        sortablePropertyName: 'location',
+      },
+      recordedOn: {
+        name: 'Waargenomen op',
+        sortable: true,
+        sortablePropertyName: 'recordedOn',
+      },
+      validated: {
+        name: 'Gevalideerd',
+        getValue: value => (value ? 'Ja' : 'Nee'),
+      },
+    },
+  },
+};
+
+export const CompactFilters: Story = {
+  args: {
+    density: 'compact',
+    rowHeight: '40px',
+    hidePageSize: false,
+    pageSizeOptions: [20, 50, 100],
   },
 };
 
