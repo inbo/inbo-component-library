@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for
 commit guidelines.
 
+## [4.1.0](https://github.com/inbo/inbo-component-library/compare/v4.0.0...v4.1.0) (2026-09-03)
+
+
+### Features
+
+* **data-table:** add striped rows and muted header variant ([ce810df](https://github.com/inbo/inbo-component-library/commit/ce810dfdc9d21668c1ec19ca229ef4d95b16b57a))
+* **data-table:** add striped rows and muted header variant ([21b3caa](https://github.com/inbo/inbo-component-library/commit/21b3caa1fbb02dfac5d7823a02d5eb8f42b3e254))
+
 ## [4.0.0](https://github.com/inbo/inbo-component-library/compare/v3.1.0...v4.0.0) (2026-09-02)
 
 
