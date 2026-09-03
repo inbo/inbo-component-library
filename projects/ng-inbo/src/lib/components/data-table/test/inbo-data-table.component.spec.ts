@@ -455,6 +455,34 @@ describe('InboDataTableComponent density', () => {
     expect(header!.classList.contains('compact-header')).toBeTrue();
   });
 
+  it('centres header labels vertically when no column is filterable', () => {
+    fixture.detectChanges();
+
+    const header = fixture.nativeElement.querySelector(
+      'th.data-table-header-cell'
+    ) as HTMLElement;
+    expect(header.classList.contains('no-filters')).toBeTrue();
+    expect(getComputedStyle(header).verticalAlign).toBe('middle');
+  });
+
+  it('top-aligns header labels when a column is filterable', () => {
+    fixture.componentRef.setInput('columnConfiguration', {
+      name: {
+        name: 'Name',
+        filterable: true,
+        filterType: FilterType.Text,
+        filterMode: FilterMode.Local,
+      },
+    } satisfies InboDataTableColumnConfiguration<TestRow>);
+    fixture.detectChanges();
+
+    const header = fixture.nativeElement.querySelector(
+      'th.data-table-header-cell'
+    ) as HTMLElement;
+    expect(header.classList.contains('no-filters')).toBeFalse();
+    expect(getComputedStyle(header).verticalAlign).toBe('top');
+  });
+
   it('keeps a compact filter row when density is compact and a column is filterable', () => {
     fixture.componentRef.setInput('density', 'compact');
     fixture.componentRef.setInput('columnConfiguration', {
@@ -474,6 +502,101 @@ describe('InboDataTableComponent density', () => {
     expect(header!.classList.contains('compact-header')).toBeFalse();
     expect(header!.classList.contains('compact-filters')).toBeTrue();
     expect(header!.querySelector('.filter-control-wrapper')).not.toBeNull();
+  });
+});
+
+describe('InboDataTableComponent striped rows', () => {
+  let fixture: ComponentFixture<InboDataTableComponent<TestRow>>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [InboDataTableComponent],
+      providers: [provideNoopAnimations()],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(InboDataTableComponent<TestRow>);
+    fixture.componentRef.setInput('dataPage', actionRows);
+    fixture.componentRef.setInput('dataRequestState', RequestState.SUCCESS);
+    fixture.componentRef.setInput('columnConfiguration', {
+      name: { name: 'Name' },
+    } satisfies InboDataTableColumnConfiguration<TestRow>);
+  });
+
+  function rowBackgrounds(): Array<string> {
+    return Array.from(
+      fixture.nativeElement.querySelectorAll(
+        'tr[mat-row]'
+      ) as NodeListOf<HTMLElement>
+    ).map(row => getComputedStyle(row).backgroundColor);
+  }
+
+  it('does not add the striped host class by default', () => {
+    fixture.detectChanges();
+    expect(
+      fixture.nativeElement.classList.contains('inbo-table-striped')
+    ).toBeFalse();
+  });
+
+  it('leaves every row the same colour by default', () => {
+    fixture.detectChanges();
+    const [first, second] = rowBackgrounds();
+    expect(first).toBe(second);
+  });
+
+  it('adds the striped host class when striped is true', () => {
+    fixture.componentRef.setInput('striped', true);
+    fixture.detectChanges();
+    expect(
+      fixture.nativeElement.classList.contains('inbo-table-striped')
+    ).toBeTrue();
+  });
+
+  it('shades every other row when striped is true', () => {
+    fixture.componentRef.setInput('striped', true);
+    fixture.detectChanges();
+    const [first, second] = rowBackgrounds();
+    expect(first).not.toBe(second);
+  });
+});
+
+describe('InboDataTableComponent variant', () => {
+  let fixture: ComponentFixture<InboDataTableComponent<TestRow>>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [InboDataTableComponent],
+      providers: [provideNoopAnimations()],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(InboDataTableComponent<TestRow>);
+    fixture.componentRef.setInput('dataPage', page);
+    fixture.componentRef.setInput('dataRequestState', RequestState.SUCCESS);
+    fixture.componentRef.setInput('columnConfiguration', {
+      name: { name: 'Name' },
+    } satisfies InboDataTableColumnConfiguration<TestRow>);
+  });
+
+  function columnName(): HTMLElement {
+    return fixture.nativeElement.querySelector(
+      'th.data-table-header-cell .column-name'
+    ) as HTMLElement;
+  }
+
+  it('does not add the muted host class by default', () => {
+    fixture.detectChanges();
+    expect(
+      fixture.nativeElement.classList.contains('inbo-table-variant-muted')
+    ).toBeFalse();
+    expect(getComputedStyle(columnName()).textTransform).toBe('none');
+  });
+
+  it('adds the muted host class and uppercases header labels when variant is muted', () => {
+    fixture.componentRef.setInput('variant', 'muted');
+    fixture.detectChanges();
+    expect(
+      fixture.nativeElement.classList.contains('inbo-table-variant-muted')
+    ).toBeTrue();
+    expect(getComputedStyle(columnName()).textTransform).toBe('uppercase');
   });
 });
 

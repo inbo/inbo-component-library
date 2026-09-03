@@ -58,6 +58,7 @@ export interface InboDatatableItem {
 }
 
 export type InboDataTableDensity = 'comfortable' | 'compact';
+export type InboDataTableVariant = 'default' | 'muted';
 
 interface InboDataTableDisplayColumnViewModel<T extends InboDatatableItem> {
   key: keyof T & string;
@@ -98,7 +99,8 @@ interface InboDataTableDisplayColumnViewModel<T extends InboDatatableItem> {
  * VIS in-grid links, pills, and composite cells. Import
  * `InboTableCellDirective` next to the table. `columnConfiguration.cellTemplate`
  * stays for Waterbirds. Set `density="compact"` for VIS-tight chrome;
- * Flora and Waterbirds keep `'comfortable'`.
+ * Flora and Waterbirds keep `'comfortable'`. Set `striped` to shade every
+ * other row and `variant="muted"` for the VIS header treatment.
  */
 @Component({
   selector: 'inbo-data-table',
@@ -108,6 +110,8 @@ interface InboDataTableDisplayColumnViewModel<T extends InboDatatableItem> {
   standalone: true,
   host: {
     '[class.inbo-table-density-compact]': 'density() === "compact"',
+    '[class.inbo-table-striped]': 'striped()',
+    '[class.inbo-table-variant-muted]': 'variant() === "muted"',
   },
   imports: [
     MatProgressSpinnerModule,
@@ -215,6 +219,21 @@ export class InboDataTableComponent<T extends InboDatatableItem>
    * separate knob.
    */
   density = input<InboDataTableDensity>('comfortable');
+  /**
+   * Shades every other body row (zebra striping). Off by default. The stripe
+   * colour is the `--inbo-table-stripe-color` CSS variable, which consumers
+   * may override on the host.
+   */
+  striped = input(false);
+  /**
+   * Visual treatment of the header. `'default'` is the plain Material look
+   * Flora and Waterbirds use. `'muted'` renders small uppercase, letter-spaced
+   * grey header labels on a light header band with softer row outlines — the
+   * VIS overview style. Both variants read `--inbo-table-header-background`,
+   * `--inbo-table-toolbar-background` and `--inbo-table-stripe-color`, so an
+   * app can fine-tune colours without a new flag.
+   */
+  variant = input<InboDataTableVariant>('default');
 
   /**
    * The user moved to another page or changed the page size. Not emitted while

@@ -1,0 +1,24 @@
+@use '@angular/material' as mat;
+
+/// Global styles the data table needs but cannot emit from its own encapsulated
+/// stylesheet. Included by `inbo-theme.scss`; apps that build their own Material
+/// theme (VIS) include it next to `mat.all-component-themes`:
+///
+///   @use '@inbo/ng-inbo/styles/inbo-theme/partials/data-table' as inbo-table;
+///   @include inbo-table.data-table-theme();
+@mixin data-table-theme() {
+  // Compact action columns are 40px wide, sized for 32px icon buttons. Material
+  // pins its 48px size on the button itself, so the table's host variables can't
+  // reach it, and the component stylesheet can't reach buttons projected through
+  // `inboTableActions`. Material's density mixin sets size and padding together so
+  // the icon stays centred in the hover ring.
+  inbo-data-table.inbo-table-density-compact
+    :is(
+      .mat-column-editColumn,
+      .mat-column-deleteColumn,
+      .mat-column-detailColumn,
+      .mat-column-actionsColumn
+    ) {
+    @include mat.icon-button-density(-4);
+  }
+}

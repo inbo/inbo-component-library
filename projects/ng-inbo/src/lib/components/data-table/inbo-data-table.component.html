@@ -45,6 +45,7 @@
                 *matHeaderCellDef
                 [ngStyle]="displayedColumn.styles"
                 class="data-table-header-cell"
+                [class.no-filters]="!hasAnyFilterableColumn()"
                 [class.compact-header]="
                   density() === 'compact' && !hasAnyFilterableColumn()
                 "
