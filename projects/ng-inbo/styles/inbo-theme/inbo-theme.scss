@@ -1,6 +1,8 @@
 @use '@angular/material' as mat;
+@use 'partials/data-table' as inbo-table;
 @import 'partials/theme';
 @include mat.elevation-classes();
 @include mat.app-background();
 @include mat.typography-hierarchy($flora-web-theme);
 @include mat.all-component-themes($flora-web-theme);
+@include inbo-table.data-table-theme();

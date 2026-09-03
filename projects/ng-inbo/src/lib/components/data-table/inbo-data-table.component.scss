@@ -7,14 +7,16 @@
   --mat-table-footer-container-height: 36px;
   --mat-table-row-item-container-height: 40px;
   --mat-paginator-container-size: 40px;
-  --mat-icon-button-state-layer-size: 32px;
-  --mat-icon-button-touch-target-size: 32px;
-  --mdc-icon-button-state-layer-size: 32px;
   --mat-form-field-container-height: 40px;
   --mat-form-field-container-vertical-padding: 8px;
   --mat-form-field-filled-with-label-container-padding-top: 16px;
   --mat-form-field-filled-with-label-container-padding-bottom: 8px;
 
+  // Sized for 32px icon buttons. The buttons themselves (built-in and projected
+  // through inboTableActions) are shrunk by `data-table-theme()` in
+  // styles/inbo-theme/partials/_data-table.scss, because Material pins its
+  // button size on the element and this stylesheet cannot reach projected
+  // content without ::ng-deep.
   .mat-column-editColumn,
   .mat-column-deleteColumn,
   .mat-column-detailColumn,
@@ -23,13 +25,31 @@
     max-width: 40px;
     padding: 0 4px;
   }
+}
 
-  .mat-mdc-icon-button.mat-mdc-button-base {
-    --mat-icon-button-state-layer-size: 32px;
-    --mdc-icon-button-state-layer-size: 32px;
-    width: 32px;
-    height: 32px;
-    padding: 0;
+// Theming hooks. Each is read with a fallback so an app can set the variable on
+// the host or any ancestor. The muted variant sets its own values on the host.
+//   --inbo-table-header-background   header cell band (default: transparent)
+//   --inbo-table-toolbar-background  projected filter toolbar (default: #f9fafb)
+//   --inbo-table-stripe-color        even body rows when striped (default: #f9fafb)
+
+:host.inbo-table-striped tr[mat-row]:nth-child(even) {
+  background-color: var(--inbo-table-stripe-color, #f9fafb);
+}
+
+// Muted header: small uppercase, letter-spaced grey labels on a light band with
+// softer row outlines. Uses Material's table and sort tokens where they exist.
+:host.inbo-table-variant-muted {
+  --inbo-table-header-background: #f5f6f8;
+  --mat-table-header-headline-color: rgba(0, 0, 0, 0.6);
+  --mat-table-header-headline-size: 12px;
+  --mat-table-header-headline-tracking: 0.06em;
+  --mat-table-row-item-outline-color: rgba(0, 0, 0, 0.08);
+  --mat-sort-arrow-color: rgba(0, 0, 0, 0.6);
+
+  .data-table-header-cell .header-content .column-name {
+    text-transform: uppercase;
+    font-weight: 600;
   }
 }
 
@@ -37,14 +57,16 @@
   display: none;
 }
 
+// The toolbar owns the gap to the table; the table itself has no top margin so
+// there's no stray strip when nothing is projected.
 .table-filter-toolbar:has(*) {
   padding: 16px 24px 0;
-  margin-bottom: 8px;
-  background: #f9fafb;
+  margin-bottom: 16px;
+  background: var(--inbo-table-toolbar-background, #f9fafb);
 
   &.compact-toolbar {
     padding: 8px 16px 0;
-    margin-bottom: 4px;
+    margin-bottom: 12px;
   }
 }
 
@@ -63,7 +85,6 @@
 
 .data-table {
   position: relative;
-  margin-top: 8px;
 }
 
 .mat-column-editColumn,
@@ -139,9 +160,26 @@
   }
 }
 
+// All header cells, including the action columns, so the band has no gaps.
+th[mat-header-cell] {
+  background: var(--inbo-table-header-background, transparent);
+}
+
 .data-table-header-cell {
   vertical-align: top;
   padding: 0;
+
+  // Material hides the sort arrow until hover. Show a faint one on enabled
+  // headers so sortable columns are obvious at rest. Sorted stays full opacity.
+  ::ng-deep
+    .mat-sort-header:not(.mat-sort-header-disabled)
+    .mat-sort-header-arrow {
+    opacity: 0.54;
+  }
+
+  ::ng-deep .mat-sort-header .mat-sort-header-sorted .mat-sort-header-arrow {
+    opacity: 1;
+  }
 
   .header-content {
     display: flex;
@@ -152,6 +190,9 @@
 
     .column-name {
       display: block;
+      // Keep labels on one line so the sort arrow stays beside the text and
+      // the divider lines up across columns. Wide tables scroll horizontally.
+      white-space: nowrap;
       padding-left: 16px;
       padding-bottom: 4px;
       margin-bottom: 4px;
@@ -166,14 +207,22 @@
     }
   }
 
-  &.compact-header {
+  // Top alignment only matters when filter inputs make some cells taller than
+  // others. Without any filters, centre the label in the header row instead of
+  // pinning it to the top edge.
+  &.no-filters {
+    vertical-align: middle;
+
     .header-content {
       padding-top: 0;
       padding-bottom: 0;
-    }
 
-    .column-name.no-filter-border {
-      margin-bottom: 0;
+      // Nested under .header-content on purpose: the base rule above has three
+      // compounds and Angular's scoping attribute on each, so a shorter
+      // selector loses on specificity.
+      .column-name.no-filter-border {
+        margin-bottom: 0;
+      }
     }
   }
 

@@ -30,6 +30,15 @@ export class AppModule {}
 ]
 ```
 
+If your app builds its own Angular Material theme instead of using
+`inbo-theme.scss`, also include the data table's global styles next to
+`mat.all-component-themes`:
+
+```scss
+@use '@inbo/ng-inbo/styles/inbo-theme/partials/data-table' as inbo-table;
+@include inbo-table.data-table-theme();
+```
+
 ## Components
 
 - **Data Table** - Feature-rich table component with sorting, filtering, and pagination

@@ -123,6 +123,8 @@ const meta: Meta<InboDataTableComponent<Observation>> = {
     hidePageSize: { control: 'boolean' },
     rowClickable: { control: 'boolean' },
     density: { control: 'select', options: ['comfortable', 'compact'] },
+    striped: { control: 'boolean' },
+    variant: { control: 'select', options: ['default', 'muted'] },
     pageSizeOptions: { control: 'object' },
     filterValues: { control: 'object' },
     dataPage: { control: false },
@@ -165,6 +167,29 @@ export const PageSizeSelector: Story = {
 export const RowClickDisabled: Story = {
   args: {
     rowClickable: false,
+  },
+};
+
+export const Striped: Story = {
+  args: {
+    striped: true,
+  },
+};
+
+export const Muted: Story = {
+  args: {
+    variant: 'muted',
+  },
+};
+
+/** The VIS overview look: muted header, zebra rows, compact chrome. */
+export const MutedCompactStriped: Story = {
+  args: {
+    variant: 'muted',
+    striped: true,
+    density: 'compact',
+    rowHeight: '40px',
+    sort: { active: 'species', direction: 'asc' },
   },
 };
 
