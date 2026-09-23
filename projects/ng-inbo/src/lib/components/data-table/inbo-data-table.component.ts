@@ -1,20 +1,16 @@
 import { AsyncPipe, NgStyle, NgTemplateOutlet } from '@angular/common';
 import {
-  AfterViewChecked,
   ChangeDetectionStrategy,
   Component,
   computed,
   effect,
-  ElementRef,
   EventEmitter,
   input,
   InputSignal,
   NgZone,
   Output,
-  Renderer2,
   signal,
   Signal,
-  ViewChild,
   WritableSignal,
   inject,
   model,
@@ -29,15 +25,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import {
-  MatPaginator,
-  MatPaginatorModule,
-  PageEvent,
-} from '@angular/material/paginator';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSortModule, Sort } from '@angular/material/sort';
-import { MatTable, MatTableModule } from '@angular/material/table';
+import { MatTableModule } from '@angular/material/table';
 import { Observable, of, Subject } from 'rxjs';
 import { catchError, debounceTime } from 'rxjs/operators';
 import { ApiPage } from '../../services/api/api-page.model';
@@ -133,17 +125,8 @@ interface InboDataTableDisplayColumnViewModel<T extends InboDatatableItem> {
     InboTableCellDirective,
   ],
 })
-export class InboDataTableComponent<T extends InboDatatableItem>
-  implements AfterViewChecked
-{
-  private renderer = inject(Renderer2);
+export class InboDataTableComponent<T extends InboDatatableItem> {
   private zone = inject(NgZone);
-
-  @ViewChild(MatTable, { static: false }) protected tableRef: MatTable<T>;
-  @ViewChild(MatTable, { static: false, read: ElementRef })
-  protected tableElementRef: ElementRef<HTMLTableElement>;
-  @ViewChild(MatPaginator, { static: false, read: ElementRef })
-  protected paginatorElementRef: ElementRef<HTMLElement>;
 
   protected readonly RequestState = RequestState;
   protected readonly DETAIL_COLUMN = 'detailColumn';
@@ -234,6 +217,11 @@ export class InboDataTableComponent<T extends InboDatatableItem>
    * app can fine-tune colours without a new flag.
    */
   variant = input<InboDataTableVariant>('default');
+  /**
+   * Accessible name for the focusable horizontal scroll region. Override this
+   * when the surrounding page has a more specific table name.
+   */
+  scrollContainerAriaLabel = input('Tabel, horizontaal scrollbaar');
 
   /**
    * The user moved to another page or changed the page size. Not emitted while
@@ -883,39 +871,6 @@ export class InboDataTableComponent<T extends InboDatatableItem>
       });
     });
     return filtered;
-  }
-
-  ngAfterViewChecked(): void {
-    this.updatePaginatorWidth();
-  }
-
-  private updatePaginatorWidth(): void {
-    if (
-      this.tableElementRef &&
-      this.paginatorElementRef &&
-      this.dataPage()?.content?.length > 0
-    ) {
-      const tableScrollWidth = this.tableElementRef.nativeElement.scrollWidth;
-      const currentMinWidth =
-        this.paginatorElementRef.nativeElement.style.minWidth;
-      const newMinWidth = `${tableScrollWidth}px`;
-
-      if (currentMinWidth !== newMinWidth) {
-        this.renderer.setStyle(
-          this.paginatorElementRef.nativeElement,
-          'min-width',
-          newMinWidth
-        );
-      }
-    } else if (this.paginatorElementRef) {
-      if (this.paginatorElementRef.nativeElement.style.minWidth !== 'auto') {
-        this.renderer.setStyle(
-          this.paginatorElementRef.nativeElement,
-          'min-width',
-          'auto'
-        );
-      }
-    }
   }
 
   protected handlePageEvent(event: PageEvent): void {
