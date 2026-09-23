@@ -127,6 +127,7 @@ const columnConfiguration: InboDataTableColumnConfiguration<Project> = {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 12px;
       padding-bottom: 16px;
       margin-bottom: 16px;
       border-bottom: 1px solid rgba(0, 0, 0, 0.08);
@@ -171,6 +172,34 @@ const columnConfiguration: InboDataTableColumnConfiguration<Project> = {
 
       button[mat-stroked-button] {
         height: 40px;
+      }
+    }
+
+    @media (max-width: 767.98px) {
+      :host {
+        padding: 12px;
+      }
+
+      .page-header {
+        align-items: flex-start;
+        flex-wrap: wrap;
+
+        .actions {
+          flex-shrink: 0;
+        }
+      }
+
+      form.filters {
+        grid-template-columns: 1fr;
+        padding: 12px;
+
+        .spacer {
+          display: none;
+        }
+
+        button[mat-stroked-button] {
+          width: 100%;
+        }
       }
     }
 
@@ -284,7 +313,7 @@ const meta: Meta<VisOverviewDemo> = {
     docs: {
       description: {
         story:
-          'How the VIS project overview composes the table: `variant="muted"`, `striped`, `density="compact"` with 56px rows, a `widthRems` on the Naam column so long names wrap, the filter card kept as a sibling above the table (projection via `[inboTableFilter]` is optional), a status pill through `inboTableCell`, and a kebab menu through `inboTableActions`.',
+          'How the VIS project overview composes the table: `variant="muted"`, `striped`, `density="compact"` with 56px rows, a `widthRems` on the Naam column so long names wrap, the filter card kept as a sibling above the table (projection via `[inboTableFilter]` is optional), a status pill through `inboTableCell`, and a kebab menu through `inboTableActions`. On narrow screens all columns remain available through horizontal scrolling.',
       },
     },
   },
@@ -295,3 +324,15 @@ export default meta;
 type Story = StoryObj<VisOverviewDemo>;
 
 export const ProjectOverview: Story = {};
+
+export const ProjectOverviewMobileScroll: Story = {
+  parameters: {
+    viewport: { defaultViewport: 'mobile1' },
+    docs: {
+      description: {
+        story:
+          'The filters stack vertically while the complete table remains horizontally scrollable. No columns are hidden or reinterpreted.',
+      },
+    },
+  },
+};

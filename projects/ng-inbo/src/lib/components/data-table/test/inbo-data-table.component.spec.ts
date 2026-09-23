@@ -80,6 +80,22 @@ describe('InboDataTableComponent column options', () => {
     expect(columnViewModels()[0]?.sortId).toBe('customId');
   });
 
+  it('keeps the table and paginator in one intrinsic-width container', () => {
+    setColumns({ name: { name: 'Name' } });
+
+    const scrollContent = fixture.nativeElement.querySelector(
+      '.table-scroll-container'
+    ) as HTMLElement;
+    const table = scrollContent.querySelector('table') as HTMLTableElement;
+    const paginator = scrollContent.querySelector(
+      'mat-paginator'
+    ) as HTMLElement;
+
+    expect(table.parentElement).toBe(scrollContent);
+    expect(paginator.parentElement).toBe(scrollContent);
+    expect(paginator.style.minWidth).toBe('');
+  });
+
   it('uses the column key when sortable is true', () => {
     setColumns({ id: { name: 'ID', sortable: true } });
 

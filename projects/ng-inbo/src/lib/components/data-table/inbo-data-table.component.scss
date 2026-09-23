@@ -85,6 +85,7 @@
 
 .data-table {
   position: relative;
+  width: 100%;
 }
 
 .mat-column-editColumn,
@@ -265,9 +266,24 @@ td[mat-cell] {
   }
 }
 
+.table-overflow-container {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+
+  &:focus-visible {
+    outline: 2px solid var(--mat-sys-primary, currentColor);
+    outline-offset: -2px;
+  }
+}
+
 .table-scroll-container {
   width: max-content;
   min-width: 100%;
-  max-width: 100%;
-  overflow-x: auto;
+
+  > mat-paginator {
+    width: 100%;
+  }
 }

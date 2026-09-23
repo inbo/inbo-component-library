@@ -23,7 +23,11 @@
     </div>
   }
   @default {
-    <div>
+    <div
+      class="table-overflow-container"
+      role="region"
+      [attr.aria-label]="scrollContainerAriaLabel()"
+      tabindex="0">
       <div class="table-scroll-container">
         <table
           mat-table
