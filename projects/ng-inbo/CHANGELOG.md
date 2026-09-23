@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for
 commit guidelines.
 
+## [4.1.1](https://github.com/inbo/inbo-component-library/compare/v4.1.0...v4.1.1) (2026-09-23)
+
+
+### Bug Fixes
+
+* **data-table:** keep paginator aligned during horizontal scrolling ([53ea2a6](https://github.com/inbo/inbo-component-library/commit/53ea2a680fbdbcbc8b1c7f20cd02d011ddb87502))
+* **data-table:** keep paginator aligned during horizontal scrolling ([92910c2](https://github.com/inbo/inbo-component-library/commit/92910c2932a36b85867976058f5225d1624a5f89))
+
 ## [4.1.0](https://github.com/inbo/inbo-component-library/compare/v4.0.0...v4.1.0) (2026-09-03)
 
 
