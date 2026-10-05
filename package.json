@@ -49,7 +49,7 @@
     "@angular/material": "21.2.14",
     "@angular/platform-browser": "21.2.22",
     "@angular/platform-browser-dynamic": "21.2.22",
-    "@angular/router": "21.2.22",
+    "@angular/router": "21.2.24",
     "@types/lodash-es": "4.17.12",
     "copyfiles": "2.4.1",
     "date-fns": "2.30.0",
