@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for
 commit guidelines.
 
+## [5.0.0](https://github.com/inbo/inbo-component-library/compare/v4.1.1...v5.0.0) (2026-10-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* Angular 21 is no longer supported. Consumers must be on Angular 22.
+
+### Features
+
+* upgrade to Angular 22 ([ec896fc](https://github.com/inbo/inbo-component-library/commit/ec896fc68f9ed5aa71db9cc5a2fe8826930b404e))
+
 ## [4.1.1](https://github.com/inbo/inbo-component-library/compare/v4.1.0...v4.1.1) (2026-09-23)
 
 
