@@ -1,4 +1,8 @@
-import { Component, DebugElement } from '@angular/core';
+import {
+  Component,
+  DebugElement,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { By } from '@angular/platform-browser';
@@ -7,6 +11,7 @@ import { InboInputMaskDirective } from './inbo-input-mask.directive';
 @Component({
   standalone: true,
   imports: [ReactiveFormsModule, InboInputMaskDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `<input
     type="text"
     [inboInputMask]="mask"

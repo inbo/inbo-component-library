@@ -1,6 +1,7 @@
 import {
   provideHttpClient,
   withInterceptorsFromDi,
+  withXhr,
 } from '@angular/common/http';
 import { EnvironmentProviders, makeEnvironmentProviders } from '@angular/core';
 import { API_URL } from './injection-tokens.constants';
@@ -14,6 +15,6 @@ export function provideNgInboCore(
 ): EnvironmentProviders {
   return makeEnvironmentProviders([
     { provide: API_URL, useValue: config.apiUrl },
-    provideHttpClient(withInterceptorsFromDi()),
+    provideHttpClient(withXhr(), withInterceptorsFromDi()),
   ]);
 }

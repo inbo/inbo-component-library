@@ -16,6 +16,19 @@ module.exports = tseslint.config(
     ],
     processor: angular.processInlineTemplates,
     rules: {
+      // Angular 22's update migration sets Eager on components that previously
+      // used the old default strategy. That keeps their behavior; this rule
+      // rejects that migration output.
+      '@angular-eslint/prefer-on-push-component-change-detection': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          args: 'after-used',
+          argsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+        },
+      ],
       '@typescript-eslint/array-type': [
         'error',
         {

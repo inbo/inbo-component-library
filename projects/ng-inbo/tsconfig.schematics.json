@@ -1,7 +1,7 @@
 {
   "extends": "./tsconfig.lib.json",
   "compilerOptions": {
-    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
     "lib": ["es2018", "dom"],
     "declaration": true,
     "module": "commonjs",

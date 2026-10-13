@@ -1,4 +1,10 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { InboMenuItem } from './menu-item.model';
 import { MatToolbar } from '@angular/material/toolbar';
 import { MatIcon } from '@angular/material/icon';
@@ -12,6 +18,7 @@ import { NgStringPipesModule } from 'ngx-pipes';
   templateUrl: 'inbo-menu-bar.component.html',
   styleUrls: ['inbo-menu-bar.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatToolbar,
     MatIcon,

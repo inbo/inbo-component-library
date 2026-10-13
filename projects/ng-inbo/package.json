@@ -18,10 +18,10 @@
     "save": "devDependencies"
   },
   "peerDependencies": {
-    "@angular/cdk": ">=21.0.0 <22.0.0",
-    "@angular/common": ">=21.0.0 <22.0.0",
-    "@angular/core": ">=21.0.0 <22.0.0",
-    "@angular/material": ">=21.0.0 <22.0.0",
+    "@angular/cdk": ">=22.0.0 <23.0.0",
+    "@angular/common": ">=22.0.0 <23.0.0",
+    "@angular/core": ">=22.0.0 <23.0.0",
+    "@angular/material": ">=22.0.0 <23.0.0",
     "date-fns": ">=2.29.3 <3.0.0",
     "lodash-es": ">=4.17.21 <5.0.0",
     "ngx-pipes": ">=3.2.2 <4.0.0"

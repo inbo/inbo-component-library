@@ -2,7 +2,6 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
     "outDir": "./dist/out-tsc",
     "forceConsistentCasingInFileNames": true,
     "strict": true,
@@ -14,7 +13,7 @@
     "strictNullChecks": false,
     "sourceMap": true,
     "paths": {
-      "ng-inbo": ["dist/ng-inbo"]
+      "ng-inbo": ["./dist/ng-inbo"]
     },
     "declaration": false,
     "experimentalDecorators": true,
