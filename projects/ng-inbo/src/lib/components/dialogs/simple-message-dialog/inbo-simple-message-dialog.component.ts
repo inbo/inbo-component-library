@@ -1,4 +1,9 @@
-import { Component, inject, output } from '@angular/core';
+import {
+  Component,
+  inject,
+  output,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { MatButton, MatIconButton } from '@angular/material/button';
 import {
   MAT_DIALOG_DATA,
@@ -15,6 +20,7 @@ import { SimpleMessageDialogData } from './simple-message-dialog-data.model';
   templateUrl: 'simple-message-dialog.component.html',
   styleUrls: ['simple-message-dialog.component.scss'],
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
     MatDialogContent,
     MatIcon,

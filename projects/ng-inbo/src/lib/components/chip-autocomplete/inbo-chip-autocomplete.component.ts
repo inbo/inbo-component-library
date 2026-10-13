@@ -6,6 +6,7 @@ import {
   model,
   signal,
   TemplateRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import {
   ControlValueAccessor,
@@ -47,6 +48,7 @@ import { NgTemplateOutlet } from '@angular/common';
       multi: true,
     },
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class InboChipAutocompleteComponent<

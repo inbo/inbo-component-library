@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -29,6 +29,7 @@ interface Product {
     InboAutocompleteComponent,
   ],
   templateUrl: 'autocomplete.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['autocomplete.component.scss'],
 })
 export class AutocompleteComponent {

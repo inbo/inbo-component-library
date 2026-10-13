@@ -58,7 +58,7 @@ jobs:
       - name: Set up Node.js and GitHub Packages
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: '22.12'
+          node-version: '22.23.3'
           registry-url: https://npm.pkg.github.com
           scope: '@inbo'
 
@@ -113,7 +113,7 @@ jobs:
       - name: Set up Node.js and GitHub Packages
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: '22.12'
+          node-version: '22.23.3'
           registry-url: https://npm.pkg.github.com
           scope: '@inbo'
 
@@ -185,7 +185,7 @@ jobs:
       - name: Set up Node.js and GitHub Packages
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: '22.12'
+          node-version: '22.23.3'
           registry-url: https://npm.pkg.github.com
           scope: '@inbo'
 

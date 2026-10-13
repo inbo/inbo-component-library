@@ -34,8 +34,14 @@
           class="data-table"
           [dataSource]="dataForRender()"
           matSort
-          [matSortActive]="activeSortConfigurationForTable()?.active"
-          [matSortDirection]="activeSortConfigurationForTable()?.direction"
+          [matSortActive]="
+            $safeNavigationMigration(activeSortConfigurationForTable()?.active)
+          "
+          [matSortDirection]="
+            $safeNavigationMigration(
+              activeSortConfigurationForTable()?.direction
+            )
+          "
           (matSortChange)="dispatchSortChangeEvent($event)">
           @for (
             displayedColumn of displayColumnViewModels();

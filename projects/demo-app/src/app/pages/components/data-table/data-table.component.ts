@@ -6,6 +6,7 @@ import {
   computed,
   viewChild,
   inject,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -56,6 +57,7 @@ type DemoPageable = ApiPage<DemoItem>['pageable'];
     FormsModule,
   ],
   templateUrl: './data-table.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./data-table.component.scss'],
 })
 export class DataTableComponent {

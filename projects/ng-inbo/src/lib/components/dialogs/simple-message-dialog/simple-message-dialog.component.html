@@ -8,7 +8,8 @@
       <mat-icon>close</mat-icon>
     </button>
   }
-  <mat-dialog-content [innerText]="data?.message"> </mat-dialog-content>
+  <mat-dialog-content [innerText]="$safeNavigationMigration(data?.message)">
+  </mat-dialog-content>
   <mat-dialog-actions class="action-buttons">
     <button mat-button [mat-dialog-close]="false">
       {{ data?.cancelButtonText || 'Annuleren' }}

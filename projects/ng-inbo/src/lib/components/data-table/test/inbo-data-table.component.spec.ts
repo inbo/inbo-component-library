@@ -1,4 +1,10 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  TemplateRef,
+  ViewChild,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { MatSortHeader } from '@angular/material/sort';
@@ -618,6 +624,7 @@ describe('InboDataTableComponent variant', () => {
 
 @Component({
   imports: [InboDataTableComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <inbo-data-table
       [dataPage]="page"
@@ -710,6 +717,7 @@ const actionRows: ApiPage<TestRow> = {
 
 @Component({
   imports: [InboDataTableComponent, InboTableActionsDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <inbo-data-table
       [dataPage]="page"
@@ -795,6 +803,7 @@ describe('InboDataTableComponent row actions', () => {
 
 @Component({
   imports: [InboDataTableComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <inbo-data-table
       [dataPage]="page"
@@ -828,6 +837,7 @@ describe('InboDataTableComponent without row actions', () => {
 
 @Component({
   imports: [InboDataTableComponent, InboTableCellDirective],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <inbo-data-table
       [dataPage]="page"
@@ -894,6 +904,7 @@ describe('InboDataTableComponent cell slots', () => {
 
 @Component({
   imports: [InboDataTableComponent],
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <ng-template #labelTpl let-value let-item="item">
       <span>cell:{{ value }}:{{ item.id }}</span>

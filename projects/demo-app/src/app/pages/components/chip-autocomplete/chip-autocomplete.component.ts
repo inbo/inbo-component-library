@@ -1,4 +1,10 @@
-import { Component, computed, effect, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InboChipAutocompleteComponent } from 'projects/ng-inbo/src/public-api';
 
@@ -19,6 +25,7 @@ interface User {
   standalone: true,
   imports: [FormsModule, InboChipAutocompleteComponent],
   templateUrl: 'chip-autocomplete.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['chip-autocomplete.component.scss'],
 })
 export class ChipAutocompleteComponent {

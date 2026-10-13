@@ -5,6 +5,7 @@ import {
   output,
   ViewEncapsulation,
   inject,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import {
   ControlValueAccessor,
@@ -52,6 +53,7 @@ import { CustomErrorStateMatcher } from '../../utils/custom.error-state-matcher'
       multi: true,
     },
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 export class InboAutocompleteComponent<
