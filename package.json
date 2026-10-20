@@ -91,6 +91,6 @@
     "storybook": "10.5.10",
     "typescript": "6.0.3",
     "typescript-eslint": "8.71.2",
-    "vite": "8.2.2"
+    "vite": "8.2.4"
   }
 }
