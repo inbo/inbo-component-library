@@ -88,7 +88,7 @@
     "ng-packagr": "22.2.4",
     "prettier": "3.5.3",
     "release-please": "17.11.1",
-    "storybook": "10.5.10",
+    "storybook": "10.6.3",
     "typescript": "6.0.3",
     "typescript-eslint": "8.71.2",
     "vite": "8.2.2"
