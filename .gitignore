@@ -41,6 +41,7 @@ testem.log
 # Storybook
 /storybook-static
 /documentation.json
+/debug-storybook.log
 
 # System files
 .DS_Store
