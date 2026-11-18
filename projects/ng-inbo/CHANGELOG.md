@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file. See
 [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for
 commit guidelines.
 
+## [5.0.1](https://github.com/inbo/inbo-component-library/compare/v5.0.0...v5.0.1) (2026-11-18)
+
+
+### Bug Fixes
+
+* **data-table:** let the actions column fit its label ([aaa5e39](https://github.com/inbo/inbo-component-library/commit/aaa5e398ce2d2f63fc2b1c98aaf52dbf9bc6973a))
+* **data-table:** let the actions column fit its label ([13f5328](https://github.com/inbo/inbo-component-library/commit/13f5328298a3eae58469eec9a42b932cb6e64b05))
+
 ## [5.0.0](https://github.com/inbo/inbo-component-library/compare/v4.1.1...v5.0.0) (2026-10-13)
 
 
