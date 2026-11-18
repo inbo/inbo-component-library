@@ -7,11 +7,12 @@
 ///   @use '@inbo/ng-inbo/styles/inbo-theme/partials/data-table' as inbo-table;
 ///   @include inbo-table.data-table-theme();
 @mixin data-table-theme() {
-  // Compact action columns are 40px wide, sized for 32px icon buttons. Material
-  // pins its 48px size on the button itself, so the table's host variables can't
-  // reach it, and the component stylesheet can't reach buttons projected through
-  // `inboTableActions`. Material's density mixin sets size and padding together so
-  // the icon stays centred in the hover ring.
+  // Compact icon buttons in action columns are 32px. The actions column itself
+  // grows with its label. Material pins its 48px size on the button itself, so
+  // the table's host variables can't reach it, and the component stylesheet
+  // can't reach buttons projected through `inboTableActions`. Material's density
+  // mixin sets size and padding together so the icon stays centred in the hover
+  // ring.
   inbo-data-table.inbo-table-density-compact
     :is(
       .mat-column-editColumn,
