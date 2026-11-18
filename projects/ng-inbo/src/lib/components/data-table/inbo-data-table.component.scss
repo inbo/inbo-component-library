@@ -19,11 +19,20 @@
   // content without ::ng-deep.
   .mat-column-editColumn,
   .mat-column-deleteColumn,
-  .mat-column-detailColumn,
-  .mat-column-actionsColumn {
+  .mat-column-detailColumn {
     width: 40px;
     max-width: 40px;
     padding: 0 4px;
+  }
+
+  // One or two text actions must stay readable. The column grows with its
+  // content and stays at least one icon wide; it does not clip a label.
+  .mat-column-actionsColumn {
+    width: auto;
+    min-width: 40px;
+    max-width: none;
+    padding: 0 8px;
+    white-space: nowrap;
   }
 }
 
@@ -90,11 +99,18 @@
 
 .mat-column-editColumn,
 .mat-column-deleteColumn,
-.mat-column-detailColumn,
-.mat-column-actionsColumn {
+.mat-column-detailColumn {
   padding: 8px;
   width: 64px;
   max-width: 64px;
+}
+
+.mat-column-actionsColumn {
+  padding: 8px;
+  width: auto;
+  min-width: 64px;
+  max-width: none;
+  white-space: nowrap;
 }
 
 .action-button {

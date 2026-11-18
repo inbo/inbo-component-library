@@ -83,9 +83,12 @@ interface InboDataTableDisplayColumnViewModel<T extends InboDatatableItem> {
  *
  * Project a per-row actions column with `<ng-template inboTableActions let-row>`.
  * Import `InboTableActionsDirective` next to the table (standalone has no
- * `exports`). The library renders a sticky-end column; the app owns the menu
- * (VIS kebab, links, role checks). The edit / delete / eye columns stay
- * opt-in via their outputs for Flora and Waterbirds.
+ * `exports`). The library renders a sticky-end column that grows to fit its
+ * content, with a one-icon minimum, so a label is never clipped. Show one or
+ * two primary actions inline. From the third action on, keep the primary one
+ * inline and put the rest in a menu. The app owns that content (VIS kebab,
+ * links, role checks). The edit / delete / eye columns stay opt-in via their
+ * outputs for Flora and Waterbirds.
  *
  * Project a named cell with `<ng-template inboTableCell="name" let-row>` —
  * VIS in-grid links, pills, and composite cells. Import

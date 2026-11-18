@@ -136,7 +136,7 @@ const meta: Meta<RowActionsDemo> = {
     docs: {
       description: {
         story:
-          'Apps project a per-row menu with `<ng-template inboTableActions let-row>`. The table owns the sticky column; VIS keeps `vis-dropdown-minimal` and role checks in the app.',
+          'Apps project row actions with `<ng-template inboTableActions let-row>`. The table owns the sticky column and sizes it to the label. Show one or two primary actions inline. From the third on, keep the primary action inline and put the rest in a menu. Do not switch on window width. VIS keeps role checks in the app.',
       },
     },
   },

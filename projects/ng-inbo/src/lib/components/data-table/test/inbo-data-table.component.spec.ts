@@ -723,6 +723,7 @@ const actionRows: ApiPage<TestRow> = {
       [dataPage]="page"
       [dataRequestState]="state"
       [columnConfiguration]="columns"
+      [density]="density"
       (clickItem)="onClick($event)">
       <ng-template inboTableActions let-row>
         <button type="button" [attr.aria-label]="'Open ' + row.name">
@@ -735,6 +736,7 @@ const actionRows: ApiPage<TestRow> = {
 class RowActionsHost {
   page = actionRows;
   state = RequestState.SUCCESS;
+  density: 'comfortable' | 'compact' = 'comfortable';
   columns: InboDataTableColumnConfiguration<TestRow> = {
     name: { name: 'Name' },
   };
@@ -779,6 +781,20 @@ describe('InboDataTableComponent row actions', () => {
     button!.click();
 
     expect(fixture.componentInstance.clicks).toEqual([]);
+  });
+
+  it('lets a compact actions column grow to fit its label', () => {
+    fixture.componentInstance.density = 'compact';
+    fixture.detectChanges();
+
+    const cell = fixture.nativeElement.querySelector(
+      'td.mat-column-actionsColumn'
+    ) as HTMLElement;
+    const style = getComputedStyle(cell);
+
+    expect(style.minWidth).toBe('40px');
+    expect(style.maxWidth).toBe('none');
+    expect(style.whiteSpace).toBe('nowrap');
   });
 
   it('keeps the actions column stuck to the end of the row', async () => {
