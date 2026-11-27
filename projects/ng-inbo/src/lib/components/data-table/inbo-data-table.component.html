@@ -32,6 +32,7 @@
         <table
           mat-table
           class="data-table"
+          [class.has-bounded-column]="hasBoundedColumn()"
           [dataSource]="dataForRender()"
           matSort
           [matSortActive]="
@@ -55,6 +56,11 @@
                 *matHeaderCellDef
                 [ngStyle]="displayedColumn.styles"
                 class="data-table-header-cell"
+                [class.cell-bounded]="displayedColumn.bounded"
+                [class.cell-capped]="displayedColumn.capped"
+                [class.cell-hug]="
+                  hasBoundedColumn() && !displayedColumn.bounded
+                "
                 [class.no-filters]="!hasAnyFilterableColumn()"
                 [class.compact-header]="
                   density() === 'compact' && !hasAnyFilterableColumn()
@@ -304,27 +310,43 @@
               <td
                 mat-cell
                 *matCellDef="let dataItem"
-                [ngStyle]="displayedColumn.styles">
-                @if (displayedColumn.projectedCellTemplate; as cellTpl) {
-                  <ng-container
-                    [ngTemplateOutlet]="cellTpl"
-                    [ngTemplateOutletContext]="{ $implicit: dataItem }" />
-                } @else if (displayedColumn.column.cellTemplate) {
-                  <ng-container
-                    [ngTemplateOutlet]="displayedColumn.column.cellTemplate"
-                    [ngTemplateOutletContext]="{
-                      $implicit: dataItem[displayedColumn.key],
-                      item: dataItem,
-                    }">
-                  </ng-container>
+                [ngStyle]="displayedColumn.styles"
+                [class.cell-bounded]="displayedColumn.bounded"
+                [class.cell-capped]="displayedColumn.capped"
+                [class.cell-hug]="
+                  hasBoundedColumn() && !displayedColumn.bounded
+                ">
+                <ng-template #cellBody>
+                  @if (displayedColumn.projectedCellTemplate; as cellTpl) {
+                    <ng-container
+                      [ngTemplateOutlet]="cellTpl"
+                      [ngTemplateOutletContext]="{ $implicit: dataItem }" />
+                  } @else if (displayedColumn.column.cellTemplate) {
+                    <ng-container
+                      [ngTemplateOutlet]="displayedColumn.column.cellTemplate"
+                      [ngTemplateOutletContext]="{
+                        $implicit: dataItem[displayedColumn.key],
+                        item: dataItem,
+                      }">
+                    </ng-container>
+                  } @else {
+                    {{
+                      displayedColumn.column.getValue
+                        ? displayedColumn.column.getValue(
+                            dataItem[displayedColumn.key]
+                          )
+                        : dataItem[displayedColumn.key]
+                    }}
+                  }
+                </ng-template>
+                @if (displayedColumn.bounded || displayedColumn.capped) {
+                  <div
+                    class="cell-clip"
+                    [attr.title]="cellTitle(dataItem, displayedColumn)">
+                    <ng-container [ngTemplateOutlet]="cellBody" />
+                  </div>
                 } @else {
-                  {{
-                    displayedColumn.column.getValue
-                      ? displayedColumn.column.getValue(
-                          dataItem[displayedColumn.key]
-                        )
-                      : dataItem[displayedColumn.key]
-                  }}
+                  <ng-container [ngTemplateOutlet]="cellBody" />
                 }
               </td>
             </ng-container>

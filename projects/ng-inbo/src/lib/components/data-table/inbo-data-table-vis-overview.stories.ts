@@ -287,6 +287,7 @@ const columnConfiguration: InboDataTableColumnConfiguration<Project> = {
           <mat-menu #menu="matMenu">
             <button mat-menu-item type="button">Detail</button>
             <button mat-menu-item type="button">Bewerken</button>
+            <button mat-menu-item type="button">Waarneming toevoegen</button>
           </mat-menu>
         </ng-template>
       </inbo-data-table>
@@ -313,7 +314,7 @@ const meta: Meta<VisOverviewDemo> = {
     docs: {
       description: {
         story:
-          'How the VIS project overview composes the table: `variant="muted"`, `striped`, `density="compact"` with 56px rows, a `widthRems` on the Naam column so long names wrap, the filter card kept as a sibling above the table (projection via `[inboTableFilter]` is optional), a status pill through `inboTableCell`, and a kebab menu through `inboTableActions`. On narrow screens all columns remain available through horizontal scrolling.',
+          'How the VIS project overview composes the table: `variant="muted"`, `striped`, `density="compact"` with 56px rows, a `widthRems` on the Naam column so long names stay on one line and the full name is the cell title, the filter card kept as a sibling above the table (projection via `[inboTableFilter]` is optional), a status pill through `inboTableCell`, and a kebab menu through `inboTableActions` because the row has more than two actions. On narrow screens all columns remain available through horizontal scrolling.',
       },
     },
   },

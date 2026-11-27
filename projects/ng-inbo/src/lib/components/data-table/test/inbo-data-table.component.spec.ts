@@ -124,7 +124,93 @@ describe('InboDataTableComponent column options', () => {
       },
     });
 
-    expect(columnStyles('id').width).toBe('8rem');
+    expect(columnStyles('id').minWidth).toBe('8rem');
+    expect(columnStyles('id').width).toBeUndefined();
+    expect(columnStyles('id').maxWidth).toBeUndefined();
+  });
+
+  it('clips a width-bounded cell to one line and puts the full value on the title', () => {
+    const longName =
+      'Afvissingen Instituut voor Landbouw- en Visserijonderzoek';
+    fixture.componentRef.setInput('dataPage', {
+      ...page,
+      content: [{ name: longName, id: 1, label: 'One' }],
+    });
+    setColumns({ name: { name: 'Naam', widthRems: 8 } });
+
+    const clip = fixture.nativeElement.querySelector(
+      'td.mat-column-name .cell-clip'
+    ) as HTMLElement;
+    const cell = fixture.nativeElement.querySelector(
+      'td.mat-column-name'
+    ) as HTMLElement;
+
+    expect(clip).not.toBeNull();
+    expect(clip.title).toBe(longName);
+    expect(clip.textContent?.trim()).toBe(longName);
+    expect(getComputedStyle(clip).textOverflow).toBe('ellipsis');
+    expect(getComputedStyle(clip).whiteSpace).toBe('nowrap');
+    expect(cell.style.minWidth).toBe('8rem');
+    expect(cell.style.maxWidth).toBe('');
+    expect(
+      (
+        fixture.nativeElement.querySelector('th.mat-column-name') as HTMLElement
+      ).classList.contains('cell-bounded')
+    ).toBeTrue();
+  });
+
+  it('leaves a column without a width unclipped', () => {
+    setColumns({ name: { name: 'Naam' } });
+
+    expect(fixture.nativeElement.querySelector('.cell-clip')).toBeNull();
+    expect(columnStyles('name').minWidth).toBeUndefined();
+    expect(
+      fixture.nativeElement
+        .querySelector('table')
+        .classList.contains('has-bounded-column')
+    ).toBeFalse();
+  });
+
+  it('gives free space to the bounded column and hugs the others', () => {
+    setColumns({
+      name: { name: 'Naam', widthRems: 8 },
+      label: { name: 'Code' },
+    });
+
+    const table = fixture.nativeElement.querySelector('table') as HTMLElement;
+    const nameCell = fixture.nativeElement.querySelector(
+      'td.mat-column-name'
+    ) as HTMLElement;
+    const codeCell = fixture.nativeElement.querySelector(
+      'td.mat-column-label'
+    ) as HTMLElement;
+
+    expect(table.classList.contains('has-bounded-column')).toBeTrue();
+    expect(nameCell.classList.contains('cell-bounded')).toBeTrue();
+    expect(nameCell.classList.contains('cell-hug')).toBeFalse();
+    expect(codeCell.classList.contains('cell-hug')).toBeTrue();
+    expect(getComputedStyle(codeCell).whiteSpace).toBe('nowrap');
+  });
+
+  it('caps maxWidthRems without letting that column take the free space', () => {
+    setColumns({
+      name: { name: 'Naam', widthRems: 8 },
+      label: { name: 'Code', maxWidthRems: 4 },
+    });
+
+    const codeCell = fixture.nativeElement.querySelector(
+      'td.mat-column-label'
+    ) as HTMLElement;
+
+    expect(codeCell.style.width).toBe('4rem');
+    expect(codeCell.style.maxWidth).toBe('4rem');
+    expect(codeCell.classList.contains('cell-hug')).toBeTrue();
+    expect(codeCell.querySelector('.cell-clip')).not.toBeNull();
+    expect(
+      (
+        fixture.nativeElement.querySelector('td.mat-column-name') as HTMLElement
+      ).classList.contains('cell-bounded')
+    ).toBeTrue();
   });
 
   it('sets stickyEnd on computed view models', () => {
@@ -915,6 +1001,25 @@ describe('InboDataTableComponent cell slots', () => {
     ).map(cell => cell.textContent?.trim());
 
     expect(labels).toEqual(['One', 'Two']);
+  });
+
+  it('clips a projected link with the column and titles the underlying value', () => {
+    fixture.componentInstance.columns = {
+      name: { name: 'Name', widthRems: 8 },
+      label: { name: 'Label' },
+    };
+    fixture.detectChanges();
+
+    const clip = fixture.nativeElement.querySelector(
+      'td.mat-column-name .cell-clip'
+    ) as HTMLElement;
+    const link = clip.querySelector('a');
+
+    expect(link?.textContent?.trim()).toBe('First-1');
+    expect(clip.title).toBe('First');
+    expect(
+      fixture.nativeElement.querySelector('td.mat-column-label .cell-clip')
+    ).toBeNull();
   });
 });
 
