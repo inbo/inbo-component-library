@@ -19,8 +19,18 @@ export enum FilterMode {
 export interface InboDataTableColumn<T> {
   name: string;
   style?: Partial<CSSStyleDeclaration>;
+  /**
+   * Minimum width in pixels. The column grows into free space and clips to one
+   * line. Columns without a width stay as wide as their text.
+   */
   width?: number;
+  /** Minimum width in rem. Same behavior as `width`, which it overrides. */
   widthRems?: number;
+  /**
+   * Maximum width in rem. The column clips and does not grow past this, so one
+   * long token does not take the space a flexible column needs.
+   */
+  maxWidthRems?: number;
   sortable?: boolean;
   stickyEnd?: boolean;
   getValue?: (propertyValue: T) => string;

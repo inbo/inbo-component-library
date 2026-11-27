@@ -57,6 +57,10 @@ interface InboDataTableDisplayColumnViewModel<T extends InboDatatableItem> {
   column: InboDataTableColumn<T[keyof T]>;
   isConfigured: boolean;
   styles: Partial<CSSStyleDeclaration>;
+  /** True when `width` or `widthRems` gives the column a minimum and the free space. */
+  bounded: boolean;
+  /** True when `maxWidthRems` caps the column. It clips and does not grow. */
+  capped: boolean;
   sortId: string | null;
   stickyEnd: boolean;
   projectedCellTemplate?: TemplateRef<{ $implicit: T }>;
@@ -85,10 +89,14 @@ interface InboDataTableDisplayColumnViewModel<T extends InboDatatableItem> {
  * Import `InboTableActionsDirective` next to the table (standalone has no
  * `exports`). The library renders a sticky-end column that grows to fit its
  * content, with a one-icon minimum, so a label is never clipped. Show one or
- * two primary actions inline. From the third action on, keep the primary one
- * inline and put the rest in a menu. The app owns that content (VIS kebab,
- * links, role checks). The edit / delete / eye columns stay opt-in via their
- * outputs for Flora and Waterbirds.
+ * two actions inline. From the third action on, put every action in a menu.
+ * The app owns that content (links, kebab, role checks). The edit / delete /
+ * eye columns stay opt-in via their outputs for Flora and Waterbirds.
+ *
+ * A column with `width` or `widthRems` is at least that wide and takes the
+ * free space in the row. Its text stays on one line and the full value is the
+ * cell title. Columns without a width stay as wide as their text, so a short
+ * code does not stretch while a long name is cut off.
  *
  * Project a named cell with `<ng-template inboTableCell="name" let-row>` —
  * VIS in-grid links, pills, and composite cells. Import
@@ -430,11 +438,24 @@ export class InboDataTableComponent<T extends InboDatatableItem> {
         name: '',
       };
       const styles: Partial<CSSStyleDeclaration> = { ...safeColumn.style };
+      const bounded =
+        safeColumn.width !== undefined || safeColumn.widthRems !== undefined;
+      const capped = safeColumn.maxWidthRems !== undefined;
       if (safeColumn.width !== undefined) {
-        styles.width = `${safeColumn.width}px`;
+        styles.minWidth = `${safeColumn.width}px`;
       }
       if (safeColumn.widthRems !== undefined) {
-        styles.width = `${safeColumn.widthRems}rem`;
+        styles.minWidth = `${safeColumn.widthRems}rem`;
+      }
+      // A fixed width would stop this column from taking the free space, and
+      // the short columns beside it would stretch instead.
+      if (bounded) {
+        delete styles.width;
+        delete styles.maxWidth;
+      }
+      if (capped) {
+        styles.width = `${safeColumn.maxWidthRems}rem`;
+        styles.maxWidth = `${safeColumn.maxWidthRems}rem`;
       }
 
       let sortId: string | null = null;
@@ -449,6 +470,8 @@ export class InboDataTableComponent<T extends InboDatatableItem> {
         column: safeColumn,
         isConfigured,
         styles,
+        bounded,
+        capped,
         sortId,
         stickyEnd: safeColumn.stickyEnd ?? false,
         projectedCellTemplate: projectedByKey.get(key),
@@ -480,6 +503,10 @@ export class InboDataTableComponent<T extends InboDatatableItem> {
     return [...configColumns, ...actionColumns];
   });
 
+  protected readonly hasBoundedColumn = computed(() =>
+    this.displayColumnViewModels().some(column => column.bounded)
+  );
+
   protected getColumnStyles(
     key: keyof Partial<T>
   ): Partial<CSSStyleDeclaration> {
@@ -487,6 +514,26 @@ export class InboDataTableComponent<T extends InboDatatableItem> {
       this.displayColumnViewModels().find(column => column.key === key)
         ?.styles ?? {}
     );
+  }
+
+  /** Plain column value for a capped cell's title. Objects without getValue stay untitled. */
+  protected cellTitle(
+    item: T,
+    column: InboDataTableDisplayColumnViewModel<T>
+  ): string | null {
+    const value = item[column.key];
+    const rendered = column.column.getValue
+      ? column.column.getValue(value)
+      : value;
+    if (
+      typeof rendered === 'string' ||
+      typeof rendered === 'number' ||
+      typeof rendered === 'boolean'
+    ) {
+      const text = String(rendered);
+      return text === '' ? null : text;
+    }
+    return null;
   }
 
   protected getFilterType(key: keyof Partial<T>): FilterType | undefined {

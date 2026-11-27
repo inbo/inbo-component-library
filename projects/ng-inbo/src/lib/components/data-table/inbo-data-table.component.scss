@@ -271,6 +271,40 @@ td[mat-cell] {
   overflow: hidden;
 }
 
+// A column with a minimum takes the leftover width. The others, including the
+// actions column, stay as wide as their text. width: 1px is the preferred
+// size; nowrap content is the real minimum, so a short code does not stretch.
+.data-table.has-bounded-column {
+  th.cell-hug,
+  td.cell-hug,
+  .mat-column-actionsColumn {
+    width: 1px;
+    white-space: nowrap;
+  }
+}
+
+// width: 0 + min-width: 100% keeps the text from widening the column. nowrap
+// and ellipsis clip one line, including an inline link. Block children (a
+// filename stacked on a date) still stack.
+.cell-clip {
+  display: block;
+  box-sizing: border-box;
+  width: 0;
+  min-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.data-table-header-cell.cell-bounded .header-content .column-name,
+.data-table-header-cell.cell-capped .header-content .column-name {
+  box-sizing: border-box;
+  width: 0;
+  min-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .empty-data-row {
   td {
     border-bottom: none;
@@ -295,9 +329,14 @@ td[mat-cell] {
   }
 }
 
+// inline-block plus min-width 100% gives the table a definite width (the
+// viewport) without a percentage column feeding back into max-content. When
+// the columns need more than that, the box grows and the parent scrolls.
+// The paginator lives in this box, so it stays as wide as the table.
 .table-scroll-container {
-  width: max-content;
+  display: inline-block;
   min-width: 100%;
+  vertical-align: top;
 
   > mat-paginator {
     width: 100%;
